@@ -61,21 +61,23 @@ async function main() {
     ];
 
     for (const amenity of amenities) {
-        await prisma.option.upsert({
+        const existingOption = await prisma.option.findFirst({
             where: {
-                optionType_name_parentId: {
-                    optionType: OptionType.AMENITY,
-                    name: amenity,
-                    parentId: null as any
-                }
-            },
-            update: {},
-            create: {
                 optionType: OptionType.AMENITY,
                 name: amenity,
-                isActive: true
+                parentId: null
             }
         });
+
+        if (!existingOption) {
+            await prisma.option.create({
+                data: {
+                    optionType: OptionType.AMENITY,
+                    name: amenity,
+                    isActive: true
+                }
+            });
+        }
     }
 
     console.log('✅ Options created');
