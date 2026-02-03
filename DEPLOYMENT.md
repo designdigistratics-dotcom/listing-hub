@@ -324,3 +324,22 @@ tail -f /var/log/nginx/error.log
 chown -R www-data:www-data /var/www/skillpal
 chmod -R 755 /var/www/skillpal
 ```
+cd /var/www/skillpal
+
+# Pull latest code
+git pull origin main
+
+# If backend changed:
+cd backend
+npm install          # Only if new dependencies
+npm run build
+cd ..
+
+# If frontend changed:
+cd frontend
+npm install          # Only if new dependencies
+npm run build
+cd ..
+
+# Restart apps
+pm2 restart all

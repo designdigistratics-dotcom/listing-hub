@@ -23,9 +23,10 @@ const app = express();
 
 // ==================== Middleware ====================
 
-// Security headers
+// Security headers - disable CSP as Next.js frontend handles its own
 app.use(helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: false, // Next.js manages its own CSP
 }));
 
 // CORS configuration
