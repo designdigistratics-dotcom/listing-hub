@@ -398,7 +398,7 @@ const categoryToOptionType: Record<string, any> = {
 
 router.get('/options/:category', async (req: AuthenticatedRequest, res, next) => {
     try {
-        const category = req.params.category;
+        const category = req.params.category as string;
 
         // Manual handling for project_type
         if (category === 'project_type') {
