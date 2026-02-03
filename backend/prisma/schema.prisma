@@ -1,0 +1,362 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String            @id @default(uuid())
+  email                 String            @unique
+  password              String?
+  role                  AdminRole         @default(ADVERTISER)
+  name                  String?
+  customPermissions     String[]          @default([])
+  isActive              Boolean           @default(true)
+  companyName           String?
+  ownerName             String?
+  phone                 String?
+  address               String?
+  gst                   String?
+  status                String?           @default("active")
+  assignedSalespersonId String?
+  resetToken            String?
+  resetTokenExpiry      DateTime?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  avatar                String?
+  googleId              String?           @unique
+  roleId                String?
+  lastLeadReceivedAt    DateTime?
+  leadFilters           Json?
+  leadsReceivedToday    Int               @default(0)
+  maxLeadsPerDay        Int               @default(0)
+  priority              Int               @default(0)
+  auditLogs             AuditLog[]
+  notes                 InternalNote[]    @relation("NotesAboutUser")
+  createdNotes          InternalNote[]    @relation("NotesCreatedByUser")
+  assignedLeads         Lead[]            @relation("AssignedLeads")
+  packagePurchases      PackagePurchase[]
+  packageRequests       PackageRequest[]
+  projects              Project[]
+  userRole              Role?             @relation(fields: [roleId], references: [id])
+
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  permissions String[]
+  isSystem    Boolean  @default(false)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+
+  @@map("roles")
+}
+
+model PackageDefinition {
+  id             String            @id @default(uuid())
+  name           String
+  durationMonths Int
+  price          Float
+  currency       String            @default("INR")
+  description    String?
+  isActive       Boolean           @default(true)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  purchases      PackagePurchase[]
+  requests       PackageRequest[]
+
+  @@map("package_definitions")
+}
+
+model PackageRequest {
+  id                   String            @id @default(uuid())
+  advertiserId         String
+  packageDefinitionId  String
+  status               String            @default("pending")
+  paymentMode          String?
+  transactionReference String?
+  notes                String?
+  amountPaid           Float?
+  discount             Float?            @default(0)
+  salespersonId        String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  paymentDueDate       DateTime?
+  paymentType          String?
+  pendingAmount        Float?            @default(0)
+  advertiser           User              @relation(fields: [advertiserId], references: [id], onDelete: Cascade)
+  packageDefinition    PackageDefinition @relation(fields: [packageDefinitionId], references: [id])
+
+  @@map("package_requests")
+}
+
+model PackagePurchase {
+  id                   String            @id @default(uuid())
+  advertiserId         String
+  packageDefinitionId  String
+  state                PackageState      @default(UNSTARTED)
+  startDate            DateTime?
+  endDate              DateTime?
+  paymentMode          String?
+  transactionReference String?
+  amountPaid           Float?
+  discount             Float?            @default(0)
+  salespersonId        String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  paymentDueDate       DateTime?
+  paymentType          String?
+  pendingAmount        Float?            @default(0)
+  billingRecords       BillingRecord[]
+  advertiser           User              @relation(fields: [advertiserId], references: [id], onDelete: Cascade)
+  packageDefinition    PackageDefinition @relation(fields: [packageDefinitionId], references: [id])
+  projects             Project[]
+
+  @@map("package_purchases")
+}
+
+model Project {
+  id                 String            @id @default(uuid())
+  advertiserId       String
+  packageId          String
+  name               String
+  builderName        String
+  city               String
+  locality           String
+  propertyType       String
+  unitTypes          String[]
+  budgetMin          Float
+  budgetMax          Float
+  highlights         String[]
+  amenities          String[]
+  images             String[]
+  possessionStatus   String
+  reraId             String?
+  address            String?
+  price              String?
+  priceDetails       String?
+  heroImage          String?
+  projectLogo        String?
+  advertiserLogo     String?
+  status             ProjectStatus     @default(DRAFT)
+  slug               String?           @unique
+  seoTitle           String?
+  seoDescription     String?
+  featuredImage      String?
+  isVisible          Boolean           @default(true)
+  floorPlans         Json[]            @default([])
+  videoUrl           String?
+  builderDescription String?
+  aboutProject       String?
+  reviewComment      String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  leadsCount         Int               @default(0)
+  visits             Int               @default(0)
+  placements         LandingPageSlot[]
+  leads              Lead[]
+  pageVisits         PageVisit[]
+  advertiser         User              @relation(fields: [advertiserId], references: [id], onDelete: Cascade)
+  package            PackagePurchase   @relation(fields: [packageId], references: [id])
+
+  @@map("projects")
+}
+
+model LandingPage {
+  id             String             @id @default(uuid())
+  name           String
+  slug           String             @unique
+  pageType       String
+  city           String
+  locality       String?
+  description    String?
+  seoTitle       String?
+  seoDescription String?
+  heroImage      String?
+  isActive       Boolean            @default(true)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  visits         Int                @default(0)
+  fbAccessToken  String?
+  fbAdAccountId  String?
+  fbPageId       String?
+  fbForms        FacebookLeadForm[]
+  slots          LandingPageSlot[]
+  leads          Lead[]
+  pageVisits     PageVisit[]
+
+  @@map("landing_pages")
+}
+
+model LandingPageSlot {
+  id            String      @id @default(uuid())
+  landingPageId String
+  projectId     String
+  position      Int
+  createdAt     DateTime    @default(now())
+  landingPage   LandingPage @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
+  project       Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([landingPageId, position])
+  @@map("landing_page_slots")
+}
+
+model Lead {
+  id            String       @id @default(uuid())
+  name          String
+  phone         String
+  email         String
+  projectId     String
+  landingPageId String?
+  otpVerified   Boolean      @default(false)
+  utmSource     String?
+  utmMedium     String?
+  utmCampaign   String?
+  createdAt     DateTime     @default(now())
+  assignedToId  String?
+  budget        String?
+  fbLeadId      String?      @unique
+  location      String?
+  projectType   String?
+  propertyType  String?
+  source        String       @default("direct")
+  status        String       @default("unassigned")
+  unitType      String?
+  city          String?
+  assignedTo    User?        @relation("AssignedLeads", fields: [assignedToId], references: [id])
+  landingPage   LandingPage? @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
+  project       Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("leads")
+}
+
+model FacebookLeadForm {
+  id            String      @id
+  name          String
+  landingPageId String
+  createdAt     DateTime    @default(now())
+  landingPage   LandingPage @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
+
+  @@map("facebook_lead_forms")
+}
+
+model BillingRecord {
+  id          String          @id @default(uuid())
+  packageId   String
+  type        String
+  amount      Float
+  discount    Float?          @default(0)
+  paymentMode String?
+  reference   String?
+  createdAt   DateTime        @default(now())
+  description String?
+  package     PackagePurchase @relation(fields: [packageId], references: [id], onDelete: Cascade)
+
+  @@map("billing_records")
+}
+
+model InternalNote {
+  id           String   @id @default(uuid())
+  advertiserId String
+  createdById  String
+  content      String
+  priority     String   @default("normal")
+  createdAt    DateTime @default(now())
+  advertiser   User     @relation("NotesAboutUser", fields: [advertiserId], references: [id], onDelete: Cascade)
+  createdBy    User     @relation("NotesCreatedByUser", fields: [createdById], references: [id])
+
+  @@map("internal_notes")
+}
+
+model Option {
+  id         String     @id @default(uuid())
+  optionType OptionType
+  name       String
+  parentId   String?
+  isActive   Boolean    @default(true)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@unique([optionType, name, parentId])
+  @@map("options")
+}
+
+model OtpRecord {
+  id        String   @id @default(uuid())
+  phone     String   @unique
+  otp       String
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("otp_records")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  action    String
+  userId    String
+  userRole  String
+  details   Json
+  timestamp DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model PageVisit {
+  id            String       @id @default(uuid())
+  landingPageId String?
+  projectId     String?
+  visitorIp     String?
+  userAgent     String?
+  createdAt     DateTime     @default(now())
+  landingPage   LandingPage? @relation(fields: [landingPageId], references: [id])
+  project       Project?     @relation(fields: [projectId], references: [id])
+
+  @@index([landingPageId, createdAt])
+  @@index([projectId, createdAt])
+  @@map("page_visits")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  SUB_ADMIN
+  ACCOUNTS
+  OPS
+  SALES
+  PRODUCT
+  ADVERTISER
+}
+
+enum ProjectStatus {
+  DRAFT
+  SUBMITTED_FOR_REVIEW
+  NEEDS_CHANGES
+  APPROVED_AWAITING_PLACEMENT
+  LIVE
+  EXPIRED
+  REJECTED
+}
+
+enum PackageState {
+  UNSTARTED
+  ACTIVE
+  EXPIRED
+}
+
+enum OptionType {
+  AMENITY
+  UNIT_TYPE
+  CITY
+  LOCATION
+  PROPERTY_TYPE
+  POSSESSION_STATUS
+}
