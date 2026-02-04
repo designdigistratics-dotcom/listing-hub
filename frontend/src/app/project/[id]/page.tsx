@@ -38,7 +38,7 @@ import {
     MessageSquare,
     CheckCircle2,
 } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { OtpInput } from "@/components/ui/otp-input";
 import { toast } from "sonner";
 
@@ -84,7 +84,9 @@ const AMENITY_ICONS: Record<string, any> = {
 
 export default function ProjectPage() {
     const params = useParams();
+    const searchParams = useSearchParams();
     const projectId = params.id as string;
+    const landingPageId = searchParams.get('lp') || undefined;
 
     const [project, setProject] = useState<ProjectData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -130,10 +132,10 @@ export default function ProjectPage() {
 
         if (projectId) {
             fetchProject();
-            // Record visit
-            publicAPI.recordVisit({ projectId }).catch(err => console.error("Error recording visit:", err));
+            // Record visit with both projectId and landingPageId for analytics
+            publicAPI.recordVisit({ projectId, landingPageId }).catch(err => console.error("Error recording visit:", err));
         }
-    }, [projectId]);
+    }, [projectId, landingPageId]);
 
     // OTP Timer
     useEffect(() => {
@@ -267,7 +269,7 @@ export default function ProjectPage() {
                     <Link href="/" className="flex items-center space-x-2">
                         <Building2 className="h-8 w-8 text-primary" />
                         <span className="text-xl font-heading font-bold">
-                            Listing<span className="text-primary">Hub</span>
+                            <span className="text-primary">Topickx</span>
                         </span>
                     </Link>
                     <a
@@ -627,7 +629,7 @@ export default function ProjectPage() {
                         <div className="flex items-center space-x-2">
                             <Building2 className="h-6 w-6 text-primary" />
                             <span className="text-lg font-heading font-bold">
-                                Listing<span className="text-primary">Hub</span>
+                                <span className="text-primary">Topickx</span>
                             </span>
                         </div>
                         <p className="text-sm text-slate-400">
