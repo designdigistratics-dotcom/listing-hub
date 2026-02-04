@@ -18,11 +18,12 @@ const testFast2SMS = async () => {
     try {
         const otp = '123456';
 
-        // Construct Query Params
+        // Construct Query Params for Quick SMS (Fallback)
         const params = new URLSearchParams({
             authorization: FAST2SMS_API_KEY,
-            route: 'otp',
-            variables_values: otp,
+            route: 'q',
+            message: 'Your Skillpal verification code is 123456',
+            language: 'english',
             flash: '0',
             numbers: phone
         });
