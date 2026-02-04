@@ -36,7 +36,12 @@ const testMeraOtp = async () => {
 
         const response = await fetch('https://meraotp.in/api/sendSMS', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Referer': 'https://meraotp.in/',
+                'Origin': 'https://meraotp.in'
+            },
             body: JSON.stringify(payload)
         });
 
