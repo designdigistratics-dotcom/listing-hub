@@ -49,46 +49,35 @@ export const sendOtp = async (phone: string) => {
 
     if (otpEnabled) {
         try {
-            const apiKey = process.env.MERA_OTP_API_KEY;
-            const brandName = process.env.MERA_OTP_BRAND_NAME || 'SkillPal';
-            const senderId = process.env.MERA_OTP_SENDER_ID || 'MRAOTP';
+            const apiKey = process.env.FAST2SMS_API_KEY;
 
             if (!apiKey) {
-                console.error('MERA_OTP_API_KEY is not set in environment variables');
-                if (isProduction) {
-                    console.log(`[production-fallback] OTP for ${cleanPhone}: ${otp}`);
-                    return { message: 'OTP generated (SMS provider not configured)' };
-                } else {
-                    console.log(`[DEV] OTP for ${cleanPhone}: ${otp}`);
-                    return { message: 'OTP logged to console (No API key)' };
-                }
+                console.error('FAST2SMS_API_KEY is not set in environment variables');
+                // Use console log as fallback in Dev, or if explicitly bypassed
+                console.log(`[FALLBACK] OTP for ${phone}: ${otp}`);
+                return;
             }
 
-            const response = await fetch('https://meraotp.in/api/sendSMS', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    apiKey,
-                    mobileNo: cleanPhone,
-                    messageType: 'AUTH_OTP',
-                    brandName,
-                    otp,
-                    senderId
-                })
+            const params = new URLSearchParams({
+                authorization: apiKey,
+                route: 'otp',
+                variables_values: otp,
+                flash: '0',
+                numbers: cleanPhone
             });
 
-            const data: any = await response.json();
+            const response = await fetch(`https://www.fast2sms.com/dev/bulkV2?${params.toString()}`, {
+                method: 'GET'
+            });
 
-            if (response.ok && (data.status === 'Success' || data.success === true)) {
-                console.log(`OTP sent successfully to ${cleanPhone} via MeraOTP`);
+            const data = await response.json() as any;
+
+            if (!data.return) {
+                console.error('Fast2SMS Error:', data);
+                // Fallback to console log so user isn't stuck if SMS fails
+                console.log(`[FAIL-SAFE] OTP for ${phone}: ${otp}`);
             } else {
-                console.error('MeraOTP Error Response:', data);
-                // In non-production, we fallback to console so testing doesn't break
-                if (!isProduction) {
-                    console.log(`[DEV-FALLBACK] OTP for ${cleanPhone}: ${otp}`);
-                } else {
-                    throw new Error(data.message || 'Failed to send SMS via provider');
-                }
+                console.log(`OTP sent successfully via Fast2SMS to ${cleanPhone}`);
             }
         } catch (error) {
             console.error('SMS Sending System Error:', error);

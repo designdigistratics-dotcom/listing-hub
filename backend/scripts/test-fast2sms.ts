@@ -2,6 +2,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+// Key provided by user
 const FAST2SMS_API_KEY = 'I2M0PWgVjA9cqOvmhzQtn4B6GDZlybsLxCaJXH3EoriR7dwFSeMOW6XkPQ58NxYdH0LUmhzKqRaurlwD';
 
 const testFast2SMS = async () => {
@@ -12,24 +13,25 @@ const testFast2SMS = async () => {
         process.exit(1);
     }
 
-    console.log(`🧪 Testing Fast2SMS for ${phone}...`);
+    console.log(`🧪 Testing Fast2SMS (GET) for ${phone}...`);
 
     try {
-        const payload = {
+        const otp = '123456';
+
+        // Construct Query Params
+        const params = new URLSearchParams({
             authorization: FAST2SMS_API_KEY,
-            route: 'q', // Quick SMS route (good for testing)
-            message: 'Your Skillpal verification code is 123456',
-            language: 'english',
-            flash: 0,
-            numbers: phone,
-        };
+            route: 'otp',
+            variables_values: otp,
+            flash: '0',
+            numbers: phone
+        });
 
-        console.log('📦 Sending Payload:', JSON.stringify(payload, null, 2));
+        const url = `https://www.fast2sms.com/dev/bulkV2?${params.toString()}`;
+        console.log('📦 Request URL:', url.replace(FAST2SMS_API_KEY, 'HIDDEN_KEY'));
 
-        const response = await fetch('https://www.fast2sms.com/dev/bulkV2', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+        const response = await fetch(url, {
+            method: 'GET'
         });
 
         const data = await response.json();
