@@ -34,7 +34,7 @@ const testFast2SMS = async () => {
             method: 'GET'
         });
 
-        const data = await response.json();
+        const data = await response.json() as any;
         console.log('📥 Response Status:', response.status);
         console.log('📄 Response Body:', JSON.stringify(data, null, 2));
 
