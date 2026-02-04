@@ -97,8 +97,10 @@ export const advertiserAPI = {
 
     // Leads
     getDirectLeads: () => api.get("/advertiser/leads"),
-    getCommonLeads: () => api.get("/advertiser/common-leads"),
-    getServicingLeads: () => api.get("/advertiser/servicing-leads"),
+    getCommonLeads: (startDate?: string, endDate?: string) =>
+        api.get("/advertiser/common-leads", { params: { startDate, endDate } }),
+    getServicingLeads: (startDate?: string, endDate?: string) =>
+        api.get("/advertiser/servicing-leads", { params: { startDate, endDate } }),
 
     // Options
     getOptions: (category: string) => api.get(`/advertiser/options/${category}`),

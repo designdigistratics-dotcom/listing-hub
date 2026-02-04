@@ -339,7 +339,12 @@ router.get('/leads', async (req: AuthenticatedRequest, res, next) => {
 
 router.get('/common-leads', async (req: AuthenticatedRequest, res, next) => {
     try {
-        const leads = await leadService.getAdvertiserCommonLeads(req.user!.id);
+        const { startDate, endDate } = req.query;
+        const leads = await leadService.getAdvertiserCommonLeads(
+            req.user!.id,
+            startDate as string | undefined,
+            endDate as string | undefined
+        );
         res.json(leads);
     } catch (error) {
         next(error);
@@ -348,7 +353,12 @@ router.get('/common-leads', async (req: AuthenticatedRequest, res, next) => {
 
 router.get('/servicing-leads', async (req: AuthenticatedRequest, res, next) => {
     try {
-        const leads = await leadService.getServicingLeads(req.user!.id);
+        const { startDate, endDate } = req.query;
+        const leads = await leadService.getServicingLeads(
+            req.user!.id,
+            startDate as string | undefined,
+            endDate as string | undefined
+        );
         res.json(leads);
     } catch (error) {
         next(error);

@@ -11,8 +11,11 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { formatDate } from "@/lib/utils";
-import { Users, Search, Phone, Mail, Calendar, Building, CheckCircle2 } from "lucide-react";
+import { Users, Search, Phone, Mail, Calendar, Building, CheckCircle2, Loader2 } from "lucide-react";
+import { subDays, format } from "date-fns";
 
 interface Lead {
     id: string;
@@ -42,21 +45,30 @@ export default function ServicingLeadsPage() {
     const [leads, setLeads] = useState<Lead[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
+    const [dateRange, setDateRange] = useState({
+        startDate: format(subDays(new Date(), 30), "yyyy-MM-dd"),
+        endDate: format(new Date(), "yyyy-MM-dd"),
+    });
+
+    const fetchLeads = async () => {
+        setLoading(true);
+        try {
+            const response = await advertiserAPI.getServicingLeads(dateRange.startDate, dateRange.endDate);
+            setLeads(response.data);
+        } catch (error) {
+            console.error("Error fetching leads:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchLeads = async () => {
-            try {
-                const response = await advertiserAPI.getServicingLeads();
-                setLeads(response.data);
-            } catch (error) {
-                console.error("Error fetching leads:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchLeads();
     }, []);
+
+    const handleApplyFilter = () => {
+        fetchLeads();
+    };
 
     const filteredLeads = leads.filter(
         (lead) =>
@@ -66,22 +78,42 @@ export default function ServicingLeadsPage() {
             lead.project?.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-            </div>
-        );
-    }
-
     return (
         <div className="space-y-6">
             {/* Page Header */}
-            <div>
-                <h1 className="text-2xl md:text-3xl font-heading font-bold">Servicing Leads</h1>
-                <p className="text-muted-foreground mt-1">
-                    Leads assigned to you or uploaded specifically for your follow-up
-                </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl md:text-3xl font-heading font-bold">Servicing Leads</h1>
+                    <p className="text-muted-foreground mt-1">
+                        Leads assigned to you or uploaded specifically for your follow-up
+                    </p>
+                </div>
+                {/* Date Range Filter */}
+                <div className="flex items-end gap-2 bg-white p-2 rounded-lg border shadow-sm">
+                    <div className="grid gap-1">
+                        <Label htmlFor="startDate" className="text-xs">From</Label>
+                        <Input
+                            id="startDate"
+                            type="date"
+                            value={dateRange.startDate}
+                            onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+                            className="h-8 w-36"
+                        />
+                    </div>
+                    <div className="grid gap-1">
+                        <Label htmlFor="endDate" className="text-xs">To</Label>
+                        <Input
+                            id="endDate"
+                            type="date"
+                            value={dateRange.endDate}
+                            onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+                            className="h-8 w-36"
+                        />
+                    </div>
+                    <Button size="sm" onClick={handleApplyFilter} disabled={loading} className="h-8">
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
+                    </Button>
+                </div>
             </div>
 
             {/* Stats */}
@@ -93,7 +125,7 @@ export default function ServicingLeadsPage() {
                                 <Users className="h-5 w-5 text-primary" />
                             </div>
                             <div>
-                                <p className="text-2xl font-bold">{leads.length}</p>
+                                <p className="text-2xl font-bold">{loading ? "..." : leads.length}</p>
                                 <p className="text-sm text-muted-foreground">Total Leads</p>
                             </div>
                         </div>
@@ -107,14 +139,13 @@ export default function ServicingLeadsPage() {
                             </div>
                             <div>
                                 <p className="text-2xl font-bold">
-                                    {leads.filter((l) => l.source === 'manual').length}
+                                    {loading ? "..." : leads.filter((l) => l.source === 'manual').length}
                                 </p>
                                 <p className="text-sm text-muted-foreground">Uploaded</p>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
-                {/* Simplified stats for servicing leads */}
             </div>
 
             {/* Search */}

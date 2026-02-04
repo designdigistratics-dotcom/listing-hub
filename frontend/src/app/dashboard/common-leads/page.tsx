@@ -11,8 +11,11 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { formatDate } from "@/lib/utils";
-import { Users, Search, Phone, Mail, Calendar, Building, Globe } from "lucide-react";
+import { Users, Search, Phone, Mail, Calendar, Building, Globe, Loader2 } from "lucide-react";
+import { subDays, format } from "date-fns";
 
 interface Lead {
     id: string;
@@ -39,21 +42,30 @@ export default function CommonLeadsPage() {
     const [leads, setLeads] = useState<Lead[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
+    const [dateRange, setDateRange] = useState({
+        startDate: format(subDays(new Date(), 30), "yyyy-MM-dd"),
+        endDate: format(new Date(), "yyyy-MM-dd"),
+    });
+
+    const fetchLeads = async () => {
+        setLoading(true);
+        try {
+            const response = await advertiserAPI.getCommonLeads(dateRange.startDate, dateRange.endDate);
+            setLeads(response.data);
+        } catch (error) {
+            console.error("Error fetching leads:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchLeads = async () => {
-            try {
-                const response = await advertiserAPI.getCommonLeads();
-                setLeads(response.data);
-            } catch (error) {
-                console.error("Error fetching leads:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchLeads();
     }, []);
+
+    const handleApplyFilter = () => {
+        fetchLeads();
+    };
 
     const filteredLeads = leads.filter(
         (lead) =>
@@ -62,14 +74,6 @@ export default function CommonLeadsPage() {
             lead.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
             lead.landingPage?.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-            </div>
-        );
-    }
 
     return (
         <div className="space-y-6">
@@ -80,6 +84,32 @@ export default function CommonLeadsPage() {
                     <p className="text-muted-foreground mt-1">
                         All incoming leads from your linked Landing Pages
                     </p>
+                </div>
+                {/* Date Range Filter */}
+                <div className="flex items-end gap-2 bg-white p-2 rounded-lg border shadow-sm">
+                    <div className="grid gap-1">
+                        <Label htmlFor="startDate" className="text-xs">From</Label>
+                        <Input
+                            id="startDate"
+                            type="date"
+                            value={dateRange.startDate}
+                            onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+                            className="h-8 w-36"
+                        />
+                    </div>
+                    <div className="grid gap-1">
+                        <Label htmlFor="endDate" className="text-xs">To</Label>
+                        <Input
+                            id="endDate"
+                            type="date"
+                            value={dateRange.endDate}
+                            onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+                            className="h-8 w-36"
+                        />
+                    </div>
+                    <Button size="sm" onClick={handleApplyFilter} disabled={loading} className="h-8">
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
+                    </Button>
                 </div>
             </div>
 
@@ -92,7 +122,7 @@ export default function CommonLeadsPage() {
                                 <Users className="h-5 w-5 text-primary" />
                             </div>
                             <div>
-                                <p className="text-2xl font-bold">{leads.length}</p>
+                                <p className="text-2xl font-bold">{loading ? "..." : leads.length}</p>
                                 <p className="text-sm text-muted-foreground">Total Leads</p>
                             </div>
                         </div>
@@ -106,14 +136,13 @@ export default function CommonLeadsPage() {
                             </div>
                             <div>
                                 <p className="text-2xl font-bold">
-                                    {leads.filter((l) => l.source === 'facebook').length}
+                                    {loading ? "..." : leads.filter((l) => l.source === 'facebook').length}
                                 </p>
                                 <p className="text-sm text-muted-foreground">Facebook</p>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
-                {/* ... other stats omitted for brevity or kept identical ... */}
             </div>
 
             {/* Search */}

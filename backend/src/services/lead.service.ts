@@ -177,11 +177,23 @@ export const getAllAdvertiserLeads = async (advertiserId: string) => {
 };
 
 // For builder servicing leads - returns ONLY manually uploaded leads
-export const getServicingLeads = async (advertiserId: string) => {
+export const getServicingLeads = async (advertiserId: string, startDate?: string, endDate?: string) => {
+    const dateFilter: any = {};
+    if (startDate) {
+        dateFilter.gte = new Date(startDate);
+    }
+    if (endDate) {
+        // Add 1 day to include the end date fully
+        const end = new Date(endDate);
+        end.setDate(end.getDate() + 1);
+        dateFilter.lte = end;
+    }
+
     return prisma.lead.findMany({
         where: {
             assignedToId: advertiserId,
             source: 'manual',
+            ...(Object.keys(dateFilter).length > 0 && { createdAt: dateFilter }),
         },
         include: {
             project: {
@@ -202,7 +214,7 @@ export const getServicingLeads = async (advertiserId: string) => {
     });
 };
 
-export const getAdvertiserCommonLeads = async (advertiserId: string) => {
+export const getAdvertiserCommonLeads = async (advertiserId: string, startDate?: string, endDate?: string) => {
     // 1. Get all Landing Pages where this advertiser has a project placed
     const projects = await prisma.project.findMany({
         where: { advertiserId },
@@ -211,10 +223,23 @@ export const getAdvertiserCommonLeads = async (advertiserId: string) => {
 
     const lpIds = [...new Set(projects.flatMap(p => p.placements.map(pl => pl.landingPageId)))];
 
+    // Build date filter
+    const dateFilter: any = {};
+    if (startDate) {
+        dateFilter.gte = new Date(startDate);
+    }
+    if (endDate) {
+        // Add 1 day to include the end date fully
+        const end = new Date(endDate);
+        end.setDate(end.getDate() + 1);
+        dateFilter.lte = end;
+    }
+
     // 2. Return all leads from these LPs
     return prisma.lead.findMany({
         where: {
-            landingPageId: { in: lpIds }
+            landingPageId: { in: lpIds },
+            ...(Object.keys(dateFilter).length > 0 && { createdAt: dateFilter }),
         },
         include: {
             project: {
