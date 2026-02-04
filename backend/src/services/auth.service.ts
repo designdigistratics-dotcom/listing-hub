@@ -211,8 +211,8 @@ export const requestPasswordReset = async (email: string) => {
             },
         });
 
-        // In production, send email here
-        console.log(`Password reset requested for ${email}. Token: ${resetToken}`);
+        // In production, send email here (DO NOT log tokens!)
+        console.log(`Password reset requested for ${email}`);
     }
 
     // Always return success to prevent email enumeration

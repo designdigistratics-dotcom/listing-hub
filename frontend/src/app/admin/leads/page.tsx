@@ -79,14 +79,19 @@ export default function AdminLeadsPage() {
     };
 
     const lpLeads = leads.filter(l => l.landingPageId);
+    const directLeads = leads.filter(l => !l.landingPageId);
     const commonLeads = leads.filter(l => l.landingPageId && l.status === 'unassigned');
 
-    const filterFn = (lead: Lead) =>
-        lead.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        lead.phone.includes(searchQuery) ||
-        lead.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        lead.project?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        lead.project?.advertiser?.companyName.toLowerCase().includes(searchQuery.toLowerCase());
+    const filterFn = (lead: Lead) => {
+        const query = searchQuery.toLowerCase();
+        return (
+            (lead.name || '').toLowerCase().includes(query) ||
+            (lead.phone || '').includes(searchQuery) ||
+            (lead.email || '').toLowerCase().includes(query) ||
+            (lead.project?.name || '').toLowerCase().includes(query) ||
+            (lead.project?.advertiser?.companyName || '').toLowerCase().includes(query)
+        );
+    };
 
     const handleExport = (data: Lead[]) => {
         const csvContent = [
@@ -194,14 +199,20 @@ export default function AdminLeadsPage() {
                 </div>
             </div>
 
-            <Tabs defaultValue="lp" className="w-full">
+            <Tabs defaultValue="all" className="w-full">
                 <div className="flex items-center justify-between mb-4 border-b">
                     <TabsList className="bg-transparent h-auto p-0 gap-6">
+                        <TabsTrigger value="all" className="data-[state=active]:border-primary data-[state=active]:bg-transparent border-b-2 border-transparent rounded-none px-0 py-2 text-base font-semibold">
+                            All Leads ({leads.length})
+                        </TabsTrigger>
+                        <TabsTrigger value="direct" className="data-[state=active]:border-primary data-[state=active]:bg-transparent border-b-2 border-transparent rounded-none px-0 py-2 text-base font-semibold">
+                            Direct ({directLeads.length})
+                        </TabsTrigger>
                         <TabsTrigger value="lp" className="data-[state=active]:border-primary data-[state=active]:bg-transparent border-b-2 border-transparent rounded-none px-0 py-2 text-base font-semibold">
-                            Landing Page Leads
+                            Landing Page ({lpLeads.length})
                         </TabsTrigger>
                         <TabsTrigger value="common" className="data-[state=active]:border-primary data-[state=active]:bg-transparent border-b-2 border-transparent rounded-none px-0 py-2 text-base font-semibold">
-                            Common Pool
+                            Common Pool ({commonLeads.length})
                         </TabsTrigger>
                     </TabsList>
 
@@ -215,12 +226,32 @@ export default function AdminLeadsPage() {
                                 className="pl-10 h-9"
                             />
                         </div>
-                        <Button variant="outline" size="sm" onClick={() => handleExport(lpLeads)}>
+                        <Button variant="outline" size="sm" onClick={() => handleExport(leads)}>
                             <Download className="h-4 w-4 mr-2" />
                             Export
                         </Button>
                     </div>
                 </div>
+
+                <TabsContent value="all" className="mt-0">
+                    <Card>
+                        <CardContent className="p-0">
+                            <Table data={leads} />
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                <TabsContent value="direct" className="mt-0">
+                    <Card>
+                        <CardHeader className="pb-4">
+                            <CardTitle className="text-lg">Direct Leads</CardTitle>
+                            <CardDescription>Leads submitted directly on project pages without landing page.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            <Table data={directLeads} />
+                        </CardContent>
+                    </Card>
+                </TabsContent>
 
                 <TabsContent value="lp" className="mt-0">
                     <Card>
