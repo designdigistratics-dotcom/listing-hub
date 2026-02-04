@@ -12,15 +12,15 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ListingHub - Find Your Dream Property",
-  description: "ListingHub is a premium real estate platform connecting buyers with verified property listings across India.",
-  keywords: ["real estate", "property", "apartments", "villas", "India", "buy property"],
-  authors: [{ name: "ListingHub" }],
+  title: "Topickx - Find Your Dream Property",
+  description: "Topickx is a premium real estate platform connecting buyers with verified property listings across India.",
+  keywords: ["real estate", "property", "apartments", "villas", "India", "buy property", "topickx"],
+  authors: [{ name: "Topickx" }],
   openGraph: {
-    title: "ListingHub - Find Your Dream Property",
+    title: "Topickx - Find Your Dream Property",
     description: "Premium real estate platform connecting buyers with verified property listings",
     type: "website",
-    siteName: "ListingHub",
+    siteName: "Topickx",
   },
 };
 

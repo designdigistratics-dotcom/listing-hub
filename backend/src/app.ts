@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
 import path from 'path';
 import dotenv from 'dotenv';
 
@@ -76,7 +77,17 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/api/auth', authRoutes);
+
+// Rate limiting for auth endpoints (prevent brute force)
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10, // 10 requests per window
+    message: { error: 'Too many login attempts, please try again in 15 minutes' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/advertiser', advertiserRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);

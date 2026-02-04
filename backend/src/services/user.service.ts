@@ -348,6 +348,8 @@ export const getAdvertiserById = async (advertiserId: string) => {
             gst: true,
             status: true,
             assignedSalespersonId: true,
+            leadFilters: true,
+            maxLeadsPerDay: true,
             createdAt: true,
             updatedAt: true,
         },
