@@ -348,7 +348,7 @@ export default function PublicLandingPage() {
                                 <Building2 className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <span className="font-bold text-xl text-slate-900">ListingHub</span>
+                                <span className="font-bold text-xl text-slate-900">Topickx</span>
                                 <span className="hidden sm:block text-[10px] text-slate-400 -mt-1">Premium Properties</span>
                             </div>
                         </Link>
@@ -914,12 +914,12 @@ export default function PublicLandingPage() {
                                 <Building2 className="w-6 h-6 text-white" />
                             </div>
                             <div>
-                                <span className="font-bold text-xl">ListingHub</span>
+                                <span className="font-bold text-xl">Topickx</span>
                                 <p className="text-xs text-white/50">Premium Properties Platform</p>
                             </div>
                         </div>
                         <p className="text-sm text-white/50">
-                            © {new Date().getFullYear()} ListingHub. All rights reserved.
+                            © {new Date().getFullYear()} Topickx. All rights reserved.
                         </p>
                     </div>
                 </div>

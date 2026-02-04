@@ -221,7 +221,7 @@ export default async function LandingPage({ params }: Props) {
                             </span>
                         </div>
                         <p className="text-sm text-slate-400">
-                            © {new Date().getFullYear()} ListingHub. All rights reserved.
+                            © {new Date().getFullYear()} Topickx. All rights reserved.
                         </p>
                     </div>
                 </div>

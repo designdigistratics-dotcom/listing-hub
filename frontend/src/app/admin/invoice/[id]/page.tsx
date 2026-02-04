@@ -110,10 +110,9 @@ export default function InvoicePage() {
                                 #{invoice.id.substring(0, 8).toUpperCase()}
                             </p>
                             <div className="mt-4 text-sm text-muted-foreground">
-                                <p className="font-semibold text-foreground">ListingHub Inc.</p>
-                                <p>123 Business Park, Tech City</p>
-                                <p>Bangalore, Karnataka 560100</p>
-                                <p>GSTIN: 29AAAAA0000A1Z5</p>
+                                <p className="font-semibold text-foreground">Topickx</p>
+                                <p>Premium Real Estate Platform</p>
+                                <p>India</p>
                             </div>
                         </div>
                         <div className="text-right">
@@ -219,7 +218,7 @@ export default function InvoicePage() {
                     {/* Footer */}
                     <div className="text-center text-xs text-muted-foreground mt-auto pt-8 border-t">
                         <p className="mb-1">Thank you for your business!</p>
-                        <p>For any queries, please contact support@listinghub.com or +91 98765 43210</p>
+                        <p>For any queries, please contact support@topickx.com</p>
                     </div>
                 </div>
             </div>

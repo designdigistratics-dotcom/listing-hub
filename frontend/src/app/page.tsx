@@ -77,7 +77,7 @@ export default function HomePage() {
                 <Building2 className="w-5 h-5 text-white" />
               </div>
               <span className="font-display font-bold text-xl text-slate-900">
-                ListingHub
+                Topickx
               </span>
             </Link>
 
@@ -247,7 +247,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
-              Why Choose ListingHub?
+              Why Choose Topickx?
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
               Everything you need to advertise your real estate projects
@@ -385,7 +385,7 @@ export default function HomePage() {
           </h2>
           <p className="text-lg text-slate-600 mb-8">
             Join hundreds of developers already getting qualified leads through
-            ListingHub.
+            Topickx.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/register">
@@ -419,11 +419,11 @@ export default function HomePage() {
                 <Building2 className="w-5 h-5 text-white" />
               </div>
               <span className="font-display font-semibold text-lg text-slate-900">
-                ListingHub
+                Topickx
               </span>
             </div>
             <p className="text-sm text-slate-500">
-              © {new Date().getFullYear()} ListingHub. All rights reserved.
+              © {new Date().getFullYear()} Topickx. All rights reserved.
             </p>
           </div>
         </div>

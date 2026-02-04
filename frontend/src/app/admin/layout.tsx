@@ -139,7 +139,7 @@ export default function AdminLayout({
                                 <Building2 className="w-5 h-5 text-white" />
                             </div>
                             <span className="font-display font-semibold text-lg text-slate-900">
-                                ListingHub
+                                Topickx
                             </span>
                         </Link>
                         <button

@@ -167,7 +167,7 @@ export default function ResetPasswordPage() {
                             <Building2 className="w-6 h-6 text-white" />
                         </div>
                         <span className="font-heading text-xl font-bold text-slate-900">
-                            ListingHub
+                            Topickx
                         </span>
                     </Link>
 
