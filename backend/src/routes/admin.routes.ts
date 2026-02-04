@@ -410,7 +410,7 @@ router.get('/advertisers/:id/projects', async (req, res, next) => {
 
 router.get('/advertisers/:id/leads', async (req, res, next) => {
     try {
-        const leads = await leadService.getAdvertiserLeads(req.params.id as string);
+        const leads = await leadService.getAllAdvertiserLeads(req.params.id as string);
         res.json(leads);
     } catch (error) {
         next(error);

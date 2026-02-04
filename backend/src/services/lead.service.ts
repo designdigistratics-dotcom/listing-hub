@@ -151,6 +151,31 @@ export const getAdvertiserLeads = async (advertiserId: string) => {
     });
 };
 
+// For admin page - includes ALL leads (both platform and manual/servicing)
+export const getAllAdvertiserLeads = async (advertiserId: string) => {
+    return prisma.lead.findMany({
+        where: {
+            assignedToId: advertiserId,
+        },
+        include: {
+            project: {
+                select: {
+                    id: true,
+                    name: true,
+                    builderName: true,
+                },
+            },
+            landingPage: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+        },
+        orderBy: { createdAt: 'desc' },
+    });
+};
+
 export const getAdvertiserCommonLeads = async (advertiserId: string) => {
     // 1. Get all Landing Pages where this advertiser has a project placed
     const projects = await prisma.project.findMany({
