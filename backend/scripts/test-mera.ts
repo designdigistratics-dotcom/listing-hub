@@ -40,9 +40,18 @@ const testMeraOtp = async () => {
             body: JSON.stringify(payload)
         });
 
-        const data = await response.json();
-        console.log('📥 Response Status:', response.status);
-        console.log('📄 Response Body:', JSON.stringify(data, null, 2));
+        const validContentType = response.headers.get('content-type')?.includes('application/json');
+
+        if (validContentType) {
+            const data = await response.json();
+            console.log('📥 Response Status:', response.status);
+            console.log('📄 Response Body:', JSON.stringify(data, null, 2));
+        } else {
+            const text = await response.text();
+            console.log('📥 Response Status:', response.status);
+            console.log('📄 Response Body (Text):', text.substring(0, 500)); // First 500 chars
+            console.error('❌ Expected JSON but got HTML/Text. The endpoint might be wrong.');
+        }
 
     } catch (error) {
         console.error('💥 Error:', error);
