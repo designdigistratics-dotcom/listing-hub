@@ -2,8 +2,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Key provided by user
-const FAST2SMS_API_KEY = 'I2M0PWgVjA9cqOvmhzQtn4B6GDZlybsLxCaJXH3EoriR7dwFSeMOW6XkPQ58NxYdH0LUmhzKqRaurlwD';
+// Use Env Var, fallback to hardcoded (but prefer env)
+const FAST2SMS_API_KEY = process.env.FAST2SMS_API_KEY || 'I2M0PWgVjA9cqOvmhzQtn4B6GDZlybsLxCaJXH3EoriR7dwFSeMOW6XkPQ58NxYdH0LUmhzKqRaurlwD';
 
 const testFast2SMS = async () => {
     const phone = process.argv[2];
