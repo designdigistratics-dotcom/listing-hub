@@ -246,7 +246,33 @@ certbot --nginx -d yourdomain.com -d www.yourdomain.com
 certbot renew --dry-run
 ```
 
-Update nginx.conf to use your domain instead of the IP address.
+Update nginx.conf to use your domain instead of the IP address:
+```nginx
+server_name yourdomain.com www.yourdomain.com;
+```
+
+### Important: Update Environment Variables
+After adding a domain, you MUST update your `.env` files on the server:
+
+1. **Backend** (`/var/www/skillpal/backend/.env`):
+   ```bash
+   SERVER_URL=https://yourdomain.com
+   ```
+
+2. **Frontend** (`/var/www/skillpal/frontend/.env.local`):
+   ```bash
+   NEXT_PUBLIC_API_URL=https://yourdomain.com/api
+   NEXT_PUBLIC_SITE_URL=https://yourdomain.com
+   ```
+
+3. **Google OAuth**:
+   Update "Authorized Redirect URIs" in Google Cloud Console to:
+   `https://yourdomain.com/api/auth/google/callback`
+
+4. **Restart Apps**:
+   ```bash
+   pm2 restart all
+   ```
 
 ---
 
