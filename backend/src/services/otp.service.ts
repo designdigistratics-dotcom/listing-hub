@@ -61,7 +61,7 @@ export const sendOtp = async (phone: string) => {
             const params = new URLSearchParams({
                 authorization: apiKey,
                 route: 'q',
-                message: `Your Skillpal verification code is ${otp}`,
+                message: `Your Topickx verification code is ${otp}`,
                 language: 'english',
                 flash: '0',
                 numbers: cleanPhone
