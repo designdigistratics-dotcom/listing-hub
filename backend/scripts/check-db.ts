@@ -19,6 +19,7 @@ async function main() {
         console.log(`- [${p.status}] ${p.name} (ID: ${p.id})`);
         console.log(`  Advertiser: ${p.advertiser.email}`);
         console.log(`  Package: ${p.package.state}`);
+        console.log(`  Images: ${JSON.stringify(p.images)}`);
     });
 
     // 2. Check Active Packages
