@@ -135,6 +135,7 @@ export const createProject = async (
             builderDescription: data.builderDescription,
             aboutProject: data.aboutProject,
             status: ProjectStatus.SUBMITTED_FOR_REVIEW,
+            featuredImage: data.heroImage || (data.images && data.images.length > 0 ? data.images[0] : undefined),
         },
     });
 

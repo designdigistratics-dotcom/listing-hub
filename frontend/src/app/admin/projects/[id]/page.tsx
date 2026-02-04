@@ -137,10 +137,10 @@ export default function ProjectDetailsPage() {
                         <CardTitle>Project Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        {project.featuredImage && (
+                        {(project.featuredImage || project.heroImage || project.images?.[0]) && (
                             <div className="aspect-video w-full rounded-lg overflow-hidden bg-slate-100">
                                 <img
-                                    src={getImageUrl(project.featuredImage)}
+                                    src={getImageUrl(project.featuredImage || project.heroImage || project.images?.[0])}
                                     alt={project.name}
                                     className="w-full h-full object-cover"
                                 />
