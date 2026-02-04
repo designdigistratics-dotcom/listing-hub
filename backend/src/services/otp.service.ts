@@ -60,8 +60,9 @@ export const sendOtp = async (phone: string) => {
 
             const params = new URLSearchParams({
                 authorization: apiKey,
-                route: 'otp',
-                variables_values: otp,
+                route: 'q',
+                message: `Your Skillpal verification code is ${otp}`,
+                language: 'english',
                 flash: '0',
                 numbers: cleanPhone
             });
