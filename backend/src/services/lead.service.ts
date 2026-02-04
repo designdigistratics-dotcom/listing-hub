@@ -176,6 +176,32 @@ export const getAllAdvertiserLeads = async (advertiserId: string) => {
     });
 };
 
+// For builder servicing leads - returns ONLY manually uploaded leads
+export const getServicingLeads = async (advertiserId: string) => {
+    return prisma.lead.findMany({
+        where: {
+            assignedToId: advertiserId,
+            source: 'manual',
+        },
+        include: {
+            project: {
+                select: {
+                    id: true,
+                    name: true,
+                    builderName: true,
+                },
+            },
+            landingPage: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+        },
+        orderBy: { createdAt: 'desc' },
+    });
+};
+
 export const getAdvertiserCommonLeads = async (advertiserId: string) => {
     // 1. Get all Landing Pages where this advertiser has a project placed
     const projects = await prisma.project.findMany({

@@ -348,7 +348,7 @@ router.get('/common-leads', async (req: AuthenticatedRequest, res, next) => {
 
 router.get('/servicing-leads', async (req: AuthenticatedRequest, res, next) => {
     try {
-        const leads = await leadService.getAdvertiserLeads(req.user!.id);
+        const leads = await leadService.getServicingLeads(req.user!.id);
         res.json(leads);
     } catch (error) {
         next(error);
