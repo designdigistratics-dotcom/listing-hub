@@ -52,57 +52,103 @@ export const getAdvertiserPerformance = async (req: Request | any, res: Response
         const start = startDate ? startOfDay(new Date(startDate as string)) : new Date(0);
         const end = endDate ? endOfDay(new Date(endDate as string)) : new Date();
 
-        // 1. Get all projects for this advertiser
+        // 1. Get all projects for this advertiser with their placements
         const projects = await prisma.project.findMany({
             where: { advertiserId },
-            select: { id: true, name: true }
+            select: {
+                id: true,
+                name: true,
+                placements: {
+                    select: {
+                        landingPageId: true,
+                        landingPage: {
+                            select: {
+                                id: true,
+                                name: true,
+                                slug: true,
+                                visits: true
+                            }
+                        }
+                    }
+                }
+            }
         });
 
-        const projectIds = projects.map(p => p.id);
-
-        if (projectIds.length === 0) {
+        if (projects.length === 0) {
             res.json({ data: [] });
             return;
         }
 
-        // 2. Aggregate visits by Landing Page for these projects
-        // We want to see: For Project A, on Landing Page X, how many visits?
-        const stats = await prisma.pageVisit.groupBy({
-            by: ['landingPageId', 'projectId'],
-            where: {
-                projectId: { in: projectIds },
-                createdAt: {
-                    gte: start,
-                    lte: end
-                },
-                landingPageId: { not: null } // Only count visits associated with a LP
-            },
-            _count: {
-                _all: true
+        // 2. Build a map of landing pages with visit counts
+        // Group by landing page and show which projects are on each
+        const lpMap = new Map<string, {
+            landingPage: { id: string; name: string; slug: string; visits: number };
+            projects: { id: string; name: string }[];
+            visits: number;
+        }>();
+
+        for (const project of projects) {
+            for (const placement of project.placements) {
+                const lp = placement.landingPage;
+                if (!lp) continue;
+
+                if (!lpMap.has(lp.id)) {
+                    lpMap.set(lp.id, {
+                        landingPage: lp,
+                        projects: [],
+                        visits: lp.visits || 0
+                    });
+                }
+                lpMap.get(lp.id)!.projects.push({ id: project.id, name: project.name });
             }
-        });
+        }
 
-        // 3. Enrich the data with names
-        const enrichedStats = await Promise.all(stats.map(async (stat) => {
-            if (!stat.landingPageId || !stat.projectId) return null;
+        // 3. If date range is specified, query PageVisit for accurate counts within range
+        if (startDate || endDate) {
+            const lpIds = Array.from(lpMap.keys());
+            if (lpIds.length > 0) {
+                const visitCounts = await prisma.pageVisit.groupBy({
+                    by: ['landingPageId'],
+                    where: {
+                        landingPageId: { in: lpIds },
+                        createdAt: {
+                            gte: start,
+                            lte: end
+                        }
+                    },
+                    _count: { _all: true }
+                });
 
-            const landingPage = await prisma.landingPage.findUnique({
-                where: { id: stat.landingPageId },
-                select: { name: true, slug: true }
-            });
+                // Update visit counts from the query
+                for (const vc of visitCounts) {
+                    if (vc.landingPageId && lpMap.has(vc.landingPageId)) {
+                        lpMap.get(vc.landingPageId)!.visits = vc._count._all;
+                    }
+                }
 
-            const project = projects.find(p => p.id === stat.projectId);
+                // Reset visits to 0 for LPs not in the date range results
+                for (const [lpId, data] of lpMap) {
+                    if (!visitCounts.some(vc => vc.landingPageId === lpId)) {
+                        data.visits = 0;
+                    }
+                }
+            }
+        }
 
-            return {
-                landingPage,
-                project,
-                visits: stat._count._all
-            };
+        // 4. Format response
+        const data = Array.from(lpMap.values()).map(entry => ({
+            landingPage: {
+                name: entry.landingPage.name,
+                slug: entry.landingPage.slug
+            },
+            project: entry.projects.length === 1
+                ? entry.projects[0]
+                : { id: 'multiple', name: `${entry.projects.length} projects` },
+            projects: entry.projects,
+            visits: entry.visits
         }));
 
-        res.json({
-            data: enrichedStats.filter(s => s !== null)
-        });
+        res.json({ data });
 
     } catch (error) {
         console.error("Error fetching performance stats:", error);
