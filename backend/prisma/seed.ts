@@ -60,27 +60,51 @@ async function main() {
         'Power Backup', 'WiFi', 'Parking'
     ];
 
-    for (const amenity of amenities) {
-        const existingOption = await prisma.option.findFirst({
-            where: {
-                optionType: OptionType.AMENITY,
-                name: amenity,
-                parentId: null
-            }
-        });
+    const propertyTypes = [
+        'Apartment', 'Villa', 'Plot', 'Independent Floor', 'Commercial', 'Office Space'
+    ];
 
-        if (!existingOption) {
-            await prisma.option.create({
-                data: {
-                    optionType: OptionType.AMENITY,
-                    name: amenity,
-                    isActive: true
+    const possessionStatuses = [
+        'Ready to Move', 'Under Construction', 'Pre Launch', 'New Launch'
+    ];
+
+    const unitTypes = [
+        '1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK', '4+ BHK', 'Penthouse', 'Villa'
+    ];
+
+    const cities = [
+        'Mumbai', 'Delhi NCR', 'Bangalore', 'Hyderabad', 'Pune', 'Chennai', 'Kolkata'
+    ];
+
+    // Helper function to seed options
+    async function seedOptions(type: OptionType, values: string[]) {
+        for (const value of values) {
+            const existingOption = await prisma.option.findFirst({
+                where: {
+                    optionType: type,
+                    name: value,
+                    parentId: null
                 }
             });
+
+            if (!existingOption) {
+                await prisma.option.create({
+                    data: {
+                        optionType: type,
+                        name: value,
+                        isActive: true
+                    }
+                });
+            }
         }
+        console.log(`✅ ${type} created`);
     }
 
-    console.log('✅ Options created');
+    await seedOptions(OptionType.AMENITY, amenities);
+    await seedOptions(OptionType.PROPERTY_TYPE, propertyTypes);
+    await seedOptions(OptionType.POSSESSION_STATUS, possessionStatuses);
+    await seedOptions(OptionType.UNIT_TYPE, unitTypes);
+    await seedOptions(OptionType.CITY, cities);
 }
 
 main()
