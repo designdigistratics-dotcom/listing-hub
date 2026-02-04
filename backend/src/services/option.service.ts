@@ -75,12 +75,15 @@ export const getAllOptions = async () => {
     return {
         amenities,
         unitTypes,
+        unit_types: unitTypes,
         cities: cities.map((city) => ({
             ...city,
             locations: locationsByCity[city.id] || [],
         })),
         propertyTypes,
+        property_types: propertyTypes,
         possessionStatuses,
+        possession_statuses: possessionStatuses,
     };
 };
 
