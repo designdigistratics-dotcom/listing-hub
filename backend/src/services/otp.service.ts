@@ -60,9 +60,8 @@ export const sendOtp = async (phone: string) => {
 
             const params = new URLSearchParams({
                 authorization: apiKey,
-                route: 'q',
-                message: `Your Topickx verification code is ${otp}`,
-                language: 'english',
+                route: 'otp',
+                variables_values: otp,
                 flash: '0',
                 numbers: cleanPhone
             });
