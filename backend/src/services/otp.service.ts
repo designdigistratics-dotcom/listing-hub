@@ -44,7 +44,8 @@ export const sendOtp = async (phone: string) => {
     // In production, send OTP via SMS provider (MeraOTP)
     // We also send if explicitly enabled or if in production
     const isProduction = process.env.NODE_ENV === 'production';
-    const otpEnabled = process.env.ENABLE_OTP === 'true' || isProduction;
+    // Allow explicitly disabling OTP even in production if ENABLE_OTP is set to 'false'
+    const otpEnabled = process.env.ENABLE_OTP === 'false' ? false : (process.env.ENABLE_OTP === 'true' || isProduction);
 
     if (otpEnabled) {
         try {
