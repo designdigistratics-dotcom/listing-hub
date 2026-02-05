@@ -22,6 +22,10 @@ import webhookRoutes from './routes/webhook.routes';
 
 const app = express();
 
+// Trust first proxy (for apps behind nginx/reverse proxy)
+// This is required for express-rate-limit to work correctly
+app.set('trust proxy', 1);
+
 // ==================== Middleware ====================
 
 // Security headers - disable CSP as Next.js frontend handles its own
