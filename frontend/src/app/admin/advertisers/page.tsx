@@ -37,7 +37,7 @@ interface Advertiser {
     status: string;
     createdAt: string;
     salespersonId?: string;
-    salesperson?: {
+    assignedSalesperson?: {
         id: string;
         name: string;
     };
@@ -214,7 +214,7 @@ export default function AdvertisersPage() {
                                                 </div>
                                             </td>
                                             <td className="p-4 text-sm">
-                                                {advertiser.salesperson?.name || (
+                                                {advertiser.assignedSalesperson?.name || (
                                                     <span className="text-muted-foreground">-</span>
                                                 )}
                                             </td>

@@ -301,6 +301,13 @@ export const getAdvertisers = async (params: {
             gst: true,
             status: true,
             assignedSalespersonId: true,
+            assignedSalesperson: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true
+                }
+            },
             createdAt: true,
             updatedAt: true,
         },

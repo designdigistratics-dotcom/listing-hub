@@ -10,6 +10,11 @@ export interface User {
     name?: string;
     phone?: string;
     role: string;
+    userRole?: {
+        name: string;
+        permissions: string[];
+    };
+    permissions?: string[];
 }
 
 interface AuthContextType {

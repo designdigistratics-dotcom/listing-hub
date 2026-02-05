@@ -77,6 +77,16 @@ export const getLeads = async (params: {
         where.project = { advertiserId: params.advertiserId };
     }
 
+    if ((params as any).salespersonId) {
+        where.project = {
+            ...where.project,
+            advertiser: {
+                ...where.project?.advertiser,
+                assignedSalespersonId: (params as any).salespersonId
+            }
+        };
+    }
+
     if (params.startDate || params.endDate) {
         where.createdAt = {};
         if (params.startDate) {

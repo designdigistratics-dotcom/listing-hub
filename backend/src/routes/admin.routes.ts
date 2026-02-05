@@ -998,7 +998,8 @@ router.get('/leads', requirePermissions(['leads', 'all']) as any, async (req, re
             endDate: end_date ? new Date(end_date as string) : undefined,
             limit: limit ? parseInt(limit as string) : undefined,
             offset: offset ? parseInt(offset as string) : undefined,
-        });
+            salespersonId: (req as any).user.role === 'SALES' ? (req as any).user.id : undefined
+        } as any);
         res.json(result);
     } catch (error) {
         next(error);
