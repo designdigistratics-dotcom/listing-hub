@@ -221,7 +221,7 @@ export default function AdminLayout({
                                     {user.name || user.email}
                                 </p>
                                 <p className="text-xs text-slate-500 truncate capitalize">
-                                    {user.role.toLowerCase().replace("_", " ")}
+                                    {(user.userRole?.name || user.role).toLowerCase().replace("_", " ")}
                                 </p>
                             </div>
                         </div>

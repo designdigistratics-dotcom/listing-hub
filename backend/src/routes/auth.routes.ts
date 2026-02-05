@@ -71,6 +71,11 @@ router.get('/me', async (req, res, next) => {
                     phone: user.phone,
                     role: user.role,
                     avatar: user.avatar,
+                    userRole: user.userRole ? {
+                        name: user.userRole.name,
+                        permissions: user.userRole.permissions
+                    } : undefined,
+                    permissions: user.userRole?.permissions || [],
                 });
             } catch (error) {
                 next(error);

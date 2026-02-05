@@ -262,8 +262,12 @@ export const changeAdminUserPassword = async (
 export const getSalespeople = async () => {
     return prisma.user.findMany({
         where: {
-            role: AdminRole.SALES,
             isActive: true,
+            OR: [
+                { role: AdminRole.SALES },
+                { userRole: { permissions: { has: 'advertisers' } } },
+                { userRole: { permissions: { has: 'advertisers_view' } } },
+            ]
         },
         select: {
             id: true,
@@ -301,20 +305,26 @@ export const getAdvertisers = async (params: {
             gst: true,
             status: true,
             assignedSalespersonId: true,
-            assignedSalesperson: {
-                select: {
-                    id: true,
-                    name: true,
-                    email: true
-                }
-            },
             createdAt: true,
             updatedAt: true,
         },
         orderBy: { createdAt: 'desc' },
     });
 
-    // Add stats for each advertiser
+    // Get unique salesperson IDs
+    const salespersonIds = [...new Set(advertisers.map(a => a.assignedSalespersonId).filter(Boolean))] as string[];
+
+    // Fetch salesperson details
+    const salespeople = salespersonIds.length > 0
+        ? await prisma.user.findMany({
+            where: { id: { in: salespersonIds } },
+            select: { id: true, name: true, email: true }
+        })
+        : [];
+
+    const salespersonMap = new Map(salespeople.map(sp => [sp.id, sp]));
+
+    // Add stats and salesperson for each advertiser
     const advertisersWithStats = await Promise.all(
         advertisers.map(async (adv) => {
             const [packageCount, projectCount, leadCount] = await Promise.all([
@@ -329,6 +339,7 @@ export const getAdvertisers = async (params: {
 
             return {
                 ...adv,
+                assignedSalesperson: adv.assignedSalespersonId ? salespersonMap.get(adv.assignedSalespersonId) || null : null,
                 package_count: packageCount,
                 project_count: projectCount,
                 lead_count: leadCount,
