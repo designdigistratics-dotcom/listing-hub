@@ -58,6 +58,7 @@ interface ProjectData {
     highlights: string[];
     amenities: string[];
     images: string[];
+    videoUrl?: string;
     heroImage?: string;
     projectLogo?: string;
     advertiserLogo?: string;
@@ -429,6 +430,22 @@ export default function ProjectPage() {
                                             </div>
                                         );
                                     })}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Project Video */}
+                        {project.videoUrl && (
+                            <div className="bg-white rounded-xl p-6 shadow-soft">
+                                <h2 className="text-xl font-semibold mb-4">Project Video</h2>
+                                <div className="aspect-video rounded-lg overflow-hidden bg-slate-100">
+                                    <iframe
+                                        src={project.videoUrl.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/")}
+                                        title={`${project.name} Video`}
+                                        className="w-full h-full"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                    />
                                 </div>
                             </div>
                         )}

@@ -240,9 +240,10 @@ export default function EditProjectPage() {
             </div>
 
             <Tabs defaultValue="overview" className="space-y-4">
-                <TabsList className="grid w-full grid-cols-4 lg:w-[400px]">
+                <TabsList className="grid w-full grid-cols-5 lg:w-[500px]">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="media">Media</TabsTrigger>
+                    <TabsTrigger value="floorplans">Floor Plans</TabsTrigger>
                     <TabsTrigger value="content">Content</TabsTrigger>
                     <TabsTrigger value="seo">SEO</TabsTrigger>
                 </TabsList>
@@ -408,6 +409,105 @@ export default function EditProjectPage() {
                                     ))}
                                     {amenityOptions.length === 0 && <div className="col-span-3 text-sm text-center text-muted-foreground">No amenities found in Options. Add them in Options Management.</div>}
                                 </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                {/* FLOOR PLANS TAB */}
+                <TabsContent value="floorplans">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Floor Plans</CardTitle>
+                            <CardDescription>Manage floor plans with pricing and descriptions.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+                                {formData.floorPlans.map((fp, index) => (
+                                    <div
+                                        key={index}
+                                        className="relative rounded-lg overflow-hidden bg-slate-100 border p-2 space-y-2"
+                                    >
+                                        <div className="aspect-[4/3] relative rounded-md overflow-hidden bg-white mb-2">
+                                            <img
+                                                src={typeof fp === 'string' ? fp : fp.url}
+                                                alt={`Floor Plan ${index + 1}`}
+                                                className="w-full h-full object-contain"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setFormData(prev => ({
+                                                        ...prev,
+                                                        floorPlans: prev.floorPlans.filter((_, i) => i !== index)
+                                                    }));
+                                                }}
+                                                className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
+                                            >
+                                                <Trash className="w-3 h-3" />
+                                            </button>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Input
+                                                placeholder="Config (e.g. 2 BHK)"
+                                                value={fp.description || ""}
+                                                onChange={(e) => {
+                                                    const newPlans = [...formData.floorPlans];
+                                                    if (typeof newPlans[index] === 'string') {
+                                                        newPlans[index] = { url: newPlans[index], description: e.target.value, price: "" };
+                                                    } else {
+                                                        newPlans[index].description = e.target.value;
+                                                    }
+                                                    setFormData({ ...formData, floorPlans: newPlans });
+                                                }}
+                                                className="h-8 text-xs"
+                                            />
+                                            <Input
+                                                placeholder="Price (e.g. 1.2 Cr)"
+                                                value={fp.price || ""}
+                                                onChange={(e) => {
+                                                    const newPlans = [...formData.floorPlans];
+                                                    if (typeof newPlans[index] === 'string') {
+                                                        newPlans[index] = { url: newPlans[index], description: "", price: e.target.value };
+                                                    } else {
+                                                        newPlans[index].price = e.target.value;
+                                                    }
+                                                    setFormData({ ...formData, floorPlans: newPlans });
+                                                }}
+                                                className="h-8 text-xs"
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                                <label className="aspect-[4/3] rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        multiple
+                                        className="hidden"
+                                        onChange={async (e) => {
+                                            if (!e.target.files?.length) return;
+                                            const toastId = toast.loading("Uploading floor plans...");
+                                            try {
+                                                const files = Array.from(e.target.files);
+                                                // Parallel upload manual implementation
+                                                const urls = await Promise.all(
+                                                    files.map(f => uploadAPI.uploadFile(f).then(r => r.data.url))
+                                                );
+                                                const newPlans = urls.map(url => ({ url, description: "", price: "" }));
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    floorPlans: [...prev.floorPlans, ...newPlans]
+                                                }));
+                                                toast.success("Floor plans uploaded", { id: toastId });
+                                            } catch (error) {
+                                                toast.error("Upload failed", { id: toastId });
+                                            }
+                                        }}
+                                    />
+                                    <Plus className="w-8 h-8 text-slate-300 mb-2" />
+                                    <span className="text-sm text-slate-500">Add Floor Plans</span>
+                                </label>
                             </div>
                         </CardContent>
                     </Card>

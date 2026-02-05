@@ -37,6 +37,10 @@ interface Project {
     propertyType: string;
     createdAt: string;
     featuredImage?: string;
+    landingPages?: {
+        id: string;
+        name: string;
+    }[];
 }
 
 export default function ProjectsPage() {
@@ -209,6 +213,14 @@ export default function ProjectsPage() {
                                     </div>
                                     <div className="font-semibold text-primary">
                                         {formatBudgetRange(project.budgetMin, project.budgetMax)}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                        <Eye className="h-4 w-4" />
+                                        <span>
+                                            {project.landingPages && project.landingPages.length > 0
+                                                ? project.landingPages.map(lp => lp.name).join(", ")
+                                                : "Not Assigned"}
+                                        </span>
                                     </div>
                                 </div>
 

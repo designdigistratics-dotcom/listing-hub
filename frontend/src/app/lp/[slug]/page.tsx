@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { publicAPI } from "@/lib/api";
-import { getImageUrl, formatCurrency } from "@/lib/utils";
+import { getImageUrl, formatCurrency, formatBudgetRange } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -622,7 +622,7 @@ export default function PublicLandingPage() {
                                             <div>
                                                 <p className="text-xs text-slate-500 mb-0.5">Price Range</p>
                                                 <p className="font-medium text-primary text-sm">
-                                                    {formatCurrency(project.budgetMin)} - {formatCurrency(project.budgetMax)}
+                                                    {formatBudgetRange(project.budgetMin, project.budgetMax)}
                                                 </p>
                                             </div>
                                         </div>

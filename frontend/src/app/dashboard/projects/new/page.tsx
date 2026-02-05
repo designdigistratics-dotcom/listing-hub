@@ -916,20 +916,53 @@ export default function AddProjectPage() {
                                     {formData.floor_plans.map((fp, index) => (
                                         <div
                                             key={index}
-                                            className="relative aspect-[4/3] rounded-lg overflow-hidden bg-slate-100 border"
+                                            className="relative rounded-lg overflow-hidden bg-slate-100 border p-2 space-y-2"
                                         >
-                                            <img
-                                                src={getImageUrl(fp?.url || fp)}
-                                                alt={`Floor Plan ${index + 1}`}
-                                                className="w-full h-full object-contain p-2"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => removeFloorPlan(index)}
-                                                className="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
-                                            >
-                                                <X className="w-4 h-4" />
-                                            </button>
+                                            <div className="aspect-[4/3] relative rounded-md overflow-hidden bg-white mb-2">
+                                                <img
+                                                    src={getImageUrl(fp?.url || fp)}
+                                                    alt={`Floor Plan ${index + 1}`}
+                                                    className="w-full h-full object-contain"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeFloorPlan(index)}
+                                                    className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Input
+                                                    placeholder="Config / Type (e.g. 2 BHK)"
+                                                    value={fp.description || ""}
+                                                    onChange={(e) => {
+                                                        const newPlans = [...formData.floor_plans];
+                                                        // Ensure object structure
+                                                        if (typeof newPlans[index] === 'string') {
+                                                            newPlans[index] = { url: newPlans[index], description: e.target.value, price: "" };
+                                                        } else {
+                                                            newPlans[index].description = e.target.value;
+                                                        }
+                                                        setFormData({ ...formData, floor_plans: newPlans });
+                                                    }}
+                                                    className="h-8 text-xs"
+                                                />
+                                                <Input
+                                                    placeholder="Price (e.g. ₹45 L)"
+                                                    value={fp.price || ""}
+                                                    onChange={(e) => {
+                                                        const newPlans = [...formData.floor_plans];
+                                                        if (typeof newPlans[index] === 'string') {
+                                                            newPlans[index] = { url: newPlans[index], description: "", price: e.target.value };
+                                                        } else {
+                                                            newPlans[index].price = e.target.value;
+                                                        }
+                                                        setFormData({ ...formData, floor_plans: newPlans });
+                                                    }}
+                                                    className="h-8 text-xs"
+                                                />
+                                            </div>
                                         </div>
                                     ))}
                                     <label className="aspect-[4/3] rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">

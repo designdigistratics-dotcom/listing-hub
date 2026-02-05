@@ -108,6 +108,7 @@ export default function PaymentsPage() {
         salespersonId: "",
         paymentType: "UPFRONT", // UPFRONT, PART_PAYMENT, CREDIT
         amountPaid: "",
+        discount: "",
         paymentDueDate: "",
         notes: "",
     });
@@ -167,6 +168,7 @@ export default function PaymentsPage() {
             salespersonId: "",
             paymentType: "UPFRONT",
             amountPaid: request.packageDefinition.price.toString(),
+            discount: "",
             paymentDueDate: "",
             notes: "",
         });
@@ -180,9 +182,10 @@ export default function PaymentsPage() {
             await adminAPI.confirmPayment(selectedRequest.id, {
                 ...confirmData,
                 amountPaid: parseFloat(confirmData.amountPaid) || 0,
+                discount: parseFloat(confirmData.discount) || 0,
                 // Calculate pending if Part Payment
                 pendingAmount: confirmData.paymentType === "PART_PAYMENT"
-                    ? selectedRequest.packageDefinition.price - (parseFloat(confirmData.amountPaid) || 0)
+                    ? selectedRequest.packageDefinition.price - (parseFloat(confirmData.amountPaid) || 0) - (parseFloat(confirmData.discount) || 0)
                     : 0,
             });
             toast.success("Payment confirmed successfully");
@@ -416,47 +419,141 @@ export default function PaymentsPage() {
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <Label>Payment Type</Label>
-                                <Select
-                                    value={confirmData.paymentType}
-                                    onValueChange={(val) => setConfirmData({ ...confirmData, paymentType: val })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="UPFRONT">Full Upfront</SelectItem>
-                                        <SelectItem value="PART_PAYMENT">Part Payment</SelectItem>
-                                        <SelectItem value="CREDIT">Credit</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                        {/* Card Rate & Discount Section */}
+                        <div className="p-4 bg-slate-50 rounded-xl space-y-3">
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm font-medium text-slate-600">Card Rate (Package Price)</span>
+                                <span className="font-bold text-lg">
+                                    {selectedRequest && formatCurrency(selectedRequest.packageDefinition.price)}
+                                </span>
                             </div>
-                            <div>
-                                <Label>Amount Received</Label>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                                <Label className="text-red-600">Discount</Label>
                                 <div className="relative">
-                                    <span className="absolute left-3 top-2.5 text-muted-foreground">₹</span>
+                                    <span className="absolute left-3 top-2.5 text-red-600">- ₹</span>
                                     <Input
-                                        className="pl-7"
-                                        value={confirmData.amountPaid}
-                                        onChange={(e) => setConfirmData({ ...confirmData, amountPaid: e.target.value })}
-                                        disabled={confirmData.paymentType === "CREDIT"}
+                                        className="pl-9 text-red-600 font-medium"
+                                        placeholder="0"
+                                        value={confirmData.discount}
+                                        onChange={(e) => {
+                                            const discount = e.target.value;
+                                            const price = selectedRequest?.packageDefinition.price || 0;
+                                            const discountVal = parseFloat(discount) || 0;
+                                            setConfirmData({
+                                                ...confirmData,
+                                                discount,
+                                                amountPaid: (price - discountVal).toString()
+                                            });
+                                        }}
                                     />
                                 </div>
                             </div>
+
+                            <div className="border-t border-slate-200 pt-2 flex justify-between items-center">
+                                <span className="font-bold text-slate-800">Amount to be Paid</span>
+                                <span className="font-bold text-green-600 text-lg">
+                                    {formatCurrency(
+                                        Math.max(0, (selectedRequest?.packageDefinition.price || 0) - (parseFloat(confirmData.discount) || 0))
+                                    )}
+                                </span>
+                            </div>
                         </div>
 
-                        {confirmData.paymentType !== "UPFRONT" && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <Label>Due Date</Label>
+                                <Label>Payment Mode *</Label>
+                                <Select
+                                    value={confirmData.paymentMode}
+                                    onValueChange={(val) => setConfirmData({ ...confirmData, paymentMode: val })}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select payment mode" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                                        <SelectItem value="upi">UPI</SelectItem>
+                                        <SelectItem value="cheque">Cheque</SelectItem>
+                                        <SelectItem value="cash">Cash</SelectItem>
+                                        <SelectItem value="card">Card</SelectItem>
+                                        <SelectItem value="other">Other</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div>
+                                <Label>Transaction Reference *</Label>
                                 <Input
-                                    type="date"
-                                    value={confirmData.paymentDueDate}
-                                    onChange={(e) => setConfirmData({ ...confirmData, paymentDueDate: e.target.value })}
+                                    value={confirmData.transactionReference}
+                                    onChange={(e) => setConfirmData({ ...confirmData, transactionReference: e.target.value })}
+                                    placeholder="e.g., UTR number, cheque number"
                                 />
                             </div>
-                        )}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <Label>Amount Paid (₹)</Label>
+                                <Input
+                                    type="number"
+                                    placeholder="Actual amount received"
+                                    value={confirmData.amountPaid}
+                                    onChange={(e) => setConfirmData({ ...confirmData, amountPaid: e.target.value })}
+                                />
+                                <p className="text-[10px] text-muted-foreground mt-1">Leave empty to auto-calculate</p>
+                            </div>
+                            <div>
+                                <Label>Discount (₹)</Label>
+                                <Input
+                                    type="number"
+                                    value={confirmData.discount}
+                                    onChange={(e) => setConfirmData({ ...confirmData, discount: e.target.value })}
+                                    placeholder="0"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <Label>Notes</Label>
+                            <Textarea
+                                placeholder="Additional notes (optional)"
+                                value={confirmData.notes}
+                                onChange={(e) => setConfirmData({ ...confirmData, notes: e.target.value })}
+                                rows={2}
+                            />
+                        </div>
+
+                        <div className="bg-slate-50 p-3 rounded-lg border">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <Label>Payment Type</Label>
+                                    <Select
+                                        value={confirmData.paymentType}
+                                        onValueChange={(val) => setConfirmData({ ...confirmData, paymentType: val })}
+                                    >
+                                        <SelectTrigger className="h-8">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="UPFRONT">Full Upfront</SelectItem>
+                                            <SelectItem value="PART_PAYMENT">Part Payment</SelectItem>
+                                            <SelectItem value="CREDIT">Credit</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                {confirmData.paymentType !== "UPFRONT" && (
+                                    <div>
+                                        <Label>Due Date</Label>
+                                        <Input
+                                            type="date"
+                                            className="h-8"
+                                            value={confirmData.paymentDueDate}
+                                            onChange={(e) => setConfirmData({ ...confirmData, paymentDueDate: e.target.value })}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
 
                         <div>
                             <Label>Salesperson</Label>
@@ -473,33 +570,6 @@ export default function PaymentsPage() {
                                     ))}
                                 </SelectContent>
                             </Select>
-                        </div>
-
-                        <div>
-                            <Label>Payment Mode</Label>
-                            <Select
-                                value={confirmData.paymentMode}
-                                onValueChange={(val) => setConfirmData({ ...confirmData, paymentMode: val })}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                                    <SelectItem value="upi">UPI</SelectItem>
-                                    <SelectItem value="cheque">Cheque</SelectItem>
-                                    <SelectItem value="cash">Cash</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div>
-                            <Label>Transaction Reference</Label>
-                            <Input
-                                value={confirmData.transactionReference}
-                                onChange={(e) => setConfirmData({ ...confirmData, transactionReference: e.target.value })}
-                                placeholder="UTR / Cheque No."
-                            />
                         </div>
                     </div>
 
