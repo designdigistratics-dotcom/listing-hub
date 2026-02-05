@@ -23,6 +23,8 @@ import {
     MapPin,
     Building,
     Calendar,
+    Users,
+    Clock,
 } from "lucide-react";
 
 interface Project {
@@ -37,6 +39,8 @@ interface Project {
     propertyType: string;
     createdAt: string;
     featuredImage?: string;
+    expiryDate?: string;
+    leadCount?: number;
     landingPages?: {
         id: string;
         name: string;
@@ -221,6 +225,20 @@ export default function ProjectsPage() {
                                                 ? project.landingPages.map(lp => lp.name).join(", ")
                                                 : "Not Assigned"}
                                         </span>
+                                    </div>
+                                    <div className="flex items-center gap-4 pt-2 border-t border-slate-100">
+                                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                                            <Users className="h-4 w-4 text-blue-500" />
+                                            <span className="font-medium text-blue-600">{project.leadCount ?? 0} Leads</span>
+                                        </div>
+                                        {project.expiryDate && (
+                                            <div className="flex items-center gap-1.5 text-muted-foreground">
+                                                <Clock className="h-4 w-4 text-amber-500" />
+                                                <span className="text-amber-600">
+                                                    Expires: {new Date(project.expiryDate).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 

@@ -33,14 +33,18 @@ export const getAdvertiserProjects = async (advertiserId: string) => {
                     },
                 },
             },
+            _count: {
+                select: { leads: true },
+            },
         },
         orderBy: { createdAt: 'desc' },
     });
 
-    // Add expiry date and simplify landing page info
+    // Add expiry date, lead count, and simplify landing page info
     return projects.map(project => ({
         ...project,
-        expiryDate: project.package.endDate,
+        expiryDate: project.package?.endDate || null,
+        leadCount: project._count.leads,
         landingPages: project.placements.map(p => p.landingPage),
     }));
 };
