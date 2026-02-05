@@ -138,6 +138,7 @@ export const adminAPI = {
     createRole: (data: any) => api.post("/admin/roles", data),
     updateRole: (id: string, data: any) => api.put(`/admin/roles/${id}`, data),
     deleteRole: (id: string) => api.delete(`/admin/roles/${id}`),
+    getPermissions: () => api.get("/admin/permissions"),
 
     // Salespeople
     getSalespeople: () => api.get("/admin/salespeople"),
