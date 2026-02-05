@@ -553,6 +553,19 @@ export default function PaymentsPage() {
                                     </div>
                                 )}
                             </div>
+                            {confirmData.paymentType === "PART_PAYMENT" && selectedRequest && (
+                                <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded-lg">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm font-medium text-amber-800">Pending Amount</span>
+                                        <span className="font-bold text-amber-700">
+                                            {formatCurrency(
+                                                Math.max(0, selectedRequest.packageDefinition.price - (parseFloat(confirmData.amountPaid) || 0) - (parseFloat(confirmData.discount) || 0))
+                                            )}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-amber-600 mt-1">Invoice will be generated only after full payment is received.</p>
+                                </div>
+                            )}
                         </div>
 
                         <div>

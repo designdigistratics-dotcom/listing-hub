@@ -260,14 +260,11 @@ export const changeAdminUserPassword = async (
 };
 
 export const getSalespeople = async () => {
+    // Get all active admin users (not ADVERTISER role) as potential salespeople
     return prisma.user.findMany({
         where: {
             isActive: true,
-            OR: [
-                { role: AdminRole.SALES },
-                { userRole: { permissions: { has: 'advertisers' } } },
-                { userRole: { permissions: { has: 'advertisers_view' } } },
-            ]
+            role: { notIn: [AdminRole.ADVERTISER] },
         },
         select: {
             id: true,
@@ -275,6 +272,7 @@ export const getSalespeople = async () => {
             email: true,
             phone: true,
         },
+        orderBy: { name: 'asc' },
     });
 };
 
