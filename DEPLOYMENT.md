@@ -357,7 +357,7 @@ git pull origin main
 
 # If backend changed:
 cd backend
-npm install          # Only if new dependencies
+npm install
 npm run build
 cd ..
 
