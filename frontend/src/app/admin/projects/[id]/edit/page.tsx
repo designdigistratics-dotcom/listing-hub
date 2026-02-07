@@ -53,6 +53,8 @@ export default function EditProjectPage() {
         images: [] as string[],
         floorPlans: [] as any[],
         videoUrl: "",
+        disclaimer: "",
+        locationHighlights: [] as string[],
     });
 
     useEffect(() => {
@@ -87,6 +89,8 @@ export default function EditProjectPage() {
                     images: p.images || [],
                     floorPlans: p.floorPlans || [],
                     videoUrl: p.videoUrl || "",
+                    disclaimer: p.disclaimer || "",
+                    locationHighlights: p.locationHighlights || [],
                 });
                 setAmenityOptions(optionsRes.data);
             } catch (error) {
@@ -409,6 +413,31 @@ export default function EditProjectPage() {
                                     ))}
                                     {amenityOptions.length === 0 && <div className="col-span-3 text-sm text-center text-muted-foreground">No amenities found in Options. Add them in Options Management.</div>}
                                 </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Location Highlights</Label>
+                                <p className="text-sm text-muted-foreground">Enter each location advantage on a new line (e.g., "5 min to Metro Station")</p>
+                                <Textarea
+                                    value={formData.locationHighlights.join("\n")}
+                                    onChange={(e) => setFormData(prev => ({
+                                        ...prev,
+                                        locationHighlights: e.target.value.split("\n").filter(line => line.trim())
+                                    }))}
+                                    className="min-h-[100px]"
+                                    placeholder="Near IT Park&#10;Close to Schools&#10;5 min to Highway"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Project Disclaimer</Label>
+                                <Textarea
+                                    name="disclaimer"
+                                    value={formData.disclaimer}
+                                    onChange={handleChange}
+                                    className="min-h-[100px]"
+                                    placeholder="Enter any legal disclaimer or terms that should appear below the project..."
+                                />
                             </div>
                         </CardContent>
                     </Card>

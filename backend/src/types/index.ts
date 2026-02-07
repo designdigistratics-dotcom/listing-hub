@@ -120,6 +120,8 @@ export interface ProjectCreateRequest {
     videoUrl?: string;
     builderDescription?: string;
     aboutProject?: string;
+    disclaimer?: string;
+    locationHighlights?: string[];
 }
 
 export interface AdminProjectCreateRequest extends ProjectCreateRequest {
@@ -133,6 +135,8 @@ export interface AdminProjectCreateRequest extends ProjectCreateRequest {
     videoUrl?: string;
     builderDescription?: string;
     aboutProject?: string;
+    disclaimer?: string;
+    locationHighlights?: string[];
 }
 
 export interface ProjectUpdateRequest {
@@ -164,6 +168,8 @@ export interface ProjectUpdateRequest {
     heroImage?: string;
     projectLogo?: string;
     advertiserLogo?: string;
+    disclaimer?: string;
+    locationHighlights?: string[];
 }
 
 export interface ProjectReviewActionRequest {

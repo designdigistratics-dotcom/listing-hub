@@ -72,9 +72,12 @@ interface ProjectData {
     reraId?: string;
     aboutProject?: string;
     builderDescription?: string;
+    disclaimer?: string;
+    locationHighlights?: string[];
     advertiser?: {
         companyName: string;
         phone?: string;
+        ownerName?: string;
     };
     is_preview?: boolean;
     status?: string;
@@ -298,14 +301,7 @@ export default function ProjectPage() {
                         </span>
                     </Link>
                     <div className="flex items-center gap-4">
-                        <a
-                            href="tel:+919876543210"
-                            className="hidden md:flex items-center gap-2 text-sm font-medium text-slate-700 hover:text-primary transition-colors"
-                        >
-                            <Phone className="h-4 w-4" />
-                            Contact Us
-                        </a>
-                        <Button onClick={scrollToEnquiry} className="bg-primary hover:bg-primary/90">
+                        <Button onClick={scrollToEnquiry} className="bg-teal-600 hover:bg-teal-700">
                             Get Quote
                         </Button>
                     </div>
@@ -696,7 +692,7 @@ export default function ProjectPage() {
                                 </div>
                             )}
                             <div className="flex-1">
-                                <p className="text-white/60 text-sm uppercase tracking-wider mb-1">Developer</p>
+                                <p className="text-white/60 text-sm uppercase tracking-wider mb-1">Advertiser</p>
                                 <h3 className="text-2xl font-bold mb-2">
                                     {project.advertiser?.companyName || project.builderName}
                                 </h3>
@@ -704,20 +700,20 @@ export default function ProjectPage() {
                                     <p className="text-white/70 mb-4">{project.builderDescription}</p>
                                 )}
                                 <div className="flex items-center gap-2">
-                                    <Badge className="bg-green-500/20 text-green-400 border-0">
+                                    <Badge className="bg-teal-500/20 text-teal-400 border-0">
                                         <Verified className="h-3 w-3 mr-1" />
-                                        Verified Developer
+                                        Verified Advertiser
                                     </Badge>
                                 </div>
                             </div>
                             {project.advertiser?.phone && (
-                                <a
-                                    href={`tel:${project.advertiser.phone}`}
-                                    className="bg-white text-slate-900 px-6 py-3 rounded-xl font-semibold hover:bg-slate-100 transition-colors flex items-center gap-2"
+                                <button
+                                    onClick={scrollToEnquiry}
+                                    className="bg-orange-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-orange-600 transition-colors flex items-center gap-2"
                                 >
                                     <Phone className="h-5 w-5" />
-                                    Call Developer
-                                </a>
+                                    Call Advertiser
+                                </button>
                             )}
                         </div>
                     </section>
@@ -734,7 +730,37 @@ export default function ProjectPage() {
                         <p className="text-slate-500 mt-2">{project.locality}, {project.city}</p>
                     </section>
                 )}
+
+                {/* Location Highlights */}
+                {project.locationHighlights && project.locationHighlights?.length > 0 && (
+                    <section className="bg-gradient-to-r from-teal-50 to-orange-50 rounded-2xl p-6 md:p-8 border border-teal-100">
+                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-slate-900">
+                            <MapPin className="h-6 w-6 text-teal-600" />
+                            Location Highlights
+                        </h2>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {project.locationHighlights.map((highlight, idx) => (
+                                <div key={idx} className="flex items-start gap-3 p-4 bg-white rounded-xl shadow-sm">
+                                    <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
+                                        <Check className="h-4 w-4 text-teal-600" />
+                                    </div>
+                                    <span className="text-slate-700">{highlight}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
             </div>
+
+            {/* Disclaimer */}
+            {project.disclaimer && (
+                <div className="container mx-auto px-4 mt-8">
+                    <div className="bg-slate-100 rounded-2xl p-6 border border-slate-200">
+                        <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-2">Disclaimer</h3>
+                        <p className="text-sm text-slate-500 leading-relaxed">{project.disclaimer}</p>
+                    </div>
+                </div>
+            )}
 
             {/* Sticky Mobile CTA */}
             <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 md:hidden z-40">

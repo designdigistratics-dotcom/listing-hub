@@ -75,10 +75,13 @@ router.get('/projects/:id', async (req, res, next) => {
                 videoUrl: true,
                 builderDescription: true,
                 aboutProject: true,
+                disclaimer: true,
+                locationHighlights: true,
                 advertiser: {
                     select: {
                         companyName: true,
                         phone: true,
+                        ownerName: true,
                     },
                 },
             },

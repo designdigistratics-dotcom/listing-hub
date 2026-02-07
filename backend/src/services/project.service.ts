@@ -138,6 +138,8 @@ export const createProject = async (
             videoUrl: data.videoUrl,
             builderDescription: data.builderDescription,
             aboutProject: data.aboutProject,
+            disclaimer: data.disclaimer,
+            locationHighlights: data.locationHighlights || [],
             status: ProjectStatus.SUBMITTED_FOR_REVIEW,
             featuredImage: data.heroImage || (data.images && data.images.length > 0 ? data.images[0] : undefined),
         },
@@ -176,6 +178,7 @@ export const updateProject = async (
         'reraId', 'slug', 'seoTitle', 'seoDescription', 'featuredImage', 'isVisible',
         'floorPlans', 'videoUrl', 'builderDescription', 'aboutProject', 'address',
         'price', 'priceDetails', 'heroImage', 'projectLogo', 'advertiserLogo',
+        'disclaimer', 'locationHighlights',
     ];
 
     fields.forEach((field) => {
@@ -439,6 +442,8 @@ export const createAdminProject = async (
             heroImage: data.heroImage,
             projectLogo: data.projectLogo,
             advertiserLogo: data.advertiserLogo,
+            disclaimer: data.disclaimer,
+            locationHighlights: data.locationHighlights || [],
             status: ProjectStatus.APPROVED_AWAITING_PLACEMENT,
         },
     });
