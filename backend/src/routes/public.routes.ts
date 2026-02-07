@@ -217,12 +217,39 @@ router.post('/leads', async (req, res, next) => {
     try {
         const lead = await leadService.createLead(req.body);
 
-        // Trigger lead distribution (async, don't wait)
-        distributeLead(lead.id).catch(err =>
-            console.error('Lead distribution failed:', err)
-        );
+        // Get project with advertiser details for response
+        const project = await prisma.project.findUnique({
+            where: { id: req.body.projectId },
+            include: {
+                advertiser: {
+                    select: {
+                        companyName: true,
+                        ownerName: true,
+                        phone: true,
+                        email: true,
+                    },
+                },
+            },
+        });
 
-        res.status(201).json({ message: 'Lead submitted successfully', id: lead.id });
+        // Only distribute leads from Facebook (source: 'facebook')
+        // Website leads (form/landing_page) go directly to project's advertiser
+        if (req.body.source === 'facebook') {
+            distributeLead(lead.id).catch(err =>
+                console.error('Lead distribution failed:', err)
+            );
+        }
+
+        res.status(201).json({
+            message: 'Lead submitted successfully',
+            id: lead.id,
+            advertiserContact: project?.advertiser ? {
+                companyName: project.advertiser.companyName || '',
+                contactPerson: project.advertiser.ownerName || '',
+                phone: project.advertiser.phone || '',
+                email: project.advertiser.email || '',
+            } : null,
+        });
     } catch (error) {
         if (error instanceof Error) {
             res.status(400).json({ error: error.message });

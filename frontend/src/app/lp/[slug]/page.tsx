@@ -887,15 +887,15 @@ export default function PublicLandingPage() {
                                 <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl p-5 text-left space-y-4 border border-primary/20">
                                     <h4 className="font-bold text-slate-900 text-lg flex items-center gap-2">
                                         <Building2 className="w-5 h-5 text-primary" />
-                                        {advertiserContact.company_name || 'Contact Details'}
+                                        {advertiserContact.companyName || 'Contact Details'}
                                     </h4>
                                     <div className="space-y-3">
-                                        {advertiserContact.contact_person && (
+                                        {advertiserContact.contactPerson && (
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
                                                     <User className="w-4 h-4 text-slate-600" />
                                                 </div>
-                                                <span className="text-slate-700 font-medium">{advertiserContact.contact_person}</span>
+                                                <span className="text-slate-700 font-medium">{advertiserContact.contactPerson}</span>
                                             </div>
                                         )}
                                         {advertiserContact.phone && (
