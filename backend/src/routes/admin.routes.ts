@@ -713,7 +713,22 @@ router.get('/projects', async (req, res, next) => {
 router.get('/projects/:id', async (req, res, next) => {
     try {
         const project = await projectService.getProjectById(req.params.id as string);
-        res.json(project);
+
+        // Resolve location UUIDs to names
+        const optionIds: string[] = [];
+        if (project.city) optionIds.push(project.city);
+        if (project.locality) optionIds.push(project.locality);
+
+        const options = await optionService.getOptionsByIds(optionIds);
+        const nameMap = new Map(options.map((o: any) => [o.id, o.name]));
+
+        const resolved = {
+            ...project,
+            city: nameMap.get(project.city) || project.city,
+            locality: nameMap.get(project.locality) || project.locality,
+        };
+
+        res.json(resolved);
     } catch (error) {
         if (error instanceof Error) {
             res.status(404).json({ error: error.message });

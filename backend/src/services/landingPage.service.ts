@@ -26,6 +26,8 @@ export const getLandingPages = async () => {
                             status: true,
                             featuredImage: true,
                             heroImage: true,
+                            budgetMin: true,
+                            budgetMax: true,
                         },
                     },
                 },
@@ -38,11 +40,32 @@ export const getLandingPages = async () => {
         orderBy: { createdAt: 'desc' },
     });
 
+    // Collect all option IDs from all projects
+    const optionIds: string[] = [];
+    pages.forEach(page => {
+        page.slots.forEach(slot => {
+            if (slot.project.city) optionIds.push(slot.project.city);
+            if (slot.project.locality) optionIds.push(slot.project.locality);
+        });
+    });
+
+    // Resolve UUIDs to names
+    const options = await prisma.option.findMany({
+        where: { id: { in: optionIds } },
+        select: { id: true, name: true },
+    });
+
+    const nameMap = new Map(options.map(o => [o.id, o.name]));
+
     return pages.map((page) => ({
         ...page,
         listings: page.slots.map((slot) => ({
             position: slot.position,
-            project: slot.project,
+            project: {
+                ...slot.project,
+                city: nameMap.get(slot.project.city) || slot.project.city,
+                locality: nameMap.get(slot.project.locality) || slot.project.locality,
+            },
         })),
         lead_count: page._count.leads,
         visits: page.visits,
@@ -79,12 +102,33 @@ export const getLandingPageById = async (id: string) => {
         throw new Error('Landing page not found');
     }
 
+    // Collect all option IDs from projects
+    const optionIds: string[] = [];
+    page.slots.forEach(slot => {
+        if (slot.project.city) optionIds.push(slot.project.city);
+        if (slot.project.locality) optionIds.push(slot.project.locality);
+    });
+
+    // Resolve UUIDs to names
+    const options = await prisma.option.findMany({
+        where: { id: { in: optionIds } },
+        select: { id: true, name: true },
+    });
+
+    const nameMap = new Map(options.map(o => [o.id, o.name]));
+
+    const listings = page.slots.map((slot) => ({
+        position: slot.position,
+        project: {
+            ...slot.project,
+            city: nameMap.get(slot.project.city) || slot.project.city,
+            locality: nameMap.get(slot.project.locality) || slot.project.locality,
+        },
+    }));
+
     return {
         ...page,
-        listings: page.slots.map((slot) => ({
-            position: slot.position,
-            project: slot.project,
-        })),
+        listings,
         lead_count: page._count.leads,
         visits: page.visits,
     };
@@ -117,6 +161,7 @@ export const getLandingPageBySlug = async (slug: string) => {
                             advertiserLogo: true,
                             price: true,
                             status: true,
+                            slug: true,
                         },
                     },
                 },
@@ -134,9 +179,29 @@ export const getLandingPageBySlug = async (slug: string) => {
         .filter((slot) => slot.project.status === ProjectStatus.LIVE)
         .map((slot) => slot.project);
 
+    // Resolve UUIDs to names
+    const optionIds: string[] = [];
+    liveProjects.forEach(p => {
+        if (p.city) optionIds.push(p.city);
+        if (p.locality) optionIds.push(p.locality);
+    });
+
+    const options = await prisma.option.findMany({
+        where: { id: { in: optionIds } },
+        select: { id: true, name: true },
+    });
+
+    const nameMap = new Map(options.map(o => [o.id, o.name]));
+
+    const resolvedProjects = liveProjects.map(p => ({
+        ...p,
+        city: nameMap.get(p.city) || p.city,
+        locality: nameMap.get(p.locality) || p.locality,
+    }));
+
     return {
         ...page,
-        projects: liveProjects,
+        projects: resolvedProjects,
     };
 };
 

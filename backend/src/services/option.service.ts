@@ -87,6 +87,15 @@ export const getAllOptions = async () => {
     };
 };
 
+// Helper: Get options by IDs (for resolution)
+export const getOptionsByIds = async (ids: string[]) => {
+    if (!ids || ids.length === 0) return [];
+    return prisma.option.findMany({
+        where: { id: { in: ids } },
+        select: { id: true, name: true },
+    });
+};
+
 export const createOption = async (
     data: OptionCreateRequest,
     currentUserId: string,
