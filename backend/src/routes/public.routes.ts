@@ -111,7 +111,7 @@ router.get('/projects/:id', async (req, res, next) => {
         if (project.unitTypes && project.unitTypes.length > 0) optionIds.push(...project.unitTypes);
         if (project.amenities && project.amenities.length > 0) optionIds.push(...project.amenities);
 
-        let resolvedData = { ...project };
+        let resolvedData: any = { ...project };
 
         if (optionIds.length > 0) {
             const options = await prisma.option.findMany({
