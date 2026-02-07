@@ -4,13 +4,39 @@ import { startOfDay, endOfDay } from 'date-fns';
 
 export const recordVisit = async (req: Request, res: Response) => {
     try {
-        const { landingPageId, projectId } = req.body;
+        let { landingPageId, projectId } = req.body;
         const visitorIp = req.ip || req.connection.remoteAddress;
         const userAgent = req.headers['user-agent'];
 
         if (!landingPageId && !projectId) {
             res.status(400).json({ error: "Missing landingPageId or projectId" });
             return;
+        }
+
+        // If projectId looks like a slug (not a UUID), resolve it to actual ID
+        if (projectId && !projectId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+            const project = await prisma.project.findFirst({
+                where: { slug: projectId },
+                select: { id: true }
+            });
+            if (!project) {
+                // Project not found by slug, skip recording silently
+                res.status(200).json({ success: true });
+                return;
+            }
+            projectId = project.id;
+        }
+
+        // Verify project exists before creating page visit
+        if (projectId) {
+            const projectExists = await prisma.project.findUnique({
+                where: { id: projectId },
+                select: { id: true }
+            });
+            if (!projectExists) {
+                res.status(200).json({ success: true });
+                return;
+            }
         }
 
         await prisma.pageVisit.create({
