@@ -55,6 +55,11 @@ export default function EditProjectPage() {
         videoUrl: "",
         disclaimer: "",
         locationHighlights: [] as string[],
+        budgetMin: 0,
+        budgetMax: 0,
+        propertyType: "",
+        unitTypes: [] as string[],
+        highlights: [] as string[],
     });
 
     useEffect(() => {
@@ -91,6 +96,11 @@ export default function EditProjectPage() {
                     videoUrl: p.videoUrl || "",
                     disclaimer: p.disclaimer || "",
                     locationHighlights: p.locationHighlights || [],
+                    budgetMin: p.budgetMin || 0,
+                    budgetMax: p.budgetMax || 0,
+                    propertyType: p.propertyType || "",
+                    unitTypes: p.unitTypes || [],
+                    highlights: p.highlights || [],
                 });
                 setAmenityOptions(optionsRes.data);
             } catch (error) {
@@ -301,6 +311,29 @@ export default function EditProjectPage() {
                                 </div>
                             </div>
 
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Budget Min (in Rupees)</Label>
+                                    <Input
+                                        type="number"
+                                        placeholder="e.g. 5000000 for ₹50L"
+                                        value={formData.budgetMin || ""}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, budgetMin: parseInt(e.target.value) || 0 }))}
+                                    />
+                                    <p className="text-xs text-muted-foreground">Enter 5000000 for ₹50 Lakhs, 10000000 for ₹1 Crore</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Budget Max (in Rupees)</Label>
+                                    <Input
+                                        type="number"
+                                        placeholder="e.g. 15000000 for ₹1.5 Cr"
+                                        value={formData.budgetMax || ""}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, budgetMax: parseInt(e.target.value) || 0 }))}
+                                    />
+                                    <p className="text-xs text-muted-foreground">Enter 5000000 for ₹50 Lakhs, 10000000 for ₹1 Crore</p>
+                                </div>
+                            </div>
+
                             <div className="space-y-2">
                                 <Label>Possession Status</Label>
                                 <Select value={formData.possessionStatus} onValueChange={(v) => handleSelectChange("possessionStatus", v)}>
@@ -313,6 +346,51 @@ export default function EditProjectPage() {
                                         <SelectItem value="new_launch">New Launch</SelectItem>
                                     </SelectContent>
                                 </Select>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Property Type</Label>
+                                    <Select value={formData.propertyType} onValueChange={(v) => handleSelectChange("propertyType", v)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select property type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="apartment">Apartment</SelectItem>
+                                            <SelectItem value="villa">Villa</SelectItem>
+                                            <SelectItem value="plot">Plot</SelectItem>
+                                            <SelectItem value="penthouse">Penthouse</SelectItem>
+                                            <SelectItem value="commercial">Commercial</SelectItem>
+                                            <SelectItem value="office">Office Space</SelectItem>
+                                            <SelectItem value="studio">Studio</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Unit Types (comma separated)</Label>
+                                    <Input
+                                        placeholder="e.g. 2BHK, 3BHK, 4BHK"
+                                        value={formData.unitTypes.join(", ")}
+                                        onChange={(e) => setFormData(prev => ({
+                                            ...prev,
+                                            unitTypes: e.target.value.split(",").map(s => s.trim()).filter(Boolean)
+                                        }))}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Project Highlights</Label>
+                                <p className="text-sm text-muted-foreground">Enter each highlight on a new line</p>
+                                <Textarea
+                                    value={formData.highlights.join("\n")}
+                                    onChange={(e) => setFormData(prev => ({
+                                        ...prev,
+                                        highlights: e.target.value.split("\n").filter(line => line.trim())
+                                    }))}
+                                    className="min-h-[100px]"
+                                    placeholder="Premium location&#10;World-class amenities&#10;Green certified"
+                                />
                             </div>
                         </CardContent>
                     </Card>
