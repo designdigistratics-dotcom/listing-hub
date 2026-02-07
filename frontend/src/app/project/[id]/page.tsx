@@ -328,7 +328,7 @@ export default function ProjectPage() {
 
                 {/* Project Logo Overlay */}
                 {project.projectLogo && (
-                    <div className="absolute top-24 left-4 md:top-28 md:left-8 z-30 bg-white/95 p-2 rounded-lg shadow-lg backdrop-blur-sm">
+                    <div className="absolute top-4 left-4 md:top-8 md:left-8 z-50 bg-white/95 p-2 rounded-lg shadow-lg backdrop-blur-sm">
                         <div className="relative h-12 w-12 md:h-16 md:w-16">
                             <Image
                                 src={project.projectLogo}
