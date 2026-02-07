@@ -217,7 +217,7 @@ export default function ProjectPage() {
         try {
             await publicAPI.submitLead({
                 ...formData,
-                projectId,
+                projectId: project?.id || projectId,
                 landingPageId: landingPageId || "direct",
                 otpVerified: true,
             });
