@@ -29,6 +29,7 @@ import {
     Trash2,
     EyeOff,
     ArrowRightLeft,
+    ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -72,6 +73,13 @@ interface Project {
         id: string;
         companyName: string;
     };
+    placements?: {
+        landingPage: {
+            id: string;
+            name: string;
+            slug: string;
+        };
+    }[];
 }
 
 export default function AdminProjectsPage() {
@@ -289,6 +297,7 @@ export default function AdminProjectsPage() {
                                     <tr>
                                         <th className="text-left p-4 font-medium">Project</th>
                                         <th className="text-left p-4 font-medium">Location</th>
+                                        <th className="text-left p-4 font-medium">Landing Page</th>
                                         <th className="text-left p-4 font-medium">Advertiser</th>
                                         <th className="text-left p-4 font-medium">Budget</th>
                                         <th className="text-right p-4 font-medium">Visits</th>
@@ -315,6 +324,24 @@ export default function AdminProjectsPage() {
                                                     <MapPin className="h-4 w-4 text-muted-foreground" />
                                                     {project.locality}, {project.city}
                                                 </div>
+                                            </td>
+                                            <td className="p-4 text-sm">
+                                                {project.placements && project.placements.length > 0 ? (
+                                                    project.placements.map((placement, idx) => (
+                                                        <div key={idx} className="mb-1 last:mb-0">
+                                                            <Link
+                                                                href={`/lp/${placement.landingPage.slug}`}
+                                                                target="_blank"
+                                                                className="text-primary hover:underline flex items-center gap-1 group"
+                                                            >
+                                                                {placement.landingPage.name}
+                                                                <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                            </Link>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <span className="text-muted-foreground">-</span>
+                                                )}
                                             </td>
                                             <td className="p-4 text-sm">
                                                 {project.advertiser ? (
