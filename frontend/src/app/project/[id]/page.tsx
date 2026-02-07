@@ -6,13 +6,6 @@ import { publicAPI } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatBudgetRange } from "@/lib/utils";
 import {
@@ -20,7 +13,6 @@ import {
     MapPin,
     Building,
     Phone,
-    Mail,
     ArrowLeft,
     Check,
     ChevronLeft,
@@ -35,12 +27,25 @@ import {
     Zap,
     Users,
     Timer,
-    MessageSquare,
     CheckCircle2,
+    X,
+    Play,
+    Calendar,
+    Ruler,
+    IndianRupee,
+    Verified,
+    Star,
+    ChevronDown,
 } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { OtpInput } from "@/components/ui/otp-input";
 import { toast } from "sonner";
+
+interface FloorPlan {
+    url: string;
+    description?: string;
+    price?: string;
+}
 
 interface ProjectData {
     id: string;
@@ -58,12 +63,15 @@ interface ProjectData {
     highlights: string[];
     amenities: string[];
     images: string[];
+    floorPlans?: FloorPlan[];
     videoUrl?: string;
     heroImage?: string;
     projectLogo?: string;
     advertiserLogo?: string;
     possessionStatus: string;
     reraId?: string;
+    aboutProject?: string;
+    builderDescription?: string;
     advertiser?: {
         companyName: string;
         phone?: string;
@@ -74,13 +82,21 @@ interface ProjectData {
 
 const AMENITY_ICONS: Record<string, any> = {
     "swimming pool": Droplets,
+    "pool": Droplets,
     "gym": Dumbbell,
+    "fitness": Dumbbell,
     "garden": Trees,
+    "park": Trees,
     "parking": Car,
     "security": Shield,
+    "cctv": Shield,
     "wifi": Wifi,
+    "internet": Wifi,
     "power backup": Zap,
+    "power": Zap,
     "club house": Users,
+    "clubhouse": Users,
+    "community": Users,
 };
 
 export default function ProjectPage() {
@@ -92,6 +108,8 @@ export default function ProjectPage() {
     const [project, setProject] = useState<ProjectData | null>(null);
     const [loading, setLoading] = useState(true);
     const [currentImage, setCurrentImage] = useState(0);
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [lightboxImage, setLightboxImage] = useState("");
     const [formData, setFormData] = useState({
         name: "",
         phone: "",
@@ -114,7 +132,6 @@ export default function ProjectPage() {
                 const response = await publicAPI.getProject(projectId);
                 setProject(response.data);
             } catch (error: any) {
-                // If project not found (not live), try preview mode
                 if (error.response?.status === 404) {
                     try {
                         const previewRes = await publicAPI.getProjectPreview(projectId);
@@ -133,7 +150,6 @@ export default function ProjectPage() {
 
         if (projectId) {
             fetchProject();
-            // Record visit with both projectId and landingPageId for analytics
             publicAPI.recordVisit({ projectId, landingPageId }).catch(err => console.error("Error recording visit:", err));
         }
     }, [projectId, landingPageId]);
@@ -156,7 +172,7 @@ export default function ProjectPage() {
         try {
             await publicAPI.sendOtp(formData.phone);
             setOtpSent(true);
-            setOtpTimer(60); // 60 second cooldown
+            setOtpTimer(60);
             toast.success("OTP sent to your phone");
         } catch (error: any) {
             toast.error(error.response?.data?.error || "Failed to send OTP");
@@ -197,7 +213,7 @@ export default function ProjectPage() {
             await publicAPI.submitLead({
                 ...formData,
                 projectId,
-                landingPageId: "direct",
+                landingPageId: landingPageId || "direct",
                 otpVerified: true,
             });
             setSubmitted(true);
@@ -220,25 +236,37 @@ export default function ProjectPage() {
         return Check;
     };
 
+    const openLightbox = (imageUrl: string) => {
+        setLightboxImage(imageUrl);
+        setLightboxOpen(true);
+    };
+
+    const scrollToEnquiry = () => {
+        document.getElementById('enquiry-form')?.scrollIntoView({ behavior: 'smooth' });
+    };
+
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-50">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-muted-foreground">Loading project details...</p>
+                </div>
             </div>
         );
     }
 
     if (!project) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-50">
-                <div className="text-center">
-                    <Building className="h-16 w-16 mx-auto mb-4 text-slate-300" />
-                    <h1 className="text-2xl font-bold mb-2">Project Not Found</h1>
-                    <p className="text-muted-foreground mb-4">
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+                <div className="text-center max-w-md mx-auto p-8">
+                    <Building className="h-20 w-20 mx-auto mb-6 text-slate-300" />
+                    <h1 className="text-3xl font-bold mb-3">Project Not Found</h1>
+                    <p className="text-muted-foreground mb-6">
                         This project may have been removed or is no longer available.
                     </p>
                     <Link href="/">
-                        <Button>
+                        <Button size="lg">
                             <ArrowLeft className="h-4 w-4 mr-2" />
                             Back to Home
                         </Button>
@@ -248,24 +276,20 @@ export default function ProjectPage() {
         );
     }
 
-    const images =
-        project.images.length > 0
-            ? project.images
-            : project.heroImage
-                ? [project.heroImage]
-                : [];
+    const heroImage = project.heroImage || (project.images?.length > 0 ? project.images[0] : null);
+    const galleryImages = project.images?.length > 0 ? project.images : [];
 
     return (
         <div className="min-h-screen bg-slate-50">
             {/* Preview Banner */}
-            {project.is_preview && project.possessionStatus && project['status'] !== 'LIVE' && (
-                <div className="bg-amber-500 text-white text-center py-2 px-4 text-sm font-medium">
-                    ⚠️ Preview Mode - This project is not yet live on the landing page
+            {project.is_preview && project.status !== 'LIVE' && (
+                <div className="bg-amber-500 text-white text-center py-2 px-4 text-sm font-medium sticky top-0 z-50">
+                    ⚠️ Preview Mode - This project is not yet live
                 </div>
             )}
 
-            {/* Navigation */}
-            <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b">
+            {/* Sticky Header */}
+            <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b shadow-sm">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     <Link href="/" className="flex items-center space-x-2">
                         <Building2 className="h-8 w-8 text-primary" />
@@ -273,374 +297,483 @@ export default function ProjectPage() {
                             <span className="text-primary">Topickx</span>
                         </span>
                     </Link>
-                    <a
-                        href="tel:+919876543210"
-                        className="flex items-center gap-2 text-sm font-medium text-primary hover:underline"
-                    >
-                        <Phone className="h-4 w-4" />
-                        <span className="hidden sm:inline">Contact Us</span>
-                    </a>
+                    <div className="flex items-center gap-4">
+                        <a
+                            href="tel:+919876543210"
+                            className="hidden md:flex items-center gap-2 text-sm font-medium text-slate-700 hover:text-primary transition-colors"
+                        >
+                            <Phone className="h-4 w-4" />
+                            Contact Us
+                        </a>
+                        <Button onClick={scrollToEnquiry} className="bg-primary hover:bg-primary/90">
+                            Get Quote
+                        </Button>
+                    </div>
                 </div>
             </header>
 
-            {/* Back Button */}
-            <div className="container mx-auto px-4 py-4">
-                <Link
-                    href="/"
-                    className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors"
+            {/* Hero Section */}
+            <section className="relative min-h-[70vh] md:min-h-[80vh] flex items-end">
+                {/* Background Image */}
+                <div
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{
+                        backgroundImage: heroImage
+                            ? `url(${heroImage})`
+                            : 'linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%)',
+                    }}
                 >
-                    <ArrowLeft className="h-4 w-4 mr-1" />
-                    Back to listings
-                </Link>
-            </div>
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
+                </div>
 
-            <div className="container mx-auto px-4 pb-16">
-                <div className="grid lg:grid-cols-3 gap-8">
-                    {/* Main Content */}
-                    <div className="lg:col-span-2 space-y-8">
-                        {/* Image Gallery */}
-                        {images.length > 0 && (
-                            <div className="relative rounded-xl overflow-hidden">
-                                <div
-                                    className="aspect-video bg-cover bg-center bg-slate-100"
-                                    style={{ backgroundImage: `url(${images[currentImage]})` }}
-                                />
-                                {images.length > 1 && (
-                                    <>
-                                        <button
-                                            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg hover:bg-white transition-colors"
-                                            onClick={() =>
-                                                setCurrentImage(
-                                                    currentImage === 0 ? images.length - 1 : currentImage - 1
-                                                )
-                                            }
-                                        >
-                                            <ChevronLeft className="h-6 w-6" />
-                                        </button>
-                                        <button
-                                            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg hover:bg-white transition-colors"
-                                            onClick={() =>
-                                                setCurrentImage(
-                                                    currentImage === images.length - 1 ? 0 : currentImage + 1
-                                                )
-                                            }
-                                        >
-                                            <ChevronRight className="h-6 w-6" />
-                                        </button>
-                                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                                            {images.map((_, idx) => (
-                                                <button
-                                                    key={idx}
-                                                    className={`w-2 h-2 rounded-full transition-colors ${idx === currentImage ? "bg-white" : "bg-white/50"
-                                                        }`}
-                                                    onClick={() => setCurrentImage(idx)}
-                                                />
-                                            ))}
-                                        </div>
-                                    </>
+                {/* Hero Content */}
+                <div className="relative container mx-auto px-4 py-12 md:py-20">
+                    <div className="grid lg:grid-cols-5 gap-8 items-end">
+                        {/* Project Info - Left Side */}
+                        <div className="lg:col-span-3 text-white">
+                            {/* Badges */}
+                            <div className="flex flex-wrap gap-2 mb-4">
+                                <Badge className="bg-primary/90 hover:bg-primary text-white border-0">
+                                    {project.propertyType}
+                                </Badge>
+                                {project.reraId && (
+                                    <Badge variant="outline" className="bg-white/10 text-white border-white/30">
+                                        <Verified className="h-3 w-3 mr-1" />
+                                        RERA Approved
+                                    </Badge>
+                                )}
+                                <Badge variant="outline" className="bg-white/10 text-white border-white/30">
+                                    <Calendar className="h-3 w-3 mr-1" />
+                                    {project.possessionStatus}
+                                </Badge>
+                            </div>
+
+                            {/* Project Name */}
+                            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 leading-tight">
+                                {project.name}
+                            </h1>
+
+                            {/* Builder */}
+                            <p className="text-lg text-white/80 mb-4">
+                                by <span className="font-semibold text-white">{project.builderName}</span>
+                            </p>
+
+                            {/* Location */}
+                            <div className="flex items-center gap-2 text-white/80 mb-6">
+                                <MapPin className="h-5 w-5" />
+                                <span className="text-lg">{project.locality}, {project.city}</span>
+                            </div>
+
+                            {/* Price */}
+                            <div className="mb-6">
+                                <p className="text-white/60 text-sm uppercase tracking-wider mb-1">Starting Price</p>
+                                <p className="text-3xl md:text-4xl font-bold text-white">
+                                    {formatBudgetRange(project.budgetMin, project.budgetMax)}
+                                </p>
+                                {project.priceDetails && (
+                                    <p className="text-white/70 text-sm mt-1">{project.priceDetails}</p>
                                 )}
                             </div>
-                        )}
 
-                        {/* Project Header */}
-                        <div className="bg-white rounded-xl p-6 shadow-soft">
-                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                                <div>
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                                        <MapPin className="h-4 w-4" />
-                                        <span>
-                                            {project.locality}, {project.city}
-                                        </span>
-                                        {project.reraId && (
-                                            <Badge variant="outline" className="ml-2">
-                                                RERA: {project.reraId}
-                                            </Badge>
-                                        )}
+                            {/* Quick Stats */}
+                            <div className="flex flex-wrap gap-4 md:gap-6">
+                                {project.unitTypes?.length > 0 && (
+                                    <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                                        <p className="text-white/60 text-xs uppercase">Configuration</p>
+                                        <p className="text-white font-semibold">{project.unitTypes.join(", ")}</p>
                                     </div>
-                                    <h1 className="text-2xl md:text-3xl font-heading font-bold mb-1">
-                                        {project.name}
-                                    </h1>
-                                    <p className="text-muted-foreground">by {project.builderName}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-sm text-muted-foreground">Starting from</p>
-                                    <p className="text-2xl md:text-3xl font-bold text-primary">
-                                        {formatBudgetRange(project.budgetMin, project.budgetMax)}
-                                    </p>
-                                    {project.priceDetails && (
-                                        <p className="text-sm text-muted-foreground">
-                                            {project.priceDetails}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Quick Info */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t">
-                                <div>
-                                    <p className="text-sm text-muted-foreground">Property Type</p>
-                                    <p className="font-semibold">{project.propertyType}</p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-muted-foreground">Configuration</p>
-                                    <p className="font-semibold">{project.unitTypes.join(", ")}</p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-muted-foreground">Possession</p>
-                                    <p className="font-semibold">{project.possessionStatus}</p>
-                                </div>
-                                {project.address && (
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Address</p>
-                                        <p className="font-semibold line-clamp-1">{project.address}</p>
+                                )}
+                                {project.reraId && (
+                                    <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                                        <p className="text-white/60 text-xs uppercase">RERA ID</p>
+                                        <p className="text-white font-semibold text-sm">{project.reraId}</p>
                                     </div>
                                 )}
                             </div>
                         </div>
 
-                        {/* Highlights */}
-                        {project.highlights.length > 0 && (
-                            <div className="bg-white rounded-xl p-6 shadow-soft">
-                                <h2 className="text-xl font-semibold mb-4">Highlights</h2>
-                                <ul className="grid md:grid-cols-2 gap-3">
-                                    {project.highlights.map((highlight, idx) => (
-                                        <li key={idx} className="flex items-start gap-2">
-                                            <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                                            <span>{highlight}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
+                        {/* Enquiry Form - Right Side */}
+                        <div className="lg:col-span-2" id="enquiry-form">
+                            <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8">
+                                <div className="text-center mb-6">
+                                    <h3 className="text-xl font-bold text-slate-900 mb-1">
+                                        Get Instant Quote
+                                    </h3>
+                                    <p className="text-sm text-slate-500">
+                                        Fill your details for callback
+                                    </p>
+                                </div>
 
-                        {/* Amenities */}
-                        {project.amenities.length > 0 && (
-                            <div className="bg-white rounded-xl p-6 shadow-soft">
-                                <h2 className="text-xl font-semibold mb-4">Amenities</h2>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    {project.amenities.map((amenity, idx) => {
-                                        const Icon = getAmenityIcon(amenity);
-                                        return (
-                                            <div
-                                                key={idx}
-                                                className="flex items-center gap-3 p-3 rounded-lg bg-slate-50"
+                                {submitted ? (
+                                    <div className="text-center py-8">
+                                        <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                                            <Check className="h-8 w-8 text-green-600" />
+                                        </div>
+                                        <h4 className="text-lg font-semibold mb-2 text-slate-900">Thank You!</h4>
+                                        <p className="text-slate-500 mb-4">
+                                            Our team will contact you shortly.
+                                        </p>
+                                        {project.advertiser?.phone && (
+                                            <a
+                                                href={`tel:${project.advertiser.phone}`}
+                                                className="inline-flex items-center gap-2 text-primary font-medium hover:underline"
                                             >
-                                                <Icon className="h-5 w-5 text-primary" />
-                                                <span className="text-sm">{amenity}</span>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
+                                                <Phone className="h-4 w-4" />
+                                                Call Now: {project.advertiser.phone}
+                                            </a>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <form onSubmit={handleSubmit} className="space-y-4">
+                                        <div>
+                                            <Input
+                                                placeholder="Your Name *"
+                                                value={formData.name}
+                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                required
+                                                className="h-12 bg-slate-50 border-slate-200"
+                                            />
+                                        </div>
 
-                        {/* Project Video */}
-                        {project.videoUrl && (
-                            <div className="bg-white rounded-xl p-6 shadow-soft">
-                                <h2 className="text-xl font-semibold mb-4">Project Video</h2>
-                                <div className="aspect-video rounded-lg overflow-hidden bg-slate-100">
-                                    <iframe
-                                        src={project.videoUrl.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/")}
-                                        title={`${project.name} Video`}
-                                        className="w-full h-full"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowFullScreen
-                                    />
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                                        <div>
+                                            <Input
+                                                type="tel"
+                                                placeholder="Mobile Number *"
+                                                value={formData.phone}
+                                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                                required
+                                                disabled={otpSent || otpVerified}
+                                                className="h-12 bg-slate-50 border-slate-200"
+                                            />
 
-                    {/* Sidebar - Contact Form */}
-                    <div className="lg:col-span-1">
-                        <div className="sticky top-24">
-                            <Card className="shadow-soft">
-                                <CardHeader>
-                                    <CardTitle>Get More Details</CardTitle>
-                                    <CardDescription>
-                                        Fill in your details and our team will contact you shortly
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    {submitted ? (
-                                        <div className="text-center py-6">
-                                            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-                                                <Check className="h-8 w-8 text-green-600" />
-                                            </div>
-                                            <h3 className="text-lg font-semibold mb-2">
-                                                Thank You!
-                                            </h3>
-                                            <p className="text-muted-foreground mb-4">
-                                                We've received your inquiry. Our team will contact you soon.
-                                            </p>
-
-                                            {/* Advertiser Contact Details */}
-                                            {project.advertiser && (
-                                                <div className="mt-6 p-4 bg-slate-50 rounded-lg border">
-                                                    <p className="text-sm text-muted-foreground mb-2">
-                                                        Or contact directly:
-                                                    </p>
-                                                    <div className="flex flex-col items-center gap-2">
-                                                        <p className="font-semibold text-lg">
-                                                            {project.advertiser.companyName}
-                                                        </p>
-                                                        {project.advertiser.phone && (
-                                                            <a
-                                                                href={`tel:${project.advertiser.phone}`}
-                                                                className="flex items-center gap-2 text-primary hover:underline font-medium"
+                                            {otpVerified ? (
+                                                <div className="flex items-center gap-2 text-green-600 text-sm mt-2 font-medium">
+                                                    <CheckCircle2 className="h-4 w-4" />
+                                                    Phone verified
+                                                </div>
+                                            ) : !otpSent ? (
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="mt-2 w-full"
+                                                    onClick={handleSendOtp}
+                                                    disabled={sendingOtp || !formData.phone || formData.phone.length !== 10}
+                                                >
+                                                    {sendingOtp ? "Sending..." : "Verify with OTP"}
+                                                </Button>
+                                            ) : (
+                                                <div className="space-y-3 mt-3 p-4 bg-slate-50 rounded-xl border">
+                                                    <div className="text-center space-y-2">
+                                                        <Label className="text-xs text-slate-500 uppercase font-bold">Enter OTP</Label>
+                                                        <OtpInput
+                                                            value={otp}
+                                                            onChange={setOtp}
+                                                            disabled={verifyingOtp}
+                                                        />
+                                                    </div>
+                                                    <Button
+                                                        type="button"
+                                                        className="w-full"
+                                                        onClick={handleVerifyOtp}
+                                                        disabled={verifyingOtp || otp.length !== 6}
+                                                    >
+                                                        {verifyingOtp ? "Verifying..." : "Verify"}
+                                                    </Button>
+                                                    <div className="text-center">
+                                                        {otpTimer > 0 ? (
+                                                            <p className="text-xs text-slate-500 flex items-center justify-center gap-1">
+                                                                <Timer className="h-3 w-3" />
+                                                                Resend in {otpTimer}s
+                                                            </p>
+                                                        ) : (
+                                                            <button
+                                                                type="button"
+                                                                onClick={handleSendOtp}
+                                                                className="text-xs text-primary hover:underline font-medium"
                                                             >
-                                                                <Phone className="h-4 w-4" />
-                                                                {project.advertiser.phone}
-                                                            </a>
+                                                                Resend OTP
+                                                            </button>
                                                         )}
                                                     </div>
                                                 </div>
                                             )}
                                         </div>
-                                    ) : (
-                                        <form onSubmit={handleSubmit} className="space-y-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="name">Full Name</Label>
-                                                <Input
-                                                    id="name"
-                                                    placeholder="Your name"
-                                                    value={formData.name}
-                                                    onChange={(e) =>
-                                                        setFormData({ ...formData, name: e.target.value })
-                                                    }
-                                                    required
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="phone">Phone Number</Label>
-                                                <Input
-                                                    id="phone"
-                                                    type="tel"
-                                                    placeholder="10-digit mobile number"
-                                                    value={formData.phone}
-                                                    onChange={(e) =>
-                                                        setFormData({ ...formData, phone: e.target.value })
-                                                    }
-                                                    required
-                                                    disabled={otpSent || otpVerified}
-                                                />
-                                                {otpVerified ? (
-                                                    <div className="flex items-center gap-2 text-green-600 text-sm mt-1 font-medium">
-                                                        <CheckCircle2 className="h-4 w-4" />
-                                                        Phone verified
-                                                    </div>
-                                                ) : !otpSent ? (
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className="mt-2 w-full"
-                                                        onClick={handleSendOtp}
-                                                        disabled={sendingOtp || !formData.phone || formData.phone.length !== 10}
-                                                    >
-                                                        {sendingOtp ? "Sending..." : "Send Verification Code"}
-                                                    </Button>
-                                                ) : (
-                                                    <div className="space-y-4 mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                                                        <div className="text-center space-y-2">
-                                                            <Label className="text-xs text-slate-500 uppercase font-bold">Enter 6-digit Code</Label>
-                                                            <OtpInput
-                                                                value={otp}
-                                                                onChange={setOtp}
-                                                                disabled={verifyingOtp}
-                                                            />
-                                                        </div>
-                                                        <Button
-                                                            type="button"
-                                                            className="w-full"
-                                                            onClick={handleVerifyOtp}
-                                                            disabled={verifyingOtp || otp.length !== 6}
-                                                        >
-                                                            {verifyingOtp ? "Verifying..." : "Verify Code"}
-                                                        </Button>
-                                                        <div className="text-center">
-                                                            {otpTimer > 0 ? (
-                                                                <p className="text-xs text-slate-500 flex items-center justify-center gap-1">
-                                                                    <Timer className="h-3 w-3" />
-                                                                    Resend in {otpTimer}s
-                                                                </p>
-                                                            ) : (
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={handleSendOtp}
-                                                                    className="text-xs text-primary hover:underline font-medium"
-                                                                >
-                                                                    Didn't receive code? Resend
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="email">Email</Label>
-                                                <Input
-                                                    id="email"
-                                                    type="email"
-                                                    placeholder="Your email"
-                                                    value={formData.email}
-                                                    onChange={(e) =>
-                                                        setFormData({ ...formData, email: e.target.value })
-                                                    }
-                                                    required
-                                                />
-                                            </div>
-                                            <Button
-                                                type="submit"
-                                                className="w-full bg-primary hover:bg-primary/90"
-                                                size="lg"
-                                                disabled={submitting || !otpVerified}
-                                            >
-                                                {submitting ? "Submitting..." : "Submit Inquiry"}
-                                            </Button>
-                                            <p className="text-xs text-center text-muted-foreground">
-                                                By submitting, you agree to our terms and privacy policy
-                                            </p>
-                                        </form>
-                                    )}
-                                </CardContent>
-                            </Card>
 
-                            {/* Builder Info */}
-                            {project.advertiser && (
-                                <Card className="mt-4 shadow-soft">
-                                    <CardContent className="p-4">
-                                        <div className="flex items-center gap-3">
-                                            {project.advertiserLogo ? (
-                                                <img
-                                                    src={project.advertiserLogo}
-                                                    alt={project.advertiser.companyName}
-                                                    className="w-12 h-12 rounded-lg object-contain bg-slate-100"
-                                                />
-                                            ) : (
-                                                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                                                    <Building className="h-6 w-6 text-primary" />
-                                                </div>
-                                            )}
-                                            <div>
-                                                <p className="font-semibold">
-                                                    {project.advertiser.companyName}
-                                                </p>
-                                                <p className="text-sm text-muted-foreground">
-                                                    Verified Developer
-                                                </p>
-                                            </div>
+                                        <div>
+                                            <Input
+                                                type="email"
+                                                placeholder="Email Address *"
+                                                value={formData.email}
+                                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                required
+                                                className="h-12 bg-slate-50 border-slate-200"
+                                            />
                                         </div>
-                                    </CardContent>
-                                </Card>
-                            )}
+
+                                        <Button
+                                            type="submit"
+                                            className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary/90"
+                                            size="lg"
+                                            disabled={submitting || !otpVerified}
+                                        >
+                                            {submitting ? "Submitting..." : "Get Callback"}
+                                        </Button>
+
+                                        <p className="text-xs text-center text-slate-400">
+                                            By submitting, you agree to our Terms & Privacy Policy
+                                        </p>
+                                    </form>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
+            </section>
+
+            {/* Main Content */}
+            <div className="container mx-auto px-4 py-12 space-y-12">
+
+                {/* About Project */}
+                {project.aboutProject && (
+                    <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
+                        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                            <Building className="h-6 w-6 text-primary" />
+                            About {project.name}
+                        </h2>
+                        <p className="text-slate-600 leading-relaxed whitespace-pre-line">
+                            {project.aboutProject}
+                        </p>
+                    </section>
+                )}
+
+                {/* Highlights */}
+                {project.highlights?.length > 0 && (
+                    <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
+                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                            <Star className="h-6 w-6 text-primary" />
+                            Key Highlights
+                        </h2>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            {project.highlights.map((highlight, idx) => (
+                                <div key={idx} className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
+                                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                        <Check className="h-4 w-4 text-primary" />
+                                    </div>
+                                    <span className="text-slate-700">{highlight}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* Floor Plans */}
+                {project.floorPlans && project.floorPlans.length > 0 && (
+                    <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
+                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                            <Ruler className="h-6 w-6 text-primary" />
+                            Floor Plans
+                        </h2>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {project.floorPlans.map((fp, idx) => (
+                                <div
+                                    key={idx}
+                                    className="group border border-slate-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
+                                    onClick={() => openLightbox(typeof fp === 'string' ? fp : fp.url)}
+                                >
+                                    <div className="aspect-[4/3] bg-slate-50 relative overflow-hidden">
+                                        <img
+                                            src={typeof fp === 'string' ? fp : fp.url}
+                                            alt={typeof fp === 'string' ? `Floor Plan ${idx + 1}` : (fp.description || `Floor Plan ${idx + 1}`)}
+                                            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                                        />
+                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                            <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-medium bg-black/50 px-3 py-1 rounded-full">
+                                                Click to expand
+                                            </span>
+                                        </div>
+                                    </div>
+                                    {typeof fp !== 'string' && (fp.description || fp.price) && (
+                                        <div className="p-4 bg-white">
+                                            {fp.description && (
+                                                <p className="font-semibold text-slate-900">{fp.description}</p>
+                                            )}
+                                            {fp.price && (
+                                                <p className="text-primary font-bold text-lg flex items-center gap-1 mt-1">
+                                                    <IndianRupee className="h-4 w-4" />
+                                                    {fp.price}
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* Gallery */}
+                {galleryImages.length > 1 && (
+                    <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
+                        <h2 className="text-2xl font-bold mb-6">Gallery</h2>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {galleryImages.map((img, idx) => (
+                                <div
+                                    key={idx}
+                                    className="aspect-video rounded-xl overflow-hidden cursor-pointer group"
+                                    onClick={() => openLightbox(img)}
+                                >
+                                    <img
+                                        src={img}
+                                        alt={`Gallery ${idx + 1}`}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* Amenities */}
+                {project.amenities?.length > 0 && (
+                    <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
+                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                            <Home className="h-6 w-6 text-primary" />
+                            Amenities
+                        </h2>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            {project.amenities.map((amenity, idx) => {
+                                const Icon = getAmenityIcon(amenity);
+                                return (
+                                    <div
+                                        key={idx}
+                                        className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
+                                    >
+                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                            <Icon className="h-5 w-5 text-primary" />
+                                        </div>
+                                        <span className="text-slate-700 font-medium">{amenity}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </section>
+                )}
+
+                {/* Video */}
+                {project.videoUrl && (
+                    <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
+                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                            <Play className="h-6 w-6 text-primary" />
+                            Project Video
+                        </h2>
+                        <div className="aspect-video rounded-xl overflow-hidden bg-slate-100">
+                            <iframe
+                                src={project.videoUrl.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/")}
+                                title={`${project.name} Video`}
+                                className="w-full h-full"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            />
+                        </div>
+                    </section>
+                )}
+
+                {/* Builder Info */}
+                {(project.advertiser || project.builderDescription) && (
+                    <section className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 md:p-8 text-white">
+                        <div className="flex flex-col md:flex-row md:items-center gap-6">
+                            {project.advertiserLogo ? (
+                                <img
+                                    src={project.advertiserLogo}
+                                    alt={project.advertiser?.companyName || project.builderName}
+                                    className="w-20 h-20 rounded-xl object-contain bg-white p-2"
+                                />
+                            ) : (
+                                <div className="w-20 h-20 rounded-xl bg-white/10 flex items-center justify-center">
+                                    <Building className="h-10 w-10 text-white/50" />
+                                </div>
+                            )}
+                            <div className="flex-1">
+                                <p className="text-white/60 text-sm uppercase tracking-wider mb-1">Developer</p>
+                                <h3 className="text-2xl font-bold mb-2">
+                                    {project.advertiser?.companyName || project.builderName}
+                                </h3>
+                                {project.builderDescription && (
+                                    <p className="text-white/70 mb-4">{project.builderDescription}</p>
+                                )}
+                                <div className="flex items-center gap-2">
+                                    <Badge className="bg-green-500/20 text-green-400 border-0">
+                                        <Verified className="h-3 w-3 mr-1" />
+                                        Verified Developer
+                                    </Badge>
+                                </div>
+                            </div>
+                            {project.advertiser?.phone && (
+                                <a
+                                    href={`tel:${project.advertiser.phone}`}
+                                    className="bg-white text-slate-900 px-6 py-3 rounded-xl font-semibold hover:bg-slate-100 transition-colors flex items-center gap-2"
+                                >
+                                    <Phone className="h-5 w-5" />
+                                    Call Developer
+                                </a>
+                            )}
+                        </div>
+                    </section>
+                )}
+
+                {/* Location */}
+                {project.address && (
+                    <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
+                        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                            <MapPin className="h-6 w-6 text-primary" />
+                            Location
+                        </h2>
+                        <p className="text-slate-600 text-lg">{project.address}</p>
+                        <p className="text-slate-500 mt-2">{project.locality}, {project.city}</p>
+                    </section>
+                )}
             </div>
 
+            {/* Sticky Mobile CTA */}
+            <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 md:hidden z-40">
+                <div className="flex items-center justify-between gap-4">
+                    <div>
+                        <p className="text-xs text-slate-500">Starting from</p>
+                        <p className="font-bold text-primary">
+                            {formatBudgetRange(project.budgetMin, project.budgetMax)}
+                        </p>
+                    </div>
+                    <Button onClick={scrollToEnquiry} className="bg-primary hover:bg-primary/90">
+                        Enquire Now
+                    </Button>
+                </div>
+            </div>
+
+            {/* Lightbox */}
+            {lightboxOpen && (
+                <div
+                    className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+                    onClick={() => setLightboxOpen(false)}
+                >
+                    <button
+                        className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+                        onClick={() => setLightboxOpen(false)}
+                    >
+                        <X className="h-6 w-6" />
+                    </button>
+                    <img
+                        src={lightboxImage}
+                        alt="Full size"
+                        className="max-w-full max-h-[90vh] object-contain rounded-lg"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+            )}
+
             {/* Footer */}
-            <footer className="bg-slate-900 text-white py-8">
+            <footer className="bg-slate-900 text-white py-8 mt-12 pb-24 md:pb-8">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                         <div className="flex items-center space-x-2">

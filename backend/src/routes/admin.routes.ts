@@ -1100,6 +1100,7 @@ router.get('/options/:category', async (req: AuthenticatedRequest, res, next) =>
             category,
             value: opt.name.toLowerCase().replace(/\s+/g, '_'),
             label: opt.name,
+            name: opt.name,  // Add for frontend compatibility
             isActive: opt.isActive,
             parentId: opt.parentId,
         }));

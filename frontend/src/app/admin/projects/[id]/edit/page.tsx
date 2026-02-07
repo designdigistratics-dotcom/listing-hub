@@ -403,7 +403,7 @@ export default function EditProjectPage() {
                                                 onCheckedChange={(checked) => handleAmenityChange(amenity.id, checked as boolean)}
                                             />
                                             <label htmlFor={`amenity-${amenity.id}`} className="text-sm cursor-pointer">
-                                                {amenity.name}
+                                                {amenity.label || amenity.name}
                                             </label>
                                         </div>
                                     ))}
