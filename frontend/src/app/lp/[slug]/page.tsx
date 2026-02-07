@@ -627,10 +627,23 @@ export default function PublicLandingPage() {
                                             </div>
                                         </div>
 
-                                        <div className="mt-auto">
-                                            <Button className="w-full bg-slate-900 hover:bg-slate-800 group-hover:bg-amber-600 transition-colors">
+                                        <div className="mt-auto flex gap-2">
+                                            <Button
+                                                className="flex-1 bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500 text-white"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    openLeadForm(project);
+                                                }}
+                                            >
+                                                Enquire Now
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                className="flex-1"
+                                            >
                                                 View Details
-                                                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                                                <ArrowRight className="w-4 h-4 ml-2" />
                                             </Button>
                                         </div>
                                     </div>
@@ -684,17 +697,32 @@ export default function PublicLandingPage() {
                                             </div>
                                         </div>
 
-                                        <div className="mt-auto pt-3 border-t border-slate-50 flex items-center justify-between">
-                                            <div>
-                                                <p className="text-xs text-slate-500">Starts from</p>
-                                                <p className="font-bold text-primary text-sm">
-                                                    {formatCurrency(project.budgetMin)}
-                                                </p>
+                                        <div className="mt-auto pt-3 border-t border-slate-50">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div>
+                                                    <p className="text-xs text-slate-500">Starts from</p>
+                                                    <p className="font-bold text-primary text-sm">
+                                                        {formatCurrency(project.budgetMin)}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <Button size="sm" variant="ghost" className="text-xs hover:bg-primary/5 hover:text-primary">
-                                                View
-                                                <ArrowRight className="w-3 h-3 ml-1" />
-                                            </Button>
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    size="sm"
+                                                    className="flex-1 bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500 text-white text-xs"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        openLeadForm(project);
+                                                    }}
+                                                >
+                                                    Enquire Now
+                                                </Button>
+                                                <Button size="sm" variant="outline" className="text-xs">
+                                                    View
+                                                    <ArrowRight className="w-3 h-3 ml-1" />
+                                                </Button>
+                                            </div>
                                         </div>
                                     </div>
                                 </Link>
