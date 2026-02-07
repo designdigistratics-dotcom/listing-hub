@@ -81,20 +81,41 @@ export default function EditProjectPage() {
                     adminAPI.getOptions('possession_status', { include_inactive: true }),
                 ]);
 
+                // Helper to map values (names or IDs) to IDs based on available options
+                const mapToIds = (values: string[] | string | undefined, options: any[]) => {
+                    if (!values) return [];
+                    const arr = Array.isArray(values) ? values : [values];
+                    return arr.map(val => {
+                        // Check if val is already an ID (exact match)
+                        const idMatch = options.find(o => o.id === val);
+                        if (idMatch) return val;
+                        // Check if val is a Name (legacy data)
+                        const nameMatch = options.find(o => o.name.toLowerCase() === val.toLowerCase() || (o.label && o.label.toLowerCase() === val.toLowerCase()));
+                        return nameMatch ? nameMatch.id : val;
+                    }).filter(Boolean); // Filter out nulls if any
+                };
+
                 const p = projectRes.data;
+                const amOpts = amenityRes.data;
+                const cityOpts = cityRes.data;
+                const locOpts = localityRes.data;
+                const propOpts = propTypeRes.data;
+                const unitOpts = unitTypeRes.data;
+                const possOpts = possessionRes.data;
+
                 setFormData({
                     name: p.name || "",
                     builderName: p.builderName || "",
-                    city: p.city || "",
-                    locality: p.locality || "",
+                    city: mapToIds(p.city, cityOpts)[0] || p.city || "",
+                    locality: mapToIds(p.locality, locOpts)[0] || p.locality || "",
                     address: p.address || "",
                     price: p.price?.toString() || "",
                     priceDetails: p.priceDetails || "",
                     rerId: p.reraId || "",
-                    possessionStatus: p.possessionStatus || "",
+                    possessionStatus: mapToIds(p.possessionStatus, possOpts)[0] || p.possessionStatus || "",
                     aboutProject: p.aboutProject || "",
                     builderDescription: p.builderDescription || "",
-                    amenities: p.amenities || [],
+                    amenities: mapToIds(p.amenities, amOpts),
                     seoTitle: p.seoTitle || "",
                     seoDescription: p.seoDescription || "",
                     slug: p.slug || "",
@@ -109,16 +130,16 @@ export default function EditProjectPage() {
                     locationHighlights: p.locationHighlights || [],
                     budgetMin: p.budgetMin || 0,
                     budgetMax: p.budgetMax || 0,
-                    propertyType: Array.isArray(p.propertyType) ? p.propertyType : (p.propertyType ? [p.propertyType] : []),
-                    unitTypes: p.unitTypes || [],
+                    propertyType: mapToIds(p.propertyType, propOpts),
+                    unitTypes: mapToIds(p.unitTypes, unitOpts),
                     highlights: p.highlights || [],
                 });
-                setAmenityOptions(amenityRes.data);
-                setCityOptions(cityRes.data);
-                setLocalityOptions(localityRes.data);
-                setPropertyTypeOptions(propTypeRes.data);
-                setUnitTypeOptions(unitTypeRes.data);
-                setPossessionStatusOptions(possessionRes.data);
+                setAmenityOptions(amOpts);
+                setCityOptions(cityOpts);
+                setLocalityOptions(locOpts);
+                setPropertyTypeOptions(propOpts);
+                setUnitTypeOptions(unitOpts);
+                setPossessionStatusOptions(possOpts);
             } catch (error) {
                 console.error("Failed to load project", error);
                 toast.error("Failed to load project details");

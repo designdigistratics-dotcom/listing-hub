@@ -36,6 +36,7 @@ import {
     Verified,
     Star,
     ChevronDown,
+    AlertTriangle,
 } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { OtpInput } from "@/components/ui/otp-input";
@@ -286,8 +287,9 @@ export default function ProjectPage() {
         <div className="min-h-screen bg-slate-50">
             {/* Preview Banner */}
             {project.is_preview && project.status !== 'LIVE' && (
-                <div className="bg-amber-500 text-white text-center py-2 px-4 text-sm font-medium sticky top-0 z-50">
-                    ⚠️ Preview Mode - This project is not yet live
+                <div className="bg-amber-600 text-white text-center py-2 px-4 text-sm font-medium sticky top-0 z-50 flex items-center justify-center gap-2 shadow-sm">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span>Preview Mode - This project is not yet live</span>
                 </div>
             )}
 
@@ -301,8 +303,8 @@ export default function ProjectPage() {
                         </span>
                     </Link>
                     <div className="flex items-center gap-4">
-                        <Button onClick={scrollToEnquiry} className="bg-teal-600 hover:bg-teal-700">
-                            Get Quote
+                        <Button onClick={scrollToEnquiry} className="bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-all shadow-md hover:shadow-lg">
+                            Enquire
                         </Button>
                     </div>
                 </div>
@@ -330,7 +332,7 @@ export default function ProjectPage() {
                         <div className="lg:col-span-3 text-white">
                             {/* Badges */}
                             <div className="flex flex-wrap gap-2 mb-4">
-                                <Badge className="bg-primary/90 hover:bg-primary text-white border-0">
+                                <Badge className="bg-teal-600 hover:bg-teal-700 text-white border-0 px-3 py-1 text-sm font-medium shadow-sm">
                                     {project.propertyType}
                                 </Badge>
                                 {project.reraId && (
@@ -394,10 +396,10 @@ export default function ProjectPage() {
                             <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8">
                                 <div className="text-center mb-6">
                                     <h3 className="text-xl font-bold text-slate-900 mb-1">
-                                        Get Instant Quote
+                                        Request Quote
                                     </h3>
                                     <p className="text-sm text-slate-500">
-                                        Fill your details for callback
+                                        Fill your details to receive more information
                                     </p>
                                 </div>
 
@@ -413,7 +415,7 @@ export default function ProjectPage() {
                                         {project.advertiser?.phone && (
                                             <a
                                                 href={`tel:${project.advertiser.phone}`}
-                                                className="inline-flex items-center gap-2 text-primary font-medium hover:underline"
+                                                className="inline-flex items-center gap-2 text-teal-600 font-medium hover:underline"
                                             >
                                                 <Phone className="h-4 w-4" />
                                                 Call Now: {project.advertiser.phone}
@@ -510,11 +512,11 @@ export default function ProjectPage() {
 
                                         <Button
                                             type="submit"
-                                            className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary/90"
+                                            className="w-full h-12 text-base font-bold bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-md hover:shadow-lg transition-all"
                                             size="lg"
                                             disabled={submitting || !otpVerified}
                                         >
-                                            {submitting ? "Submitting..." : "Get Callback"}
+                                            {submitting ? "Submitting..." : "Submit Enquiry"}
                                         </Button>
 
                                         <p className="text-xs text-center text-slate-400">
@@ -534,8 +536,8 @@ export default function ProjectPage() {
                 {/* About Project */}
                 {project.aboutProject && (
                     <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-                        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                            <Building className="h-6 w-6 text-primary" />
+                        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2 text-teal-800">
+                            <Building className="h-6 w-6 text-teal-600" />
                             About {project.name}
                         </h2>
                         <p className="text-slate-600 leading-relaxed whitespace-pre-line">
@@ -547,15 +549,15 @@ export default function ProjectPage() {
                 {/* Highlights */}
                 {project.highlights?.length > 0 && (
                     <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                            <Star className="h-6 w-6 text-primary" />
+                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-teal-800">
+                            <Star className="h-6 w-6 text-teal-600" />
                             Key Highlights
                         </h2>
                         <div className="grid md:grid-cols-2 gap-4">
                             {project.highlights.map((highlight, idx) => (
                                 <div key={idx} className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
-                                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                        <Check className="h-4 w-4 text-primary" />
+                                    <div className="w-8 h-8 rounded-full bg-teal-50 flex items-center justify-center flex-shrink-0 border border-teal-100">
+                                        <Check className="h-4 w-4 text-teal-600" />
                                     </div>
                                     <span className="text-slate-700">{highlight}</span>
                                 </div>
@@ -567,8 +569,8 @@ export default function ProjectPage() {
                 {/* Floor Plans */}
                 {project.floorPlans && project.floorPlans.length > 0 && (
                     <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                            <Ruler className="h-6 w-6 text-primary" />
+                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-teal-800">
+                            <Ruler className="h-6 w-6 text-teal-600" />
                             Floor Plans
                         </h2>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -634,8 +636,8 @@ export default function ProjectPage() {
                 {/* Amenities */}
                 {project.amenities?.length > 0 && (
                     <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                            <Home className="h-6 w-6 text-primary" />
+                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-teal-800">
+                            <Home className="h-6 w-6 text-teal-600" />
                             Amenities
                         </h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -646,8 +648,8 @@ export default function ProjectPage() {
                                         key={idx}
                                         className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
                                     >
-                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                            <Icon className="h-5 w-5 text-primary" />
+                                        <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center flex-shrink-0 border border-teal-100">
+                                            <Icon className="h-5 w-5 text-teal-600" />
                                         </div>
                                         <span className="text-slate-700 font-medium">{amenity}</span>
                                     </div>
@@ -660,8 +662,8 @@ export default function ProjectPage() {
                 {/* Video */}
                 {project.videoUrl && (
                     <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                            <Play className="h-6 w-6 text-primary" />
+                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-teal-800">
+                            <Play className="h-6 w-6 text-teal-600" />
                             Project Video
                         </h2>
                         <div className="aspect-video rounded-xl overflow-hidden bg-slate-100">
@@ -722,8 +724,8 @@ export default function ProjectPage() {
                 {/* Location */}
                 {project.address && (
                     <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-                        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                            <MapPin className="h-6 w-6 text-primary" />
+                        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2 text-teal-800">
+                            <MapPin className="h-6 w-6 text-teal-600" />
                             Location
                         </h2>
                         <p className="text-slate-600 text-lg">{project.address}</p>
@@ -767,12 +769,12 @@ export default function ProjectPage() {
                 <div className="flex items-center justify-between gap-4">
                     <div>
                         <p className="text-xs text-slate-500">Starting from</p>
-                        <p className="font-bold text-primary">
+                        <p className="font-bold text-teal-600">
                             {formatBudgetRange(project.budgetMin, project.budgetMax)}
                         </p>
                     </div>
-                    <Button onClick={scrollToEnquiry} className="bg-primary hover:bg-primary/90">
-                        Enquire Now
+                    <Button onClick={scrollToEnquiry} className="bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-md">
+                        Enquire
                     </Button>
                 </div>
             </div>
@@ -803,9 +805,9 @@ export default function ProjectPage() {
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                         <div className="flex items-center space-x-2">
-                            <Building2 className="h-6 w-6 text-primary" />
+                            <Building2 className="h-6 w-6 text-teal-400" />
                             <span className="text-lg font-heading font-bold">
-                                <span className="text-primary">Topickx</span>
+                                <span className="text-teal-400">Topickx</span>
                             </span>
                         </div>
                         <p className="text-sm text-slate-400">
