@@ -204,15 +204,17 @@ export default function InvoiceViewPage() {
                                     <span>-{formatCurrency(invoice.discount)}</span>
                                 </div>
                             )}
-                            <div className="flex justify-between text-sm text-slate-600">
-                                <span>Tax (18% GST)</span>
-                                <span>{formatCurrency(0)}</span> {/* Assuming inclusive or 0 for now */}
-                            </div>
                             <Separator />
                             <div className="flex justify-between font-bold text-lg">
                                 <span>Total</span>
-                                <span>{formatCurrency(invoice.amount)}</span>
+                                <span>{formatCurrency(invoice.package.packageDefinition.price - invoice.discount)}</span>
                             </div>
+                            {invoice.amount !== (invoice.package.packageDefinition.price - invoice.discount) && (
+                                <div className="flex justify-between text-sm text-slate-500">
+                                    <span>Amount Paid</span>
+                                    <span>{formatCurrency(invoice.amount)}</span>
+                                </div>
+                            )}
                         </div>
                     </div>
 

@@ -20,7 +20,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { formatDate } from "@/lib/utils";
-import { Users, Search, Phone, Mail, Calendar, Building, Filter, X, ExternalLink, CheckCircle2, XCircle } from "lucide-react";
+import { Users, Search, Phone, Mail, Calendar, Building, Filter, X, ExternalLink } from "lucide-react";
 
 interface Lead {
     id: string;
@@ -182,21 +182,7 @@ export default function LeadsPage() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card>
-                    <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
-                                <CheckCircle2 className="h-5 w-5 text-green-500" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold">
-                                    {leads.filter((l) => l.otpVerified).length}
-                                </p>
-                                <p className="text-sm text-muted-foreground">Verified</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+
                 <Card>
                     <CardContent className="p-4">
                         <div className="flex items-center gap-3">
@@ -341,7 +327,6 @@ export default function LeadsPage() {
                                         <th className="text-left p-4 font-medium">Email ID</th>
                                         <th className="text-left p-4 font-medium">Project Name</th>
                                         <th className="text-left p-4 font-medium">Landing Page</th>
-                                        <th className="text-left p-4 font-medium">Verified</th>
                                         <th className="text-left p-4 font-medium">Source</th>
                                     </tr>
                                 </thead>
@@ -407,17 +392,6 @@ export default function LeadsPage() {
                                                     <span className="text-muted-foreground text-sm flex items-center gap-1">
                                                         Direct
                                                     </span>
-                                                )}
-                                            </td>
-                                            <td className="p-4">
-                                                {lead.otpVerified ? (
-                                                    <Badge variant="success" className="gap-1">
-                                                        <CheckCircle2 className="h-3 w-3" /> Yes
-                                                    </Badge>
-                                                ) : (
-                                                    <Badge variant="secondary" className="gap-1">
-                                                        <XCircle className="h-3 w-3" /> No
-                                                    </Badge>
                                                 )}
                                             </td>
                                             <td className="p-4">
