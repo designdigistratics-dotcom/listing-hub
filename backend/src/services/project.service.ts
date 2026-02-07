@@ -184,6 +184,29 @@ export const updateProject = async (
         }
     });
 
+    // Handle slug uniqueness
+    if (updateData.slug) {
+        const existingWithSlug = await prisma.project.findFirst({
+            where: {
+                slug: updateData.slug,
+                id: { not: projectId }, // Exclude current project
+            },
+        });
+
+        if (existingWithSlug) {
+            // Generate unique slug by appending incremental numbers
+            let counter = 1;
+            let uniqueSlug = `${updateData.slug}-${counter}`;
+
+            while (await prisma.project.findFirst({ where: { slug: uniqueSlug, id: { not: projectId } } })) {
+                counter++;
+                uniqueSlug = `${updateData.slug}-${counter}`;
+            }
+
+            updateData.slug = uniqueSlug;
+        }
+    }
+
     return prisma.project.update({
         where: { id: projectId },
         data: updateData,
@@ -364,6 +387,26 @@ export const createAdminProject = async (
         throw new Error('Package not found');
     }
 
+    // Handle slug uniqueness before creating
+    let finalSlug = data.slug;
+    if (finalSlug) {
+        const existingWithSlug = await prisma.project.findFirst({
+            where: { slug: finalSlug },
+        });
+
+        if (existingWithSlug) {
+            let counter = 1;
+            let uniqueSlug = `${finalSlug}-${counter}`;
+
+            while (await prisma.project.findFirst({ where: { slug: uniqueSlug } })) {
+                counter++;
+                uniqueSlug = `${finalSlug}-${counter}`;
+            }
+
+            finalSlug = uniqueSlug;
+        }
+    }
+
     const project = await prisma.project.create({
         data: {
             advertiserId: data.advertiserId,
@@ -381,7 +424,7 @@ export const createAdminProject = async (
             images: data.images,
             possessionStatus: data.possessionStatus,
             reraId: data.reraId,
-            slug: data.slug,
+            slug: finalSlug,
             seoTitle: data.seoTitle,
             seoDescription: data.seoDescription,
             featuredImage: data.featuredImage,
