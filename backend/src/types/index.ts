@@ -101,7 +101,7 @@ export interface ProjectCreateRequest {
     builderName: string;
     city: string;
     locality: string;
-    propertyType: string;
+    propertyType: string[];
     unitTypes: string[];
     budgetMin: number;
     budgetMax: number;
@@ -144,7 +144,7 @@ export interface ProjectUpdateRequest {
     builderName?: string;
     city?: string;
     locality?: string;
-    propertyType?: string;
+    propertyType?: string[];
     unitTypes?: string[];
     budgetMin?: number;
     budgetMax?: number;

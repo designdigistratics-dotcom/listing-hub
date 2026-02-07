@@ -92,7 +92,59 @@ router.get('/projects/:id', async (req, res, next) => {
             return;
         }
 
-        res.json(project);
+        // Resolve amenity IDs to labels
+        // Resolve Option IDs to Names
+        // Fields to resolve: city, locality, propertyType, unitTypes, possessionStatus, amenities
+        const optionIds: string[] = [];
+
+        if (project.city) optionIds.push(project.city);
+        if (project.locality) optionIds.push(project.locality);
+        if (project.possessionStatus) optionIds.push(project.possessionStatus);
+        // Handle propertyType: check if it's an array (new schema) or string (old types before regeneration)
+        if (Array.isArray(project.propertyType) && project.propertyType.length > 0) {
+            optionIds.push(...project.propertyType);
+        } else if (typeof project.propertyType === 'string' && project.propertyType) {
+            // Fallback if type is still string
+            optionIds.push(project.propertyType);
+        }
+
+        if (project.unitTypes && project.unitTypes.length > 0) optionIds.push(...project.unitTypes);
+        if (project.amenities && project.amenities.length > 0) optionIds.push(...project.amenities);
+
+        let resolvedData = { ...project };
+
+        if (optionIds.length > 0) {
+            const options = await prisma.option.findMany({
+                where: {
+                    id: { in: optionIds },
+                },
+                select: { id: true, name: true },
+            });
+
+            const optionMap = new Map(options.map(o => [o.id, o.name]));
+
+            // Helper to resolve single ID
+            const resolve = (id: string | null | undefined) => (id && optionMap.has(id) ? optionMap.get(id)! : id || "");
+
+            // Helper to resolve array of IDs
+            const resolveArray = (ids: string[] | string | undefined | null) => {
+                if (!ids) return [];
+                if (Array.isArray(ids)) return ids.map(id => optionMap.get(id) || id);
+                return [optionMap.get(ids) || ids];
+            };
+
+            resolvedData = {
+                ...project,
+                city: resolve(project.city),
+                locality: resolve(project.locality),
+                possessionStatus: resolve(project.possessionStatus),
+                propertyType: resolveArray(project.propertyType as any),
+                unitTypes: resolveArray(project.unitTypes),
+                amenities: resolveArray(project.amenities),
+            };
+        }
+
+        res.json(resolvedData);
     } catch (error) {
         next(error);
     }
@@ -134,8 +186,60 @@ router.get('/project/:slug', async (req, res, next) => {
             data: { visits: { increment: 1 } },
         });
 
+        // Resolve Option IDs to Names
+        // Fields to resolve: city, locality, propertyType, unitTypes, possessionStatus, amenities
+        const optionIds: string[] = [];
+
+        if (project.city) optionIds.push(project.city);
+        if (project.locality) optionIds.push(project.locality);
+        if (project.possessionStatus) optionIds.push(project.possessionStatus);
+
+        // Handle propertyType: check if it's an array (new schema) or string (old types before regeneration)
+        if (Array.isArray(project.propertyType) && project.propertyType.length > 0) {
+            optionIds.push(...project.propertyType);
+        } else if (typeof project.propertyType === 'string' && project.propertyType) {
+            // Fallback if type is still string
+            optionIds.push(project.propertyType);
+        }
+
+        if (project.unitTypes && project.unitTypes.length > 0) optionIds.push(...project.unitTypes);
+        if (project.amenities && project.amenities.length > 0) optionIds.push(...project.amenities);
+
+        let resolvedData: any = { ...project };
+
+        if (optionIds.length > 0) {
+            const options = await prisma.option.findMany({
+                where: {
+                    id: { in: optionIds },
+                },
+                select: { id: true, name: true },
+            });
+
+            const optionMap = new Map(options.map(o => [o.id, o.name]));
+
+            // Helper to resolve single ID
+            const resolve = (id: string | null | undefined) => (id && optionMap.has(id) ? optionMap.get(id)! : id || "");
+
+            // Helper to resolve array of IDs
+            const resolveArray = (ids: string[] | string | undefined | null) => {
+                if (!ids) return [];
+                if (Array.isArray(ids)) return ids.map(id => optionMap.get(id) || id);
+                return [optionMap.get(ids) || ids];
+            };
+
+            resolvedData = {
+                ...project,
+                city: resolve(project.city),
+                locality: resolve(project.locality),
+                possessionStatus: resolve(project.possessionStatus),
+                propertyType: resolveArray(project.propertyType as any),
+                unitTypes: resolveArray(project.unitTypes),
+                amenities: resolveArray(project.amenities),
+            };
+        }
+
         res.json({
-            ...project,
+            ...resolvedData,
             visits: project.visits + 1,
             advertiser_contact: project.advertiser ? {
                 company_name: project.advertiser.companyName || '',

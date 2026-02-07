@@ -20,6 +20,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { adminAPI, uploadAPI } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
+import { MultiSelect } from "@/components/ui/multi-select";
 
 export default function EditProjectPage() {
     const router = useRouter();
@@ -29,6 +30,11 @@ export default function EditProjectPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [amenityOptions, setAmenityOptions] = useState<any[]>([]);
+    const [cityOptions, setCityOptions] = useState<any[]>([]);
+    const [localityOptions, setLocalityOptions] = useState<any[]>([]);
+    const [propertyTypeOptions, setPropertyTypeOptions] = useState<any[]>([]);
+    const [unitTypeOptions, setUnitTypeOptions] = useState<any[]>([]);
+    const [possessionStatusOptions, setPossessionStatusOptions] = useState<any[]>([]);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -57,7 +63,7 @@ export default function EditProjectPage() {
         locationHighlights: [] as string[],
         budgetMin: 0,
         budgetMax: 0,
-        propertyType: "",
+        propertyType: [] as string[],
         unitTypes: [] as string[],
         highlights: [] as string[],
     });
@@ -65,9 +71,14 @@ export default function EditProjectPage() {
     useEffect(() => {
         const loadData = async () => {
             try {
-                const [projectRes, optionsRes] = await Promise.all([
+                const [projectRes, amenityRes, cityRes, localityRes, propTypeRes, unitTypeRes, possessionRes] = await Promise.all([
                     adminAPI.getProject(projectId),
-                    adminAPI.getOptions('amenity', { include_inactive: true })
+                    adminAPI.getOptions('amenity', { include_inactive: true }),
+                    adminAPI.getOptions('city', { include_inactive: true }),
+                    adminAPI.getOptions('location', { include_inactive: true }),
+                    adminAPI.getOptions('property_type', { include_inactive: true }),
+                    adminAPI.getOptions('unit_type', { include_inactive: true }),
+                    adminAPI.getOptions('possession_status', { include_inactive: true }),
                 ]);
 
                 const p = projectRes.data;
@@ -80,7 +91,7 @@ export default function EditProjectPage() {
                     price: p.price?.toString() || "",
                     priceDetails: p.priceDetails || "",
                     rerId: p.reraId || "",
-                    possessionStatus: p.possessionStatus || "ready_to_move",
+                    possessionStatus: p.possessionStatus || "",
                     aboutProject: p.aboutProject || "",
                     builderDescription: p.builderDescription || "",
                     amenities: p.amenities || [],
@@ -98,11 +109,16 @@ export default function EditProjectPage() {
                     locationHighlights: p.locationHighlights || [],
                     budgetMin: p.budgetMin || 0,
                     budgetMax: p.budgetMax || 0,
-                    propertyType: p.propertyType || "",
+                    propertyType: Array.isArray(p.propertyType) ? p.propertyType : (p.propertyType ? [p.propertyType] : []),
                     unitTypes: p.unitTypes || [],
                     highlights: p.highlights || [],
                 });
-                setAmenityOptions(optionsRes.data);
+                setAmenityOptions(amenityRes.data);
+                setCityOptions(cityRes.data);
+                setLocalityOptions(localityRes.data);
+                setPropertyTypeOptions(propTypeRes.data);
+                setUnitTypeOptions(unitTypeRes.data);
+                setPossessionStatusOptions(possessionRes.data);
             } catch (error) {
                 console.error("Failed to load project", error);
                 toast.error("Failed to load project details");
@@ -123,7 +139,13 @@ export default function EditProjectPage() {
     };
 
     const handleSelectChange = (name: string, value: string) => {
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setFormData((prev) => {
+            const updates: any = { [name]: value };
+            if (name === "city") {
+                updates.locality = ""; // Clear locality on city change
+            }
+            return { ...prev, ...updates };
+        });
     };
 
     const handleAmenityChange = (amenityId: string, checked: boolean) => {
@@ -283,11 +305,35 @@ export default function EditProjectPage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label>City</Label>
-                                    <Input name="city" value={formData.city} onChange={handleChange} />
+                                    <Select value={formData.city} onValueChange={(v) => handleSelectChange("city", v)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select city" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {cityOptions.map((opt) => (
+                                                <SelectItem key={opt.id} value={opt.id}>
+                                                    {opt.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Locality</Label>
-                                    <Input name="locality" value={formData.locality} onChange={handleChange} />
+                                    <Select value={formData.locality} onValueChange={(v) => handleSelectChange("locality", v)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select locality" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {localityOptions
+                                                .filter(l => l.parentId === formData.city)
+                                                .map((opt) => (
+                                                    <SelectItem key={opt.id} value={opt.id}>
+                                                        {opt.name}
+                                                    </SelectItem>
+                                                ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
 
@@ -338,12 +384,14 @@ export default function EditProjectPage() {
                                 <Label>Possession Status</Label>
                                 <Select value={formData.possessionStatus} onValueChange={(v) => handleSelectChange("possessionStatus", v)}>
                                     <SelectTrigger>
-                                        <SelectValue />
+                                        <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="ready_to_move">Ready to Move</SelectItem>
-                                        <SelectItem value="under_construction">Under Construction</SelectItem>
-                                        <SelectItem value="new_launch">New Launch</SelectItem>
+                                        {possessionStatusOptions.map((opt) => (
+                                            <SelectItem key={opt.id} value={opt.id}>
+                                                {opt.name}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -351,30 +399,20 @@ export default function EditProjectPage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label>Property Type</Label>
-                                    <Select value={formData.propertyType} onValueChange={(v) => handleSelectChange("propertyType", v)}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select property type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="apartment">Apartment</SelectItem>
-                                            <SelectItem value="villa">Villa</SelectItem>
-                                            <SelectItem value="plot">Plot</SelectItem>
-                                            <SelectItem value="penthouse">Penthouse</SelectItem>
-                                            <SelectItem value="commercial">Commercial</SelectItem>
-                                            <SelectItem value="office">Office Space</SelectItem>
-                                            <SelectItem value="studio">Studio</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                    <MultiSelect
+                                        options={propertyTypeOptions.map(o => ({ label: o.name, value: o.id }))}
+                                        selected={formData.propertyType || []}
+                                        onChange={(v) => setFormData(prev => ({ ...prev, propertyType: v }))}
+                                        placeholder="Select property types"
+                                    />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Unit Types (comma separated)</Label>
-                                    <Input
-                                        placeholder="e.g. 2BHK, 3BHK, 4BHK"
-                                        value={formData.unitTypes.join(", ")}
-                                        onChange={(e) => setFormData(prev => ({
-                                            ...prev,
-                                            unitTypes: e.target.value.split(",").map(s => s.trim()).filter(Boolean)
-                                        }))}
+                                    <Label>Unit Types</Label>
+                                    <MultiSelect
+                                        options={unitTypeOptions.map(o => ({ label: o.name, value: o.id }))}
+                                        selected={formData.unitTypes || []}
+                                        onChange={(v) => setFormData(prev => ({ ...prev, unitTypes: v }))}
+                                        placeholder="Select unit types"
                                     />
                                 </div>
                             </div>
@@ -476,21 +514,12 @@ export default function EditProjectPage() {
 
                             <div className="space-y-2">
                                 <Label>Amenities</Label>
-                                <div className="grid grid-cols-3 gap-2 border p-4 rounded-lg bg-muted/20">
-                                    {amenityOptions.map((amenity) => (
-                                        <div key={amenity.id} className="flex items-center space-x-2">
-                                            <Checkbox
-                                                id={`amenity-${amenity.id}`}
-                                                checked={formData.amenities.includes(amenity.id)}
-                                                onCheckedChange={(checked) => handleAmenityChange(amenity.id, checked as boolean)}
-                                            />
-                                            <label htmlFor={`amenity-${amenity.id}`} className="text-sm cursor-pointer">
-                                                {amenity.label || amenity.name}
-                                            </label>
-                                        </div>
-                                    ))}
-                                    {amenityOptions.length === 0 && <div className="col-span-3 text-sm text-center text-muted-foreground">No amenities found in Options. Add them in Options Management.</div>}
-                                </div>
+                                <MultiSelect
+                                    options={amenityOptions.map(o => ({ label: o.label || o.name, value: o.id }))}
+                                    selected={formData.amenities || []}
+                                    onChange={(v) => setFormData(prev => ({ ...prev, amenities: v }))}
+                                    placeholder="Select amenities"
+                                />
                             </div>
 
                             <div className="space-y-2">

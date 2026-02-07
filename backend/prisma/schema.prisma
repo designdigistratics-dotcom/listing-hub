@@ -130,7 +130,7 @@ model Project {
   builderName        String
   city               String
   locality           String
-  propertyType       String
+  propertyType       String[]          @default([])
   unitTypes          String[]
   budgetMin          Float
   budgetMax          Float
