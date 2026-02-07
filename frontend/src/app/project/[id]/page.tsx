@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { publicAPI } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -324,6 +325,20 @@ export default function ProjectPage() {
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
                 </div>
+
+                {/* Project Logo Overlay */}
+                {project.projectLogo && (
+                    <div className="absolute top-24 left-4 md:top-28 md:left-8 z-30 bg-white/95 p-2 rounded-lg shadow-lg backdrop-blur-sm">
+                        <div className="relative h-12 w-12 md:h-16 md:w-16">
+                            <Image
+                                src={project.projectLogo}
+                                alt={`${project.name} Logo`}
+                                fill
+                                className="object-contain"
+                            />
+                        </div>
+                    </div>
+                )}
 
                 {/* Hero Content */}
                 <div className="relative container mx-auto px-4 py-12 md:py-20">
