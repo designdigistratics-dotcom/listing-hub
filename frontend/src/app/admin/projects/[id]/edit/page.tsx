@@ -679,7 +679,15 @@ export default function EditProjectPage() {
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label>Slug (URL Friendly Name)</Label>
-                                <Input name="slug" value={formData.slug} onChange={handleChange} />
+                                <Input
+                                    name="slug"
+                                    value={formData.slug || ""}
+                                    onChange={handleChange}
+                                    placeholder="Leave empty to auto-generate from Name + Builder + City"
+                                />
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    Leave empty to automatically generate from Project Name, Builder Name, and City.
+                                </p>
                             </div>
                             <div className="space-y-2">
                                 <Label>SEO Title</Label>

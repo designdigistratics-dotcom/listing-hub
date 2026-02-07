@@ -111,6 +111,17 @@ export const createProject = async (
     //     throw new Error('This package already has a project assigned');
     // }
 
+    // Generate unique slug
+    let finalSlug = await generateSlug(data.name, data.builderName, data.city);
+    let counter = 1;
+    let uniqueSlug = finalSlug;
+
+    while (await prisma.project.findFirst({ where: { slug: uniqueSlug } })) {
+        uniqueSlug = `${finalSlug}-${counter}`;
+        counter++;
+    }
+    finalSlug = uniqueSlug;
+
     const project = await prisma.project.create({
         data: {
             advertiserId,
@@ -142,10 +153,32 @@ export const createProject = async (
             locationHighlights: data.locationHighlights || [],
             status: ProjectStatus.SUBMITTED_FOR_REVIEW,
             featuredImage: data.heroImage || (data.images && data.images.length > 0 ? data.images[0] : undefined),
+            slug: finalSlug,
         },
     });
 
     return project;
+};
+
+// Helper to generate slug
+const generateSlug = async (name: string, builderName: string, cityId: string): Promise<string> => {
+    // Get City Name
+    const city = await prisma.option.findUnique({
+        where: { id: cityId },
+        select: { name: true },
+    });
+
+    const cityName = city?.name || '';
+    const rawSlug = `${name} ${builderName} ${cityName}`;
+
+    const normalized = rawSlug
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+    return normalized || `project-${Date.now()}`;
 };
 
 export const updateProject = async (
@@ -175,7 +208,7 @@ export const updateProject = async (
     const fields = [
         'name', 'builderName', 'city', 'locality', 'propertyType', 'unitTypes',
         'budgetMin', 'budgetMax', 'highlights', 'amenities', 'images', 'possessionStatus',
-        'reraId', 'slug', 'seoTitle', 'seoDescription', 'featuredImage', 'isVisible',
+        'reraId', 'seoTitle', 'seoDescription', 'featuredImage', 'isVisible',
         'floorPlans', 'videoUrl', 'builderDescription', 'aboutProject', 'address',
         'price', 'priceDetails', 'heroImage', 'projectLogo', 'advertiserLogo',
         'disclaimer', 'locationHighlights',
@@ -187,27 +220,62 @@ export const updateProject = async (
         }
     });
 
-    // Handle slug uniqueness
-    if (updateData.slug) {
+    // Handle slug logic
+    let targetSlug = data.slug;
+
+    // Auto-generate if explicit slug is empty OR if Name/Builder/City changed and no explicit slug provided
+    // BUT user requested "not update everytime", implying stability.
+    // However, user specifically asked for "automatically generated based on...".
+    // Strategy: 
+    // 1. If user explicitly clears slug (sends ""), regenerate.
+    // 2. If user changes Name/Builder/City AND doesn't provide a manual slug, should we regenerate?
+    //    Ideally yes, to keep it sync. BUT this changes URLs. 
+    //    Given the "I don't want to update slug everytime" comment, likely they mean "I don't want to MANUALLY update it".
+    //    So if they change the name, they EXPECT the slug to update automatically.
+    //    Let's regenerate if name/builder/city changes OR if slug is empty.
+
+    const nameChanged = data.name && data.name !== project.name;
+    const builderChanged = data.builderName && data.builderName !== project.builderName;
+    const cityChanged = data.city && data.city !== project.city;
+
+    if (!targetSlug || targetSlug.trim() === '' || nameChanged || builderChanged || cityChanged) {
+        // Only regenerate if the user didn't provide a specific (non-empty) slug to override
+        if (!targetSlug || targetSlug.trim() === '') {
+            const n = data.name || project.name;
+            const b = data.builderName || project.builderName;
+            const c = data.city || project.city;
+            targetSlug = await generateSlug(n, b, c);
+        }
+    }
+
+    // Attempt to update slug if it's different and valid
+    if (targetSlug && targetSlug !== project.slug) {
         const existingWithSlug = await prisma.project.findFirst({
             where: {
-                slug: updateData.slug,
-                id: { not: projectId }, // Exclude current project
+                slug: targetSlug,
+                id: { not: projectId },
             },
         });
 
         if (existingWithSlug) {
-            // Generate unique slug by appending incremental numbers
             let counter = 1;
-            let uniqueSlug = `${updateData.slug}-${counter}`;
-
+            let uniqueSlug = `${targetSlug}-${counter}`;
             while (await prisma.project.findFirst({ where: { slug: uniqueSlug, id: { not: projectId } } })) {
                 counter++;
-                uniqueSlug = `${updateData.slug}-${counter}`;
+                uniqueSlug = `${targetSlug}-${counter}`;
             }
-
-            updateData.slug = uniqueSlug;
+            targetSlug = uniqueSlug;
         }
+        updateData.slug = targetSlug;
+    } else if (data.slug === "" || data.slug === null) {
+        // If user cleared it and we generated a same one, or simply keeping existing.
+        // Ensure strictly that we don't send "" to DB.
+        // If targetSlug became same as project.slug, checking logic:
+        // if targetSlug was calculated as "empire-estate-..." and project.slug is "empire-estate-..." -> no update
+        // loops handled.
+        // If data.slug was empty, we calculated targetSlug.
+        // If targetSlug !== project.slug, we update.
+        // If targetSlug === project.slug, we do nothing.
     }
 
     return prisma.project.update({
@@ -392,6 +460,10 @@ export const createAdminProject = async (
 
     // Handle slug uniqueness before creating
     let finalSlug = data.slug;
+    if (!finalSlug) {
+        finalSlug = await generateSlug(data.name, data.builderName, data.city);
+    }
+
     if (finalSlug) {
         const existingWithSlug = await prisma.project.findFirst({
             where: { slug: finalSlug },

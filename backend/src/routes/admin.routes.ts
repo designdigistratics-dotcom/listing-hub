@@ -660,15 +660,51 @@ router.get('/projects/review-inbox', requirePermissions(['projects', 'all']) as 
     }
 });
 
+// GET /projects - Get all projects with resolved names
 router.get('/projects', async (req, res, next) => {
     try {
         const { status, city, advertiser_id } = req.query;
-        const projects = await projectService.getAllProjects({
-            status: status as any,
-            city: city as string,
-            advertiserId: advertiser_id as string,
+
+        // Parallel fetch for better performance
+        const [projects, options] = await Promise.all([
+            projectService.getAllProjects({
+                status: status as any,
+                city: city as string,
+                advertiserId: advertiser_id as string,
+            }),
+            optionService.getAllOptions()
+        ]);
+
+        // Create ID to Name Map for fast lookup
+        const nameMap = new Map<string, string>();
+
+        // Helper to add to map
+        const addToMap = (items: any[]) => items.forEach(i => nameMap.set(i.id, i.name));
+
+        addToMap(options.cities);
+        addToMap(options.propertyTypes);
+        addToMap(options.possessionStatuses);
+
+        // Flatten locations from cities
+        options.cities.forEach(city => {
+            if (city.locations) {
+                addToMap(city.locations);
+            }
         });
-        res.json(projects);
+
+        // Resolve projects
+        const resolvedProjects = projects.map(p => ({
+            ...p,
+            city: nameMap.get(p.city) || p.city,
+            locality: nameMap.get(p.locality) || p.locality,
+            propertyType: (Array.isArray(p.propertyType) ? p.propertyType : [p.propertyType])
+                .map((id: string) => nameMap.get(id) || id)
+                .join(', '), // Admin table expects string usually, or we keep array? 
+            // Frontend interface says 'propertyType: string', so join is safer.
+            possessionStatus: nameMap.get(p.possessionStatus) || p.possessionStatus,
+        }));
+
+        res.json(resolvedProjects);
     } catch (error) {
         next(error);
     }
