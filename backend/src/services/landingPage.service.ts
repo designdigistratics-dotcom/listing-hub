@@ -343,6 +343,15 @@ export const placeProject = async (
         throw new Error('Landing page not found');
     }
 
+    // Check if landing page has reached max projects limit
+    const currentProjectCount = await prisma.landingPageSlot.count({
+        where: { landingPageId: data.landingPageId },
+    });
+
+    if (currentProjectCount >= landingPage.maxProjects) {
+        throw new Error(`Landing page has reached maximum limit of ${landingPage.maxProjects} projects`);
+    }
+
     // Get next position
     const maxPosition = await prisma.landingPageSlot.aggregate({
         where: { landingPageId: data.landingPageId },

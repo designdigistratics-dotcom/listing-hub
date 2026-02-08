@@ -234,12 +234,33 @@ export default function LandingPageDetailPage() {
                 <Card>
                     <CardContent className="p-4">
                         <p className="text-sm text-muted-foreground">Capacity</p>
-                        <p className="font-medium">{projectCount}/{landingPage.maxProjects || 10} projects</p>
+                        <div className="flex items-center gap-2 mt-1">
+                            <p className="font-medium">{projectCount}/</p>
+                            <Input
+                                type="number"
+                                className="w-16 h-7 px-2 text-center"
+                                min={1}
+                                max={50}
+                                defaultValue={landingPage.maxProjects || 15}
+                                onBlur={(e) => {
+                                    const newValue = parseInt(e.target.value) || 15;
+                                    if (newValue !== landingPage.maxProjects) {
+                                        adminAPI.updateLandingPage(landingPage.id, { maxProjects: newValue })
+                                            .then(() => {
+                                                toast.success("Max projects limit updated");
+                                                fetchLandingPage(landingPage.id);
+                                            })
+                                            .catch(() => toast.error("Failed to update limit"));
+                                    }
+                                }}
+                            />
+                            <p className="font-medium">projects</p>
+                        </div>
                         <div className="w-full h-2 bg-slate-100 rounded-full mt-2">
                             <div
-                                className={`h-full rounded-full transition-all ${projectCount >= 10 ? "bg-red-500" : projectCount >= 7 ? "bg-amber-500" : "bg-primary"
+                                className={`h-full rounded-full transition-all ${projectCount >= (landingPage.maxProjects || 15) ? "bg-red-500" : projectCount >= (landingPage.maxProjects || 15) * 0.7 ? "bg-amber-500" : "bg-primary"
                                     }`}
-                                style={{ width: `${(projectCount / (landingPage.maxProjects || 10)) * 100}%` }}
+                                style={{ width: `${(projectCount / (landingPage.maxProjects || 15)) * 100}%` }}
                             />
                         </div>
                     </CardContent>

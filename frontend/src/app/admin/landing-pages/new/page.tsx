@@ -46,6 +46,7 @@ export default function CreateLandingPage() {
         seoTitle: "",
         seoDescription: "",
         pageType: "CITY_LOCALITY",
+        maxProjects: 15,
     });
 
     useEffect(() => {
@@ -224,19 +225,34 @@ export default function CreateLandingPage() {
                             />
                         </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="heroImage">Hero Image URL</Label>
-                            <div className="flex gap-2">
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="heroImage">Hero Image URL</Label>
+                                <div className="flex gap-2">
+                                    <Input
+                                        id="heroImage"
+                                        name="heroImage"
+                                        placeholder="https://..."
+                                        value={formData.heroImage}
+                                        onChange={handleChange}
+                                    />
+                                    <Button type="button" variant="outline" size="icon">
+                                        <Upload className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="maxProjects">Max Projects Limit</Label>
                                 <Input
-                                    id="heroImage"
-                                    name="heroImage"
-                                    placeholder="https://..."
-                                    value={formData.heroImage}
+                                    id="maxProjects"
+                                    name="maxProjects"
+                                    type="number"
+                                    min={1}
+                                    max={50}
+                                    value={formData.maxProjects}
                                     onChange={handleChange}
                                 />
-                                <Button type="button" variant="outline" size="icon">
-                                    <Upload className="h-4 w-4" />
-                                </Button>
+                                <p className="text-xs text-muted-foreground">Maximum projects that can be placed on this page</p>
                             </div>
                         </div>
 
