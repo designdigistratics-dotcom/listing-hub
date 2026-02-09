@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { adminAPI, uploadAPI } from "@/lib/api";
+import { getImageUrl } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { MultiSelect } from "@/components/ui/multi-select";
 
@@ -470,7 +471,7 @@ export default function EditProjectPage() {
                                     <div className="flex flex-col gap-2">
                                         {formData.projectLogo && (
                                             <div className="relative w-fit">
-                                                <img src={formData.projectLogo} alt="Logo" className="h-20 w-20 object-contain border rounded" />
+                                                <img src={getImageUrl(formData.projectLogo)} alt="Logo" className="h-20 w-20 object-contain border rounded" />
                                                 <button
                                                     type="button"
                                                     onClick={() => setFormData(prev => ({ ...prev, projectLogo: "" }))}
@@ -488,7 +489,7 @@ export default function EditProjectPage() {
                                     <div className="flex flex-col gap-2">
                                         {formData.advertiserLogo && (
                                             <div className="relative w-fit">
-                                                <img src={formData.advertiserLogo} alt="Adv Logo" className="h-20 w-20 object-contain border rounded" />
+                                                <img src={getImageUrl(formData.advertiserLogo)} alt="Adv Logo" className="h-20 w-20 object-contain border rounded" />
                                                 <button
                                                     type="button"
                                                     onClick={() => setFormData(prev => ({ ...prev, advertiserLogo: "" }))}
@@ -506,7 +507,7 @@ export default function EditProjectPage() {
                                     <div className="flex flex-col gap-2">
                                         {formData.heroImage && (
                                             <div className="relative w-full">
-                                                <img src={formData.heroImage} alt="Hero" className="h-24 w-full object-cover border rounded" />
+                                                <img src={getImageUrl(formData.heroImage)} alt="Hero" className="h-24 w-full object-cover border rounded" />
                                                 <button
                                                     type="button"
                                                     onClick={() => setFormData(prev => ({ ...prev, heroImage: "" }))}
@@ -524,7 +525,7 @@ export default function EditProjectPage() {
                                     <div className="flex flex-col gap-2">
                                         {formData.cardImage && (
                                             <div className="relative w-full">
-                                                <img src={formData.cardImage} alt="Card Preview" className="h-24 w-full object-cover border rounded" />
+                                                <img src={getImageUrl(formData.cardImage)} alt="Card Preview" className="h-24 w-full object-cover border rounded" />
                                                 <button
                                                     type="button"
                                                     onClick={() => setFormData(prev => ({ ...prev, cardImage: "" }))}
@@ -573,7 +574,7 @@ export default function EditProjectPage() {
                                 <div className="grid grid-cols-4 gap-4 mb-4">
                                     {formData.images.map((img, i) => (
                                         <div key={i} className="relative group">
-                                            <img src={img} alt={`Gallery ${i}`} className="h-24 w-full object-cover rounded" />
+                                            <img src={getImageUrl(img)} alt={`Gallery ${i}`} className="h-24 w-full object-cover rounded" />
                                             <button
                                                 onClick={() => removeGalleryImage(i)}
                                                 className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
@@ -664,7 +665,7 @@ export default function EditProjectPage() {
                                     >
                                         <div className="aspect-[4/3] relative rounded-md overflow-hidden bg-white mb-2">
                                             <img
-                                                src={typeof fp === 'string' ? fp : fp.url}
+                                                src={getImageUrl(typeof fp === 'string' ? fp : fp.url)}
                                                 alt={`Floor Plan ${index + 1}`}
                                                 className="w-full h-full object-contain"
                                             />

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { formatBudgetRange, formatDate } from "@/lib/utils";
+import { formatBudgetRange, formatDate, getImageUrl } from "@/lib/utils";
 import {
     FolderOpen,
     Search,
@@ -70,6 +70,8 @@ interface Project {
     visits: number;
     createdAt: string;
     cardImage?: string;
+    featuredImage?: string;
+    images?: string[];
     advertiser?: {
         id: string;
         companyName: string;
@@ -82,6 +84,8 @@ interface Project {
         };
     }[];
 }
+
+
 
 export default function AdminProjectsPage() {
     const searchParams = useSearchParams();
@@ -312,13 +316,12 @@ export default function AdminProjectsPage() {
                                         <tr key={project.id} className="border-b hover:bg-slate-50/50">
                                             <td className="p-4">
                                                 <div className="w-16 h-12 bg-slate-100 rounded-md overflow-hidden relative">
-                                                    {(project.cardImage) ? (
+                                                    {(project.cardImage || project.featuredImage || (project.images && project.images.length > 0)) ? (
                                                         <img
-                                                            src={`https://d12b77d9-2423-4e35-862d-0b70d508930b.filesusr.com/${project.cardImage}`}
+                                                            src={getImageUrl(project.cardImage || project.featuredImage || project.images?.[0])}
                                                             alt={project.name}
                                                             className="w-full h-full object-cover"
                                                             onError={(e) => {
-                                                                // simplistic fallback or use next/image
                                                                 (e.target as HTMLImageElement).src = 'https://placehold.co/100x60?text=No+Img';
                                                             }}
                                                         />

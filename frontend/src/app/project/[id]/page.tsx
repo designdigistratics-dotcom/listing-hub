@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { formatBudgetRange } from "@/lib/utils";
+import { formatBudgetRange, getImageUrl } from "@/lib/utils";
 import {
     Building2,
     MapPin,
@@ -319,7 +319,7 @@ export default function ProjectPage() {
                     className="absolute inset-0 bg-cover bg-center"
                     style={{
                         backgroundImage: heroImage
-                            ? `url(${heroImage})`
+                            ? `url(${getImageUrl(heroImage)})`
                             : 'linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%)',
                     }}
                 >
@@ -332,7 +332,7 @@ export default function ProjectPage() {
                     <div className="absolute top-4 left-4 md:top-8 md:left-8 z-50 bg-white/95 p-2 rounded-lg shadow-lg backdrop-blur-sm">
                         <div className="relative h-12 w-12 md:h-16 md:w-16">
                             <Image
-                                src={project.projectLogo}
+                                src={getImageUrl(project.projectLogo)}
                                 alt={`${project.name} Logo`}
                                 fill
                                 className="object-contain"
@@ -613,11 +613,11 @@ export default function ProjectPage() {
                                 <div
                                     key={idx}
                                     className="group border border-slate-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
-                                    onClick={() => openLightbox(typeof fp === 'string' ? fp : fp.url)}
+                                    onClick={() => openLightbox(getImageUrl(typeof fp === 'string' ? fp : fp.url))}
                                 >
                                     <div className="aspect-[4/3] bg-slate-50 relative overflow-hidden">
                                         <img
-                                            src={typeof fp === 'string' ? fp : fp.url}
+                                            src={getImageUrl(typeof fp === 'string' ? fp : fp.url)}
                                             alt={typeof fp === 'string' ? `Floor Plan ${idx + 1}` : (fp.description || `Floor Plan ${idx + 1}`)}
                                             className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                                         />
@@ -655,10 +655,10 @@ export default function ProjectPage() {
                                 <div
                                     key={idx}
                                     className="aspect-video rounded-xl overflow-hidden cursor-pointer group"
-                                    onClick={() => openLightbox(img)}
+                                    onClick={() => openLightbox(getImageUrl(img))}
                                 >
                                     <img
-                                        src={img}
+                                        src={getImageUrl(img)}
                                         alt={`Gallery ${idx + 1}`}
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                     />
@@ -702,7 +702,7 @@ export default function ProjectPage() {
                         <div className="flex flex-col md:flex-row md:items-center gap-6">
                             {project.advertiserLogo ? (
                                 <img
-                                    src={project.advertiserLogo}
+                                    src={getImageUrl(project.advertiserLogo)}
                                     alt={project.advertiser?.companyName || project.builderName}
                                     className="w-20 h-20 rounded-xl object-contain bg-white p-2"
                                 />
