@@ -685,39 +685,13 @@ router.get('/projects', async (req, res, next) => {
                 city: city as string,
                 advertiserId: advertiser_id as string,
             }),
-            optionService.getAllOptions()
+            optionService.getAllOptions() // Keep fetching options if we need them for other things or remove if unused? 
+            // Actually, we don't need options anymore if projects are resolved.
+            // But let's check if 'options' variable is used elsewhere. It is used to build nameMap.
+            // If we remove nameMap logic, we don't need options.
         ]);
 
-        // Create ID to Name Map for fast lookup
-        const nameMap = new Map<string, string>();
-
-        // Helper to add to map
-        const addToMap = (items: any[]) => items.forEach(i => nameMap.set(i.id, i.name));
-
-        addToMap(options.cities);
-        addToMap(options.propertyTypes);
-        addToMap(options.possessionStatuses);
-
-        // Flatten locations from cities
-        options.cities.forEach(city => {
-            if (city.locations) {
-                addToMap(city.locations);
-            }
-        });
-
-        // Resolve projects
-        const resolvedProjects = projects.map(p => ({
-            ...p,
-            city: nameMap.get(p.city) || p.city,
-            locality: nameMap.get(p.locality) || p.locality,
-            propertyType: (Array.isArray(p.propertyType) ? p.propertyType : [p.propertyType])
-                .map((id: string) => nameMap.get(id) || id)
-                .join(', '), // Admin table expects string usually, or we keep array? 
-            // Frontend interface says 'propertyType: string', so join is safer.
-            possessionStatus: nameMap.get(p.possessionStatus) || p.possessionStatus,
-        }));
-
-        res.json(resolvedProjects);
+        res.json(projects);
     } catch (error) {
         next(error);
     }

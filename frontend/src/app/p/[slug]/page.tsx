@@ -149,7 +149,7 @@ export default async function LandingPage({ params }: Props) {
                                             )}
                                             <div className="absolute top-4 left-4">
                                                 <span className="px-3 py-1 bg-primary text-white text-sm rounded-full">
-                                                    {project.propertyType}
+                                                    {Array.isArray(project.propertyType) ? project.propertyType.join(', ') : project.propertyType}
                                                 </span>
                                             </div>
                                         </div>

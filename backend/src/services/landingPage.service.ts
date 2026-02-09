@@ -134,6 +134,10 @@ export const getLandingPageById = async (id: string) => {
     };
 };
 
+import { resolveProjectsData } from './project.service';
+
+// ... (imports remain)
+
 export const getLandingPageBySlug = async (slug: string) => {
     const page = await prisma.landingPage.findUnique({
         where: { slug },
@@ -162,6 +166,7 @@ export const getLandingPageBySlug = async (slug: string) => {
                             price: true,
                             status: true,
                             slug: true,
+                            cardImage: true, // Ensure cardImage is selected
                         },
                     },
                 },
@@ -179,25 +184,8 @@ export const getLandingPageBySlug = async (slug: string) => {
         .filter((slot) => slot.project.status === ProjectStatus.LIVE)
         .map((slot) => slot.project);
 
-    // Resolve UUIDs to names
-    const optionIds: string[] = [];
-    liveProjects.forEach(p => {
-        if (p.city) optionIds.push(p.city);
-        if (p.locality) optionIds.push(p.locality);
-    });
-
-    const options = await prisma.option.findMany({
-        where: { id: { in: optionIds } },
-        select: { id: true, name: true },
-    });
-
-    const nameMap = new Map(options.map(o => [o.id, o.name]));
-
-    const resolvedProjects = liveProjects.map(p => ({
-        ...p,
-        city: nameMap.get(p.city) || p.city,
-        locality: nameMap.get(p.locality) || p.locality,
-    }));
+    // Resolve UUIDs to names using shared helper
+    const resolvedProjects = await resolveProjectsData(liveProjects);
 
     return {
         ...page,

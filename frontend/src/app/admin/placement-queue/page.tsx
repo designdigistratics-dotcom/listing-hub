@@ -169,7 +169,7 @@ export default function PlacementQueuePage() {
                                                     {project.locality}, {project.city}
                                                 </span>
                                                 <Badge variant="secondary" className="bg-slate-100">
-                                                    {project.propertyType}
+                                                    {Array.isArray(project.propertyType) ? project.propertyType.join(', ') : project.propertyType}
                                                 </Badge>
                                             </div>
                                             <p className="text-sm text-primary font-medium mt-1">

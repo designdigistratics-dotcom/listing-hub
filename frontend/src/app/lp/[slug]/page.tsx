@@ -68,7 +68,7 @@ interface Project {
     builderName: string;
     city: string;
     locality: string;
-    propertyType: string;
+    propertyType: string | string[];
     unitTypes: string[];
     budgetMin: number;
     budgetMax: number;
@@ -131,7 +131,13 @@ export default function PublicLandingPage() {
         const locs = new Set<string>();
 
         landingPage.projects.forEach(p => {
-            if (p.propertyType) propTypes.add(p.propertyType);
+            if (p.propertyType) {
+                if (Array.isArray(p.propertyType)) {
+                    p.propertyType.forEach(pt => propTypes.add(pt));
+                } else {
+                    propTypes.add(p.propertyType);
+                }
+            }
             if (p.unitTypes) p.unitTypes.forEach(u => uTypes.add(u));
             if (p.locality) locs.add(p.locality);
         });
@@ -150,7 +156,12 @@ export default function PublicLandingPage() {
 
         // Apply property type filter
         if (propertyTypeFilter !== "all") {
-            filtered = filtered.filter((p) => p.propertyType === propertyTypeFilter);
+            filtered = filtered.filter((p) => {
+                if (Array.isArray(p.propertyType)) {
+                    return p.propertyType.includes(propertyTypeFilter);
+                }
+                return p.propertyType === propertyTypeFilter;
+            });
         }
 
         // Apply unit type filter

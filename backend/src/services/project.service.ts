@@ -287,7 +287,16 @@ export const updateProject = async (
 
     fields.forEach((field) => {
         if ((data as any)[field] !== undefined) {
-            updateData[field] = (data as any)[field];
+            let value = (data as any)[field];
+
+            // Ensure array fields are actually arrays
+            if (['propertyType', 'unitTypes', 'amenities', 'highlights', 'images', 'locationHighlights'].includes(field)) {
+                if (value && !Array.isArray(value)) {
+                    value = [value];
+                }
+            }
+
+            updateData[field] = value;
         }
     });
 
@@ -380,7 +389,7 @@ export const submitProject = async (projectId: string, advertiserId: string) => 
 // ==================== Admin Project Operations ====================
 
 export const getProjectsForReview = async () => {
-    return prisma.project.findMany({
+    const projects = await prisma.project.findMany({
         where: { status: ProjectStatus.SUBMITTED_FOR_REVIEW },
         include: {
             advertiser: {
@@ -399,6 +408,8 @@ export const getProjectsForReview = async () => {
         },
         orderBy: { createdAt: 'asc' },
     });
+
+    return resolveProjectsData(projects);
 };
 
 export const reviewProject = async (
