@@ -25,18 +25,14 @@ export function formatCurrency(amount: number, currency: string = "INR"): string
 
 export function formatBudgetRange(min: number, max: number): string {
     const formatValue = (val: number): string => {
-        if (val >= 10000000) {
-            // Crores - show up to 2 decimals if needed
-            const crValue = val / 10000000;
-            const decimals = crValue % 1 === 0 ? 0 : crValue * 100 % 1 === 0 ? 2 : 2;
-            return `₹${crValue.toFixed(decimals)} Cr`;
-        } else if (val >= 100000) {
-            // Lakhs - show up to 2 decimals if needed
-            const lakhValue = val / 100000;
-            const decimals = lakhValue % 1 === 0 ? 0 : lakhValue * 100 % 1 === 0 ? 2 : 2;
-            return `₹${lakhValue.toFixed(decimals)} L`;
-        }
-        return formatCurrency(val);
+        // Round to nearest thousand
+        const rounded = Math.round(val / 1000) * 1000;
+        // Format with Indian numbering system
+        return new Intl.NumberFormat("en-IN", {
+            style: "currency",
+            currency: "INR",
+            maximumFractionDigits: 0,
+        }).format(rounded);
     };
 
     return `${formatValue(min)} - ${formatValue(max)}`;

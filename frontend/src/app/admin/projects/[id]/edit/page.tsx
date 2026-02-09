@@ -366,14 +366,10 @@ export default function EditProjectPage() {
                                 <Textarea name="address" value={formData.address} onChange={handleChange} />
                             </div>
 
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label>Price (Numeric)</Label>
                                     <Input type="number" name="price" value={formData.price} onChange={handleChange} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Price Text (e.g. "Starts at 1.5 Cr")</Label>
-                                    <Input name="priceDetails" value={formData.priceDetails} onChange={handleChange} />
                                 </div>
                                 <div className="space-y-2">
                                     <Label>RERA ID</Label>
