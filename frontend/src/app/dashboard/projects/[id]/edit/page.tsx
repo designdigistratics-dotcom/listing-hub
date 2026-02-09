@@ -93,6 +93,7 @@ export default function EditProjectPage({
         images: [] as string[],
         floor_plans: [] as any[], // strings or objects
         video_url: "",
+        card_image: "",
         about_project: "",
         builder_description: "",
         possession_status: "",
@@ -122,6 +123,7 @@ export default function EditProjectPage({
                     images: data.images || [],
                     floor_plans: data.floorPlans || data.floor_plans || [],
                     video_url: data.videoUrl || data.video_url || "",
+                    card_image: data.cardImage || data.card_image || "",
                     about_project: data.aboutProject || data.about_project || "",
                     builder_description:
                         data.builderDescription || data.builder_description || "",
@@ -260,10 +262,24 @@ export default function EditProjectPage({
         setSaving(true);
         try {
             const payload = {
-                ...formData,
-                budget_min: parseFloat(formData.budget_min) || 0,
-                budget_max: parseFloat(formData.budget_max) || 0,
+                name: formData.name,
+                builderName: formData.builder_name,
+                city: formData.city,
+                locality: formData.locality,
+                propertyType: formData.property_type,
+                unitTypes: formData.unit_types,
+                budgetMin: parseFloat(formData.budget_min) || 0,
+                budgetMax: parseFloat(formData.budget_max) || 0,
                 highlights: formData.highlights.filter((h) => h.trim()),
+                amenities: formData.amenities,
+                images: formData.images,
+                floorPlans: formData.floor_plans,
+                videoUrl: formData.video_url,
+                cardImage: formData.card_image,
+                aboutProject: formData.about_project,
+                builderDescription: formData.builder_description,
+                possessionStatus: formData.possession_status,
+                reraId: formData.rera_id,
             };
 
             await advertiserAPI.updateProject(id, payload);
@@ -642,41 +658,104 @@ export default function EditProjectPage({
                                 )}
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            {formData.images.length > 0 ? (
-                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                                    {formData.images.map((url, index) => (
-                                        <div
-                                            key={index}
-                                            className="relative aspect-video rounded-lg overflow-hidden bg-slate-100 group"
-                                        >
+                        <CardContent className="space-y-6">
+                            {/* Card Image Section */}
+                            <div className="border-b pb-6">
+                                <Label className="mb-2 block">Property Card Image (Main Thumbnail)</Label>
+                                <div className="flex items-start gap-4">
+                                    {formData.card_image ? (
+                                        <div className="relative w-40 aspect-video rounded-lg overflow-hidden bg-slate-100 group border">
                                             <img
-                                                src={getImageUrl(url)}
-                                                alt={`Gallery ${index + 1}`}
+                                                src={getImageUrl(formData.card_image)}
+                                                alt="Card Image"
                                                 className="w-full h-full object-cover"
                                             />
-                                            {index === 0 && (
-                                                <span className="absolute top-2 left-2 px-2 py-1 bg-primary text-white text-xs rounded-full">
-                                                    Cover
-                                                </span>
-                                            )}
                                             {canEdit && (
                                                 <button
-                                                    onClick={() => removeImage(index)}
+                                                    onClick={() => setFormData(prev => ({ ...prev, card_image: "" }))}
                                                     className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                                                 >
                                                     <X className="w-4 h-4" />
                                                 </button>
                                             )}
                                         </div>
-                                    ))}
+                                    ) : (
+                                        <div className="w-40 aspect-video rounded-lg border-2 border-dashed border-slate-200 flex items-center justify-center bg-slate-50 text-slate-400">
+                                            <ImageIcon className="w-8 h-8" />
+                                        </div>
+                                    )}
+
+                                    {canEdit && (
+                                        <div className="space-y-2">
+                                            <label className="cursor-pointer inline-flex">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={async (e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (!file) return;
+                                                        const toastId = toast.loading("Uploading card image...");
+                                                        try {
+                                                            const res = await uploadAPI.uploadFile(file);
+                                                            setFormData(prev => ({ ...prev, card_image: res.data.url }));
+                                                            toast.success("Card image uploaded", { id: toastId });
+                                                        } catch (err) {
+                                                            toast.error("Upload failed", { id: toastId });
+                                                        }
+                                                    }}
+                                                    className="hidden"
+                                                />
+                                                <div className="h-9 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-md hover:bg-slate-800 transition-colors flex items-center gap-2">
+                                                    <Upload className="w-4 h-4" />
+                                                    Upload Card Image
+                                                </div>
+                                            </label>
+                                            <p className="text-xs text-muted-foreground max-w-xs">
+                                                This image will be displayed on the project card in search results and listings.
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
-                            ) : (
-                                <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-lg">
-                                    <ImageIcon className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                                    <p className="text-slate-500">No images uploaded yet</p>
-                                </div>
-                            )}
+                            </div>
+
+                            {/* Existing Gallery Section */}
+                            <div>
+                                <Label className="mb-2 block">Gallery Images</Label>
+                                {formData.images.length > 0 ? (
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                                        {formData.images.map((url, index) => (
+                                            <div
+                                                key={index}
+                                                className="relative aspect-video rounded-lg overflow-hidden bg-slate-100 group"
+                                            >
+                                                <img
+                                                    src={getImageUrl(url)}
+                                                    alt={`Gallery ${index + 1}`}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                                {index === 0 && (
+                                                    <span className="absolute top-2 left-2 px-2 py-1 bg-primary text-white text-xs rounded-full">
+                                                        Cover
+                                                    </span>
+                                                )}
+                                                {canEdit && (
+                                                    <button
+                                                        onClick={() => removeImage(index)}
+                                                        className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-lg">
+                                        <ImageIcon className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                                        <p className="text-slate-500">No images uploaded yet</p>
+                                    </div>
+                                )}
+                            </div>
                         </CardContent>
                     </Card>
                 </TabsContent>

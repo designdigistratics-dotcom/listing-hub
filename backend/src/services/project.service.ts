@@ -211,7 +211,7 @@ export const updateProject = async (
         'reraId', 'seoTitle', 'seoDescription', 'featuredImage', 'isVisible',
         'floorPlans', 'videoUrl', 'builderDescription', 'aboutProject', 'address',
         'price', 'priceDetails', 'heroImage', 'projectLogo', 'advertiserLogo',
-        'disclaimer', 'locationHighlights',
+        'disclaimer', 'locationHighlights', 'cardImage',
     ];
 
     fields.forEach((field) => {

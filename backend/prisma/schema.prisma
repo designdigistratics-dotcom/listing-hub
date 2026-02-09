@@ -143,6 +143,7 @@ model Project {
   price              String?
   priceDetails       String?
   heroImage          String?
+  cardImage          String?
   projectLogo        String?
   advertiserLogo     String?
   status             ProjectStatus     @default(DRAFT)

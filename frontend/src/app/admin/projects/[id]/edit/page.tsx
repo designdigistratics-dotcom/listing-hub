@@ -59,6 +59,7 @@ export default function EditProjectPage() {
         images: [] as string[],
         floorPlans: [] as any[],
         videoUrl: "",
+        cardImage: "",
         disclaimer: "",
         locationHighlights: [] as string[],
         budgetMin: 0,
@@ -126,6 +127,7 @@ export default function EditProjectPage() {
                     images: p.images || [],
                     floorPlans: p.floorPlans || [],
                     videoUrl: p.videoUrl || "",
+                    cardImage: p.cardImage || "",
                     disclaimer: p.disclaimer || "",
                     locationHighlights: p.locationHighlights || [],
                     budgetMin: p.budgetMin || 0,
@@ -466,23 +468,98 @@ export default function EditProjectPage() {
                                 <div className="space-y-2">
                                     <Label>Project Logo</Label>
                                     <div className="flex flex-col gap-2">
-                                        {formData.projectLogo && <img src={formData.projectLogo} alt="Logo" className="h-20 w-20 object-contain border rounded" />}
+                                        {formData.projectLogo && (
+                                            <div className="relative w-fit">
+                                                <img src={formData.projectLogo} alt="Logo" className="h-20 w-20 object-contain border rounded" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, projectLogo: "" }))}
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                                                >
+                                                    <Trash className="h-3 w-3" />
+                                                </button>
+                                            </div>
+                                        )}
                                         <Input type="file" onChange={(e) => handleFileUpload(e, "projectLogo")} />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Advertiser Logo</Label>
                                     <div className="flex flex-col gap-2">
-                                        {formData.advertiserLogo && <img src={formData.advertiserLogo} alt="Adv Logo" className="h-20 w-20 object-contain border rounded" />}
+                                        {formData.advertiserLogo && (
+                                            <div className="relative w-fit">
+                                                <img src={formData.advertiserLogo} alt="Adv Logo" className="h-20 w-20 object-contain border rounded" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, advertiserLogo: "" }))}
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                                                >
+                                                    <Trash className="h-3 w-3" />
+                                                </button>
+                                            </div>
+                                        )}
                                         <Input type="file" onChange={(e) => handleFileUpload(e, "advertiserLogo")} />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Hero Image (Banner)</Label>
                                     <div className="flex flex-col gap-2">
-                                        {formData.heroImage && <img src={formData.heroImage} alt="Hero" className="h-24 w-full object-cover border rounded" />}
+                                        {formData.heroImage && (
+                                            <div className="relative w-full">
+                                                <img src={formData.heroImage} alt="Hero" className="h-24 w-full object-cover border rounded" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, heroImage: "" }))}
+                                                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                                                >
+                                                    <Trash className="h-3 w-3" />
+                                                </button>
+                                            </div>
+                                        )}
                                         <Input type="file" onChange={(e) => handleFileUpload(e, "heroImage")} />
                                     </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Property Card Image</Label>
+                                    <div className="flex flex-col gap-2">
+                                        {formData.cardImage && (
+                                            <div className="relative w-full">
+                                                <img src={formData.cardImage} alt="Card Preview" className="h-24 w-full object-cover border rounded" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, cardImage: "" }))}
+                                                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                                                >
+                                                    <Trash className="h-3 w-3" />
+                                                </button>
+                                            </div>
+                                        )}
+                                        <Input type="file" onChange={(e) => handleFileUpload(e, "cardImage")} />
+                                        <p className="text-xs text-muted-foreground">Used for project listing cards.</p>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Video Tour</CardTitle>
+                                <CardDescription>Add a link to a YouTube or Vimeo video tour.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-2">
+                                    <Label>Video URL</Label>
+                                    <Input
+                                        name="videoUrl"
+                                        value={formData.videoUrl}
+                                        onChange={handleChange}
+                                        placeholder="https://www.youtube.com/watch?v=..."
+                                    />
+                                    {formData.videoUrl && (
+                                        <p className="text-xs text-muted-foreground">
+                                            Video will be embedded on the project page.
+                                        </p>
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>

@@ -118,6 +118,7 @@ export interface ProjectCreateRequest {
     advertiserLogo?: string;
     floorPlans?: any[];
     videoUrl?: string;
+    cardImage?: string;
     builderDescription?: string;
     aboutProject?: string;
     disclaimer?: string;
@@ -133,6 +134,7 @@ export interface AdminProjectCreateRequest extends ProjectCreateRequest {
     isVisible?: boolean;
     floorPlans?: any[];
     videoUrl?: string;
+    cardImage?: string;
     builderDescription?: string;
     aboutProject?: string;
     disclaimer?: string;
@@ -160,6 +162,7 @@ export interface ProjectUpdateRequest {
     isVisible?: boolean;
     floorPlans?: any[];
     videoUrl?: string;
+    cardImage?: string;
     builderDescription?: string;
     aboutProject?: string;
     address?: string;
