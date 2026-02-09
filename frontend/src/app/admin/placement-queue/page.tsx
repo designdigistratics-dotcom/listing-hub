@@ -236,7 +236,7 @@ export default function PlacementQueuePage() {
                                 <SelectContent>
                                     {getAvailableLandingPages().map((lp) => (
                                         <SelectItem key={lp.id} value={lp.id}>
-                                            {lp.name} ({lp.listings?.length || 0}/10 slots)
+                                            {lp.name} ({lp.listings?.length || 0}/{lp.maxProjects || 15} slots)
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -249,20 +249,28 @@ export default function PlacementQueuePage() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Position (1-10)</label>
-                            <Select value={selectedPosition} onValueChange={setSelectedPosition}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select position" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="auto">Auto (next available)</SelectItem>
-                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((pos) => (
-                                        <SelectItem key={pos} value={pos.toString()}>
-                                            Position {pos}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            {(() => {
+                                const selectedLandingPage = landingPages.find((lp: any) => lp.id === selectedLP);
+                                const maxPositions = selectedLandingPage?.maxProjects || 15;
+                                return (
+                                    <>
+                                        <label className="text-sm font-medium">Position (1-{maxPositions})</label>
+                                        <Select value={selectedPosition} onValueChange={setSelectedPosition}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select position" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="auto">Auto (next available)</SelectItem>
+                                                {Array.from({ length: maxPositions }, (_, i) => i + 1).map((pos) => (
+                                                    <SelectItem key={pos} value={pos.toString()}>
+                                                        Position {pos}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </>
+                                );
+                            })()}
                         </div>
 
                         <div className="bg-amber-50 rounded-lg p-3 text-sm text-amber-800">

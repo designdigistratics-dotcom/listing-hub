@@ -650,20 +650,49 @@ export default function ProjectPage() {
                 {galleryImages.length > 1 && (
                     <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
                         <h2 className="text-2xl font-bold mb-6">Gallery</h2>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {galleryImages.map((img, idx) => (
-                                <div
-                                    key={idx}
-                                    className="aspect-video rounded-xl overflow-hidden cursor-pointer group"
-                                    onClick={() => openLightbox(getImageUrl(img))}
-                                >
-                                    <img
-                                        src={getImageUrl(img)}
-                                        alt={`Gallery ${idx + 1}`}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                    />
-                                </div>
-                            ))}
+                        <div className="relative group">
+                            {/* Left Arrow */}
+                            <button
+                                onClick={() => {
+                                    const container = document.getElementById('gallery-scroll');
+                                    if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
+                                }}
+                                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/90 hover:bg-white shadow-lg rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 -translate-x-1/2 hover:scale-110"
+                            >
+                                <ChevronLeft className="w-6 h-6 text-slate-700" />
+                            </button>
+
+                            {/* Gallery Container */}
+                            <div
+                                id="gallery-scroll"
+                                className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-2"
+                                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                            >
+                                {galleryImages.map((img, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="flex-shrink-0 w-64 md:w-80 aspect-video rounded-xl overflow-hidden cursor-pointer group/item"
+                                        onClick={() => openLightbox(getImageUrl(img))}
+                                    >
+                                        <img
+                                            src={getImageUrl(img)}
+                                            alt={`Gallery ${idx + 1}`}
+                                            className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Right Arrow */}
+                            <button
+                                onClick={() => {
+                                    const container = document.getElementById('gallery-scroll');
+                                    if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
+                                }}
+                                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/90 hover:bg-white shadow-lg rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 translate-x-1/2 hover:scale-110"
+                            >
+                                <ChevronRight className="w-6 h-6 text-slate-700" />
+                            </button>
                         </div>
                     </section>
                 )}
