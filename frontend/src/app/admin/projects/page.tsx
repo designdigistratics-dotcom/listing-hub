@@ -66,7 +66,7 @@ interface Project {
     status: string;
     budgetMin: number;
     budgetMax: number;
-    propertyType: string;
+    propertyType: string | string[];
     visits: number;
     createdAt: string;
     cardImage?: string;

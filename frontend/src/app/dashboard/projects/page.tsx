@@ -36,7 +36,7 @@ interface Project {
     status: string;
     budgetMin: number;
     budgetMax: number;
-    propertyType: string;
+    propertyType: string | string[];
     createdAt: string;
     featuredImage?: string;
     heroImage?: string;
@@ -217,7 +217,7 @@ export default function ProjectsPage() {
                                     </div>
                                     <div className="flex items-center gap-2 text-muted-foreground">
                                         <Building className="h-4 w-4" />
-                                        <span>{project.propertyType}</span>
+                                        <span>{Array.isArray(project.propertyType) ? project.propertyType.join(', ') : project.propertyType}</span>
                                     </div>
                                     <div className="font-semibold text-primary">
                                         {formatBudgetRange(project.budgetMin, project.budgetMax)}

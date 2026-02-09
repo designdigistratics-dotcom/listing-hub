@@ -166,7 +166,9 @@ export default function ProjectDetailsPage() {
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-muted-foreground block mb-1">Property Type</label>
-                                <Badge variant="secondary">{project.propertyType}</Badge>
+                                <Badge variant="secondary">
+                                    {Array.isArray(project.propertyType) ? project.propertyType.join(', ') : project.propertyType}
+                                </Badge>
                             </div>
                         </div>
 

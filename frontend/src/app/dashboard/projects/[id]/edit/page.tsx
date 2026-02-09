@@ -111,7 +111,7 @@ export default function EditProjectPage({
                     builder_name: data.builderName || data.builder_name || "",
                     city: data.city || "",
                     locality: data.locality || "",
-                    property_type: data.propertyType || data.property_type || "",
+                    property_type: Array.isArray(data.propertyType) ? data.propertyType[0] : (data.propertyType || data.property_type || ""),
                     unit_types: data.unitTypes || data.unit_types || [],
                     budget_min: data.budgetMin || data.budget_min || "",
                     budget_max: data.budgetMax || data.budget_max || "",

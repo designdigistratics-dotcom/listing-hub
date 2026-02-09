@@ -41,11 +41,67 @@ export const getAdvertiserProjects = async (advertiserId: string) => {
     });
 
     // Add expiry date, lead count, and simplify landing page info
-    return projects.map(project => ({
+    const mappedProjects = projects.map(project => ({
         ...project,
         expiryDate: project.package?.endDate || null,
         leadCount: project._count.leads,
         landingPages: project.placements.map(p => p.landingPage),
+    }));
+
+    return resolveProjectsData(mappedProjects);
+};
+
+// Helper to resolve options for a list of projects
+export const resolveProjectsData = async (projects: any[]) => {
+    if (projects.length === 0) return [];
+
+    const optionIds = new Set<string>();
+
+    projects.forEach(p => {
+        if (p.city) optionIds.add(p.city);
+        if (p.locality) optionIds.add(p.locality);
+        if (p.possessionStatus) optionIds.add(p.possessionStatus);
+
+        if (Array.isArray(p.propertyType)) {
+            p.propertyType.forEach((id: string) => optionIds.add(id));
+        } else if (typeof p.propertyType === 'string' && p.propertyType) {
+            optionIds.add(p.propertyType);
+        }
+
+        if (Array.isArray(p.unitTypes)) {
+            p.unitTypes.forEach((id: string) => optionIds.add(id));
+        }
+
+        if (Array.isArray(p.amenities)) {
+            p.amenities.forEach((id: string) => optionIds.add(id));
+        }
+    });
+
+    if (optionIds.size === 0) return projects;
+
+    const options = await prisma.option.findMany({
+        where: { id: { in: Array.from(optionIds) } },
+        select: { id: true, name: true }
+    });
+
+    const optionMap = new Map(options.map(o => [o.id, o.name]));
+
+    const resolve = (id: string | null | undefined) => (id && optionMap.has(id) ? optionMap.get(id)! : id || "");
+
+    const resolveArray = (ids: any) => {
+        if (!ids) return [];
+        if (Array.isArray(ids)) return ids.map(id => optionMap.get(id) || id);
+        return [optionMap.get(ids) || ids];
+    };
+
+    return projects.map(p => ({
+        ...p,
+        city: resolve(p.city),
+        locality: resolve(p.locality),
+        possessionStatus: resolve(p.possessionStatus),
+        propertyType: resolveArray(p.propertyType),
+        unitTypes: resolveArray(p.unitTypes),
+        amenities: resolveArray(p.amenities),
     }));
 };
 
@@ -83,7 +139,8 @@ export const getProjectById = async (projectId: string, advertiserId?: string) =
         throw new Error('Project not found');
     }
 
-    return project;
+    const resolved = await resolveProjectsData([project]);
+    return resolved[0];
 };
 
 export const createProject = async (
@@ -424,7 +481,7 @@ export const getAllProjects = async (params: {
         where.advertiserId = params.advertiserId;
     }
 
-    return prisma.project.findMany({
+    const projects = await prisma.project.findMany({
         where,
         include: {
             advertiser: {
@@ -453,6 +510,8 @@ export const getAllProjects = async (params: {
         },
         orderBy: { createdAt: 'desc' },
     });
+
+    return resolveProjectsData(projects);
 };
 
 export const createAdminProject = async (

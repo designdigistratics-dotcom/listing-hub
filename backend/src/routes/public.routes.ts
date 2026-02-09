@@ -4,6 +4,7 @@ import * as landingPageService from '../services/landingPage.service';
 import * as leadService from '../services/lead.service';
 import * as optionService from '../services/option.service';
 import * as otpService from '../services/otp.service';
+import { resolveProjectsData } from '../services/project.service';
 import { distributeLead } from '../services/leadDistribution.service';
 import { ProjectStatus, OtpSendRequest, OtpVerifyRequest } from '../types';
 
@@ -37,59 +38,7 @@ router.get('/landing-page/:slug', async (req, res, next) => {
 
 // ==================== Projects ====================
 
-// Helper to resolve project options
-const resolveProjectData = async (project: any) => {
-    if (!project) return null;
 
-    // Resolve Option IDs to Names
-    // Fields to resolve: city, locality, propertyType, unitTypes, possessionStatus, amenities
-    const optionIds: string[] = [];
-
-    if (project.city) optionIds.push(project.city);
-    if (project.locality) optionIds.push(project.locality);
-    if (project.possessionStatus) optionIds.push(project.possessionStatus);
-
-    // Handle propertyType: check if it's an array (new schema) or string (old types before regeneration)
-    if (Array.isArray(project.propertyType) && project.propertyType.length > 0) {
-        optionIds.push(...project.propertyType);
-    } else if (typeof project.propertyType === 'string' && project.propertyType) {
-        optionIds.push(project.propertyType);
-    }
-
-    if (project.unitTypes && project.unitTypes.length > 0) optionIds.push(...project.unitTypes);
-    if (project.amenities && project.amenities.length > 0) optionIds.push(...project.amenities);
-
-    if (optionIds.length === 0) return project;
-
-    const options = await prisma.option.findMany({
-        where: {
-            id: { in: optionIds },
-        },
-        select: { id: true, name: true },
-    });
-
-    const optionMap = new Map(options.map(o => [o.id, o.name]));
-
-    // Helper to resolve single ID
-    const resolve = (id: string | null | undefined) => (id && optionMap.has(id) ? optionMap.get(id)! : id || "");
-
-    // Helper to resolve array of IDs
-    const resolveArray = (ids: string[] | string | undefined | null) => {
-        if (!ids) return [];
-        if (Array.isArray(ids)) return ids.map(id => optionMap.get(id) || id);
-        return [optionMap.get(ids) || ids];
-    };
-
-    return {
-        ...project,
-        city: resolve(project.city),
-        locality: resolve(project.locality),
-        possessionStatus: resolve(project.possessionStatus),
-        propertyType: resolveArray(project.propertyType as any),
-        unitTypes: resolveArray(project.unitTypes),
-        amenities: resolveArray(project.amenities),
-    };
-};
 
 // GET /api/projects/:id - Get project details by ID or Slug (public)
 router.get('/projects/:id', async (req, res, next) => {
@@ -149,7 +98,7 @@ router.get('/projects/:id', async (req, res, next) => {
             return;
         }
 
-        const resolvedData = await resolveProjectData(project);
+        const resolvedData = (await resolveProjectsData([project]))[0];
         res.json(resolvedData);
     } catch (error) {
         next(error);
@@ -192,7 +141,7 @@ router.get('/project/:slug', async (req, res, next) => {
             data: { visits: { increment: 1 } },
         });
 
-        const resolvedData = await resolveProjectData(project);
+        const resolvedData = (await resolveProjectsData([project]))[0];
 
         res.json({
             ...resolvedData,
@@ -360,7 +309,7 @@ router.get('/project-preview/:slug', async (req, res, next) => {
             return;
         }
 
-        const resolvedData = await resolveProjectData(project);
+        const resolvedData = (await resolveProjectsData([project]))[0];
 
         res.json({
             ...resolvedData,

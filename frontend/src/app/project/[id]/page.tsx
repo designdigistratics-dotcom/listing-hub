@@ -56,7 +56,7 @@ interface ProjectData {
     city: string;
     locality: string;
     address?: string;
-    propertyType: string;
+    propertyType: string | string[];
     budgetMin: number;
     budgetMax: number;
     price?: string;
@@ -349,7 +349,7 @@ export default function ProjectPage() {
                             {/* Badges */}
                             <div className="flex flex-wrap gap-2 mb-4">
                                 <Badge className="bg-teal-600 hover:bg-teal-700 text-white border-0 px-3 py-1 text-sm font-medium shadow-sm">
-                                    {project.propertyType}
+                                    {Array.isArray(project.propertyType) ? project.propertyType.join(', ') : project.propertyType}
                                 </Badge>
                                 {project.reraId && (
                                     <Badge variant="outline" className="bg-white/10 text-white border-white/30">
@@ -694,24 +694,7 @@ export default function ProjectPage() {
                     </section>
                 )}
 
-                {/* Video */}
-                {project.videoUrl && (
-                    <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-teal-800">
-                            <Play className="h-6 w-6 text-teal-600" />
-                            Project Video
-                        </h2>
-                        <div className="aspect-video rounded-xl overflow-hidden bg-slate-100">
-                            <iframe
-                                src={project.videoUrl.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/")}
-                                title={`${project.name} Video`}
-                                className="w-full h-full"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                            />
-                        </div>
-                    </section>
-                )}
+
 
                 {/* Builder Info */}
                 {(project.advertiser || project.builderDescription) && (
