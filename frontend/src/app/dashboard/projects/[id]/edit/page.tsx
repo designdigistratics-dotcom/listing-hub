@@ -263,23 +263,23 @@ export default function EditProjectPage({
         try {
             const payload = {
                 name: formData.name,
-                builderName: formData.builder_name,
+                builder_name: formData.builder_name,
                 city: formData.city,
                 locality: formData.locality,
-                propertyType: formData.property_type,
-                unitTypes: formData.unit_types,
-                budgetMin: parseFloat(formData.budget_min) || 0,
-                budgetMax: parseFloat(formData.budget_max) || 0,
+                property_type: formData.property_type,
+                unit_types: formData.unit_types,
+                budget_min: parseFloat(formData.budget_min) || 0,
+                budget_max: parseFloat(formData.budget_max) || 0,
                 highlights: formData.highlights.filter((h) => h.trim()),
                 amenities: formData.amenities,
                 images: formData.images,
-                floorPlans: formData.floor_plans,
-                videoUrl: formData.video_url,
-                cardImage: formData.card_image,
-                aboutProject: formData.about_project,
-                builderDescription: formData.builder_description,
-                possessionStatus: formData.possession_status,
-                reraId: formData.rera_id,
+                floor_plans: formData.floor_plans,
+                video_url: formData.video_url,
+                card_image: formData.card_image,
+                about_project: formData.about_project,
+                builder_description: formData.builder_description,
+                possession_status: formData.possession_status,
+                rera_id: formData.rera_id,
             };
 
             await advertiserAPI.updateProject(id, payload);
@@ -322,15 +322,19 @@ export default function EditProjectPage({
         }
     };
 
-    // Determine editability
+    // Determine editability - allow editing for all active statuses
     const canEdit =
         project &&
         (project.status === "DRAFT" ||
             project.status === "draft" ||
             project.status === "NEEDS_CHANGES" ||
             project.status === "needs_changes" ||
-            project.status === "SUBMITTED_FOR_REVIEW" || // Usually allow editing while under review, or maybe not? Reference code allows it.
-            project.status === "submitted_for_review");
+            project.status === "SUBMITTED_FOR_REVIEW" ||
+            project.status === "submitted_for_review" ||
+            project.status === "LIVE" ||
+            project.status === "live" ||
+            project.status === "APPROVED_AWAITING_PLACEMENT" ||
+            project.status === "approved_awaiting_placement");
 
     if (loading) {
         return (

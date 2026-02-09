@@ -360,7 +360,7 @@ export default function ViewProjectPage({
                         </CardContent>
                     </Card>
 
-                    {project.videoUrl && project.video_url && (
+                    {(project.videoUrl || project.video_url) && (
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg">Video Tour</CardTitle>

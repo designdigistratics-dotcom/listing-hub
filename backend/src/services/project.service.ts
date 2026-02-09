@@ -270,8 +270,8 @@ export const updateProject = async (
         throw new Error('Project not found');
     }
 
-    // Advertisers can only edit draft or needs_changes projects
-    if (advertiserId && !['DRAFT', 'NEEDS_CHANGES'].includes(project.status)) {
+    // Advertisers can edit draft, needs_changes, live, and approved_awaiting_placement projects
+    if (advertiserId && !['DRAFT', 'NEEDS_CHANGES', 'LIVE', 'APPROVED_AWAITING_PLACEMENT'].includes(project.status)) {
         throw new Error('Cannot edit project in current status');
     }
 
