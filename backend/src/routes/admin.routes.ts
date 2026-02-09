@@ -612,6 +612,19 @@ router.post('/payments/:id/record', requirePermissions(['payments', 'all']) as a
     }
 });
 
+router.delete('/billing-ledger/:id', requirePermissions(['payments', 'all']) as any, async (req: AuthenticatedRequest, res, next) => {
+    try {
+        await packageService.deleteBillingRecord(req.params.id as string);
+        res.json({ success: true, message: 'Billing record deleted' });
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(400).json({ error: error.message });
+            return;
+        }
+        next(error);
+    }
+});
+
 // ==================== Billing ====================
 
 router.get('/billing-ledger', requirePermissions(['billing', 'all']) as any, async (req, res, next) => {

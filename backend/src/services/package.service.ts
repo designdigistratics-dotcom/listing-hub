@@ -650,6 +650,12 @@ export const getInvoice = async (billingId: string, advertiserId?: string) => {
     return billing;
 };
 
+export const deleteBillingRecord = async (id: string) => {
+    return prisma.billingRecord.delete({
+        where: { id },
+    });
+};
+
 // ==================== Expiry Check ====================
 
 export const runExpiryCheck = async (

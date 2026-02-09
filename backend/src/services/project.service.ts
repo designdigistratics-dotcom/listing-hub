@@ -130,7 +130,7 @@ export const createProject = async (
             builderName: data.builderName,
             city: data.city,
             locality: data.locality,
-            propertyType: data.propertyType as any,
+            propertyType: Array.isArray(data.propertyType) ? data.propertyType : [data.propertyType],
             unitTypes: data.unitTypes,
             budgetMin: data.budgetMin,
             budgetMax: data.budgetMax,
@@ -147,6 +147,7 @@ export const createProject = async (
             advertiserLogo: data.advertiserLogo,
             floorPlans: data.floorPlans || [],
             videoUrl: data.videoUrl,
+            cardImage: data.cardImage,
             builderDescription: data.builderDescription,
             aboutProject: data.aboutProject,
             disclaimer: data.disclaimer,
@@ -163,12 +164,25 @@ export const createProject = async (
 // Helper to generate slug
 const generateSlug = async (name: string, builderName: string, cityId: string): Promise<string> => {
     // Get City Name
-    const city = await prisma.option.findUnique({
-        where: { id: cityId },
-        select: { name: true },
-    });
+    let cityName = cityId;
 
-    const cityName = city?.name || '';
+    // Check if cityId looks like a UUID before querying, otherwise treat it as the name itself
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (uuidRegex.test(cityId)) {
+        try {
+            const city = await prisma.option.findUnique({
+                where: { id: cityId },
+                select: { name: true },
+            });
+            if (city) {
+                cityName = city.name;
+            }
+        } catch (e) {
+            // Ignore error and use cityId as name if lookup fails
+        }
+    }
+
     const rawSlug = `${name} ${builderName} ${cityName}`;
 
     const normalized = rawSlug
@@ -490,7 +504,7 @@ export const createAdminProject = async (
             builderName: data.builderName,
             city: data.city,
             locality: data.locality,
-            propertyType: data.propertyType as any,
+            propertyType: Array.isArray(data.propertyType) ? data.propertyType : [data.propertyType],
             unitTypes: data.unitTypes,
             budgetMin: data.budgetMin,
             budgetMax: data.budgetMax,
@@ -516,6 +530,7 @@ export const createAdminProject = async (
             advertiserLogo: data.advertiserLogo,
             disclaimer: data.disclaimer,
             locationHighlights: data.locationHighlights || [],
+            cardImage: data.cardImage,
             status: ProjectStatus.APPROVED_AWAITING_PLACEMENT,
         },
     });

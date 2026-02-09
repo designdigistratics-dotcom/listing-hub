@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { formatBudgetRange } from "@/lib/utils";
+import { formatBudgetRange, getImageUrl } from "@/lib/utils";
 import {
     FolderOpen,
     Plus,
@@ -39,6 +39,8 @@ interface Project {
     propertyType: string;
     createdAt: string;
     featuredImage?: string;
+    heroImage?: string;
+    cardImage?: string;
     expiryDate?: string;
     leadCount?: number;
     landingPages?: {
@@ -179,12 +181,14 @@ export default function ProjectsPage() {
                             <div
                                 className="h-40 bg-cover bg-center bg-slate-100"
                                 style={{
-                                    backgroundImage: project.featuredImage
-                                        ? `url(${project.featuredImage})`
-                                        : undefined,
+                                    backgroundImage: `url(${getImageUrl(
+                                        project.cardImage || project.featuredImage || project.heroImage
+                                    )})`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
                                 }}
                             >
-                                {!project.featuredImage && (
+                                {!(project.cardImage || project.featuredImage || project.heroImage) && (
                                     <div className="h-full flex items-center justify-center">
                                         <Building className="h-12 w-12 text-slate-300" />
                                     </div>

@@ -70,6 +70,7 @@ interface ProjectData {
     heroImage?: string;
     projectLogo?: string;
     advertiserLogo?: string;
+    cardImage?: string;
     possessionStatus: string;
     reraId?: string;
     aboutProject?: string;
@@ -577,6 +578,25 @@ export default function ProjectPage() {
                                     <span className="text-slate-700">{highlight}</span>
                                 </div>
                             ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* Video Tour */}
+                {project.videoUrl && (
+                    <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
+                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-teal-800">
+                            <Play className="h-6 w-6 text-teal-600" />
+                            Video Tour
+                        </h2>
+                        <div className="aspect-video rounded-xl overflow-hidden bg-slate-100">
+                            <iframe
+                                src={project.videoUrl.replace("watch?v=", "embed/")}
+                                title="Project Video Tour"
+                                className="w-full h-full"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            />
                         </div>
                     </section>
                 )}

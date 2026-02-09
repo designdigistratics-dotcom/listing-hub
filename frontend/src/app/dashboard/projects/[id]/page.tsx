@@ -284,6 +284,18 @@ export default function ViewProjectPage({
                         </CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {project.cardImage && (
+                                    <div className="aspect-video rounded-lg overflow-hidden bg-slate-100 border relative group">
+                                        <img
+                                            src={getImageUrl(project.cardImage)}
+                                            alt="Card Image"
+                                            className="w-full h-full object-cover"
+                                        />
+                                        <div className="absolute top-2 left-2 px-2 py-1 bg-primary text-white text-xs rounded-full">
+                                            Card Image
+                                        </div>
+                                    </div>
+                                )}
                                 {(project.images || []).map((url: string, index: number) => (
                                     <div key={index} className="aspect-video rounded-lg overflow-hidden bg-slate-100 border relative group">
                                         <img

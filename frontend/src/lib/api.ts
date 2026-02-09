@@ -201,6 +201,7 @@ export const adminAPI = {
     // Billing
     getBillingLedger: (advertiserId?: string) =>
         api.get("/admin/billing-ledger", { params: { advertiser_id: advertiserId } }),
+    deleteBillingLedger: (id: string) => api.delete(`/admin/billing-ledger/${id}`),
     getInvoice: (billingId: string) => api.get(`/admin/invoice/${billingId}`),
 
     // Renewals

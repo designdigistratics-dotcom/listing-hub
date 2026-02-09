@@ -20,7 +20,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { Receipt, Download, Search } from "lucide-react";
+import { Receipt, Download, Search, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 
@@ -145,11 +145,35 @@ export default function BillingLedgerPage() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Button variant="ghost" size="sm" asChild>
-                                                <Link href={`/admin/invoice/${entry.id}`} target="_blank">
-                                                    <Receipt className="h-4 w-4 text-slate-500" />
-                                                </Link>
-                                            </Button>
+                                            <div className="flex justify-end gap-2">
+                                                <Button variant="ghost" size="sm" asChild>
+                                                    <Link href={`/admin/invoice/${entry.id}`} target="_blank">
+                                                        <Receipt className="h-4 w-4 text-slate-500" />
+                                                    </Link>
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                    onClick={() => {
+                                                        if (confirm("Are you sure you want to delete this billing record? This action cannot be undone.")) {
+                                                            setLoading(true);
+                                                            adminAPI.deleteBillingLedger(entry.id)
+                                                                .then(() => {
+                                                                    // toast.success("Record deleted"); // Toast not imported, but good practice
+                                                                    fetchBillingLedger();
+                                                                })
+                                                                .catch((err) => {
+                                                                    console.error(err);
+                                                                    alert("Failed to delete record");
+                                                                    setLoading(false);
+                                                                });
+                                                        }
+                                                    }}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))

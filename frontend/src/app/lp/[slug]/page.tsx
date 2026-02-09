@@ -74,6 +74,8 @@ interface Project {
     budgetMax: number;
     featuredImage?: string;
     heroImage?: string;
+    cardImage?: string;
+    reraId?: string;
     projectLogo?: string;
     advertiserLogo?: string;
     images?: string[];
@@ -583,9 +585,9 @@ export default function PublicLandingPage() {
 
                                     {/* Image */}
                                     <div className="aspect-[4/3] relative overflow-hidden bg-slate-100">
-                                        {project.featuredImage ? (
+                                        {(project.cardImage || project.featuredImage) ? (
                                             <img
-                                                src={getImageUrl(project.featuredImage)}
+                                                src={getImageUrl(project.cardImage || project.featuredImage)}
                                                 alt={project.name}
                                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                             />
@@ -669,9 +671,9 @@ export default function PublicLandingPage() {
                                 >
                                     {/* Image */}
                                     <div className="aspect-[4/3] relative overflow-hidden bg-slate-100">
-                                        {project.featuredImage ? (
+                                        {(project.cardImage || project.featuredImage) ? (
                                             <img
-                                                src={getImageUrl(project.featuredImage)}
+                                                src={getImageUrl(project.cardImage || project.featuredImage)}
                                                 alt={project.name}
                                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                             />

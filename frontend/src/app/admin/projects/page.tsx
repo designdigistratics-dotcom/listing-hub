@@ -69,6 +69,7 @@ interface Project {
     propertyType: string;
     visits: number;
     createdAt: string;
+    cardImage?: string;
     advertiser?: {
         id: string;
         companyName: string;
@@ -295,6 +296,7 @@ export default function AdminProjectsPage() {
                             <table className="w-full">
                                 <thead className="bg-slate-50 border-b">
                                     <tr>
+                                        <th className="text-left p-4 font-medium w-max">Image</th>
                                         <th className="text-left p-4 font-medium">Project</th>
                                         <th className="text-left p-4 font-medium">Location</th>
                                         <th className="text-left p-4 font-medium">Landing Page</th>
@@ -307,16 +309,30 @@ export default function AdminProjectsPage() {
                                 </thead>
                                 <tbody>
                                     {filteredProjects.map((project) => (
-                                        <tr
-                                            key={project.id}
-                                            className="border-b hover:bg-slate-50 transition-colors"
-                                        >
+                                        <tr key={project.id} className="border-b hover:bg-slate-50/50">
                                             <td className="p-4">
-                                                <div>
-                                                    <p className="font-medium">{project.name}</p>
-                                                    <p className="text-sm text-muted-foreground">
-                                                        by {project.builderName}
-                                                    </p>
+                                                <div className="w-16 h-12 bg-slate-100 rounded-md overflow-hidden relative">
+                                                    {(project.cardImage) ? (
+                                                        <img
+                                                            src={`https://d12b77d9-2423-4e35-862d-0b70d508930b.filesusr.com/${project.cardImage}`}
+                                                            alt={project.name}
+                                                            className="w-full h-full object-cover"
+                                                            onError={(e) => {
+                                                                // simplistic fallback or use next/image
+                                                                (e.target as HTMLImageElement).src = 'https://placehold.co/100x60?text=No+Img';
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-slate-300">
+                                                            <Building className="h-6 w-6" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="font-medium">{project.name}</div>
+                                                <div className="text-sm text-muted-foreground">
+                                                    by {project.builderName}
                                                 </div>
                                             </td>
                                             <td className="p-4">
