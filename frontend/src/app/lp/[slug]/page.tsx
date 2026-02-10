@@ -575,14 +575,14 @@ export default function PublicLandingPage() {
             {/* Projects Grid */}
             <div className="container mx-auto px-4 py-8">
                 {/* Featured Projects Section */}
-                {landingPage.projects.length > 0 && (
+                {filteredProjects.length > 0 && (
                     <div className="mb-12">
                         <div className="flex items-center gap-3 mb-6">
                             <Star className="w-6 h-6 text-amber-500 fill-amber-500" />
                             <h2 className="text-2xl font-bold text-slate-900">Top 3 Featured Projects</h2>
                         </div>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {landingPage.projects.slice(0, 3).map((project) => (
+                            {filteredProjects.slice(0, 3).map((project) => (
                                 <Link
                                     href={`/project/${project.id}?lp=${landingPage.id}`}
                                     key={project.id}
@@ -667,14 +667,14 @@ export default function PublicLandingPage() {
                 )}
 
                 {/* Other Projects */}
-                {landingPage.projects.length > 3 && (
+                {filteredProjects.length > 3 && (
                     <>
                         <div className="flex items-center gap-3 mb-6 mt-12 border-t pt-8">
                             <Building2 className="w-6 h-6 text-slate-400" />
                             <h2 className="text-xl font-bold text-slate-900">More Projects</h2>
                         </div>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {landingPage.projects.slice(3).map((project) => (
+                            {filteredProjects.slice(3).map((project) => (
                                 <Link
                                     href={`/project/${project.id}?lp=${landingPage.id}`}
                                     key={project.id}
@@ -713,9 +713,9 @@ export default function PublicLandingPage() {
                                         <div className="mt-auto pt-3 border-t border-slate-50">
                                             <div className="flex items-center justify-between mb-2">
                                                 <div>
-                                                    <p className="text-xs text-slate-500">Starts from</p>
+                                                    <p className="text-xs text-slate-500">Price Range</p>
                                                     <p className="font-bold text-primary text-sm">
-                                                        {formatCurrency(project.budgetMin)}
+                                                        {formatBudgetRange(project.budgetMin, project.budgetMax)}
                                                     </p>
                                                 </div>
                                             </div>
