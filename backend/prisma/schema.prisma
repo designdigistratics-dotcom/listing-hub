@@ -217,7 +217,7 @@ model Lead {
   name          String
   phone         String
   email         String
-  projectId     String
+  projectId     String?
   landingPageId String?
   otpVerified   Boolean      @default(false)
   utmSource     String?
@@ -236,7 +236,7 @@ model Lead {
   city          String?
   assignedTo    User?        @relation("AssignedLeads", fields: [assignedToId], references: [id])
   landingPage   LandingPage? @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
-  project       Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project       Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@map("leads")
 }

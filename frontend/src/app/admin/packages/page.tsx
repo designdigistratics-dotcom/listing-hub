@@ -18,6 +18,7 @@ import { Package, Plus, Edit, Trash2, CheckCircle } from "lucide-react";
 interface PackageDefinition {
     id: string;
     name: string;
+    description?: string;
     price: number;
     projectSlots: number;
     durationDays: number;
@@ -119,6 +120,9 @@ export default function PackagesPage() {
                                         {pkg.isActive ? "Active" : "Inactive"}
                                     </Badge>
                                 </div>
+                                {pkg.description && (
+                                    <p className="text-sm text-muted-foreground mt-2">{pkg.description}</p>
+                                )}
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="text-center py-4 bg-slate-50 rounded-lg">

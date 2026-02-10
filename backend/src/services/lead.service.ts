@@ -5,11 +5,13 @@ import { logAudit } from './audit.service';
 // ==================== Leads ====================
 
 export const createLead = async (data: LeadCreateRequest) => {
-    // Verify project exists
-    const project = await prisma.project.findUnique({ where: { id: data.projectId } });
-
-    if (!project) {
-        throw new Error('Project not found');
+    // Verify project exists if projectId is provided
+    let project = null;
+    if (data.projectId) {
+        project = await prisma.project.findUnique({ where: { id: data.projectId } });
+        if (!project) {
+            throw new Error('Project not found');
+        }
     }
 
     // Verify landing page exists if ID provided
@@ -29,21 +31,28 @@ export const createLead = async (data: LeadCreateRequest) => {
             name: data.name,
             phone: data.phone,
             email: data.email,
-            projectId: data.projectId,
+            projectId: data.projectId || null,
             landingPageId: (data.landingPageId && data.landingPageId !== 'direct') ? data.landingPageId : null,
             otpVerified: data.otpVerified || false,
             utmSource: data.utmSource,
             utmMedium: data.utmMedium,
             utmCampaign: data.utmCampaign,
             source: source,
+            city: data.city,
+            location: data.location,
+            propertyType: data.propertyType,
+            unitType: data.unitType,
+            budget: data.budget,
         },
     });
 
-    // Increment leadsCount on the project
-    await prisma.project.update({
-        where: { id: data.projectId },
-        data: { leadsCount: { increment: 1 } },
-    });
+    // Increment leadsCount on the project if applicable
+    if (data.projectId) {
+        await prisma.project.update({
+            where: { id: data.projectId },
+            data: { leadsCount: { increment: 1 } },
+        });
+    }
 
     return lead;
 };

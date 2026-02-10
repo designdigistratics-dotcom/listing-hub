@@ -17,6 +17,7 @@ import { Package, CheckCircle, Clock, AlertCircle, Plus } from "lucide-react";
 interface PackageDefinition {
     id: string;
     name: string;
+    description?: string;
     price: number;
     durationDays?: number; // Optional as backend sends durationMonths
     durationMonths?: number;
@@ -207,6 +208,9 @@ export default function PackagesPage() {
                                         </CardDescription>
                                     </div>
                                 </div>
+                                {pkg.description && (
+                                    <p className="text-sm text-muted-foreground mt-2">{pkg.description}</p>
+                                )}
                             </CardHeader>
                             <CardContent className="space-y-6">
                                 <div className="text-center py-4 bg-slate-50 rounded-lg">

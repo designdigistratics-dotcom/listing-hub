@@ -225,12 +225,17 @@ export interface LeadCreateRequest {
     name: string;
     phone: string;
     email: string;
-    projectId: string;
+    projectId?: string; // Optional now
     landingPageId?: string;
     otpVerified?: boolean;
     utmSource?: string;
     utmMedium?: string;
     utmCampaign?: string;
+    city?: string;
+    location?: string;
+    propertyType?: string;
+    unitType?: string;
+    budget?: string;
 }
 
 export interface OptionCreateRequest {

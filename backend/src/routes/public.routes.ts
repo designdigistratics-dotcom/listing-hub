@@ -167,19 +167,23 @@ router.post('/leads', async (req, res, next) => {
         const lead = await leadService.createLead(req.body);
 
         // Get project with advertiser details for response
-        const project = await prisma.project.findUnique({
-            where: { id: req.body.projectId },
-            include: {
-                advertiser: {
-                    select: {
-                        companyName: true,
-                        ownerName: true,
-                        phone: true,
-                        email: true,
+        // Get project with advertiser details for response (if project linked)
+        let project = null;
+        if (req.body.projectId) {
+            project = await prisma.project.findUnique({
+                where: { id: req.body.projectId },
+                include: {
+                    advertiser: {
+                        select: {
+                            companyName: true,
+                            ownerName: true,
+                            phone: true,
+                            email: true,
+                        },
                     },
                 },
-            },
-        });
+            });
+        }
 
         // Only distribute leads from Facebook (source: 'facebook')
         // Website leads (form/landing_page) go directly to project's advertiser

@@ -122,6 +122,116 @@ export default function PublicLandingPage() {
     const [verifyingOtp, setVerifyingOtp] = useState(false);
     const [otpTimer, setOtpTimer] = useState(0);
 
+    // Mandatory Lead Form State
+    const [showMandatoryForm, setShowMandatoryForm] = useState(false);
+    const [mandatoryForm, setMandatoryForm] = useState({
+        name: "",
+        phone: "",
+        email: "",
+        propertyType: "",
+        unitType: "",
+        budget: "",
+        location: ""
+    });
+    const [mOtpSent, setMOtpSent] = useState(false);
+    const [mOtpVerified, setMOtpVerified] = useState(false);
+    const [mOtp, setMOtp] = useState("");
+    const [mSendingOtp, setMSendingOtp] = useState(false);
+    const [mVerifyingOtp, setMVerifyingOtp] = useState(false);
+    const [mOtpTimer, setMOtpTimer] = useState(0);
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (mOtpTimer > 0) {
+            interval = setInterval(() => setMOtpTimer((prev) => prev - 1), 1000);
+        }
+        return () => clearInterval(interval);
+    }, [mOtpTimer]);
+
+    useEffect(() => {
+        if (landingPage) {
+            // Check if user has already submitted lead for this LP in this session
+            const hasSubmitted = sessionStorage.getItem(`lp_lead_submitted_${landingPage.id}`);
+            if (!hasSubmitted) {
+                setShowMandatoryForm(true);
+                // Pre-fill city if available
+                if (landingPage.city) {
+                    setMandatoryForm(prev => ({ ...prev, city: landingPage.city }));
+                }
+            }
+        }
+    }, [landingPage]);
+
+    const handleSendMOtp = async () => {
+        if (!mandatoryForm.phone || mandatoryForm.phone.length !== 10) {
+            toast.error("Please enter a valid 10-digit phone number");
+            return;
+        }
+
+        setMSendingOtp(true);
+        try {
+            await publicAPI.sendOtp(mandatoryForm.phone);
+            setMOtpSent(true);
+            setMOtpTimer(60);
+            toast.success("OTP sent to your phone");
+        } catch (error: any) {
+            toast.error(error.response?.data?.error || "Failed to send OTP");
+        } finally {
+            setMSendingOtp(false);
+        }
+    };
+
+    const handleVerifyMOtp = async () => {
+        if (!mOtp || mOtp.length !== 6) {
+            toast.error("Please enter the 6-digit OTP");
+            return;
+        }
+
+        setMVerifyingOtp(true);
+        try {
+            await publicAPI.verifyOtp(mandatoryForm.phone, mOtp);
+            setMOtpVerified(true);
+            toast.success("Phone verified successfully!");
+        } catch (error: any) {
+            toast.error(error.response?.data?.error || "Invalid OTP");
+        } finally {
+            setMVerifyingOtp(false);
+        }
+    };
+
+    const handleMandatorySubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!mandatoryForm.name || !mandatoryForm.phone || !mandatoryForm.email || !mandatoryForm.propertyType || !mandatoryForm.unitType || !mandatoryForm.budget) {
+            toast.error("Please fill in all fields");
+            return;
+        }
+
+        if (!mOtpVerified) {
+            toast.error("Please verify your phone number with OTP first");
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            await publicAPI.submitLead({
+                ...mandatoryForm,
+                city: landingPage?.city, // Fixed city
+                landingPageId: landingPage?.id || "",
+                // Common leads don't necessarily have a project ID
+                utmSource: searchParams.get("utm_source") || undefined,
+                utmMedium: searchParams.get("utm_medium") || undefined,
+                utmCampaign: searchParams.get("utm_campaign") || undefined,
+            });
+            toast.success("Thank you! You can now browse the projects.");
+            sessionStorage.setItem(`lp_lead_submitted_${landingPage?.id}`, "true");
+            setShowMandatoryForm(false);
+        } catch (error) {
+            toast.error("Failed to submit. Please try again.");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     // Extract unique property types, unit types, and localities from projects
     const { propertyTypes, unitTypes, localities } = useMemo(() => {
         if (!landingPage?.projects) return { propertyTypes: [], unitTypes: [], localities: [] };
@@ -766,6 +876,173 @@ export default function PublicLandingPage() {
                     </div>
                 </div>
             </section >
+
+            {/* Mandatory Lead Form Dialog */}
+            <Dialog open={showMandatoryForm} onOpenChange={(open) => {
+                // Prevent closing by clicking outside or pressing escape
+                if (!open && !sessionStorage.getItem(`lp_lead_submitted_${landingPage.id}`)) {
+                    return;
+                }
+                setShowMandatoryForm(open);
+            }}>
+                <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+                    <DialogHeader>
+                        <DialogTitle className="text-xl">Find Your Dream Home</DialogTitle>
+                        <DialogDescription className="text-slate-500">
+                            Please share your preferences to view verified projects in {landingPage.city}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleMandatorySubmit} className="space-y-4 pt-4 max-h-[80vh] overflow-y-auto">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>City</Label>
+                                <Input value={landingPage.city} disabled className="bg-slate-50" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="location">Location</Label>
+                                <Input
+                                    id="location"
+                                    placeholder="Pref. Location"
+                                    value={mandatoryForm.location}
+                                    onChange={(e) => setMandatoryForm({ ...mandatoryForm, location: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Property Type *</Label>
+                                <Select onValueChange={(val) => setMandatoryForm({ ...mandatoryForm, propertyType: val })}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select Type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {propertyTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Configuration *</Label>
+                                <Select onValueChange={(val) => setMandatoryForm({ ...mandatoryForm, unitType: val })}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select BHK" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {unitTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label>Budget Range *</Label>
+                            <Select onValueChange={(val) => setMandatoryForm({ ...mandatoryForm, budget: val })}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select Budget" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {BUDGET_OPTIONS.map(opt => <SelectItem key={opt.value} value={opt.label}>{opt.label}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="m-name">Full Name *</Label>
+                            <Input
+                                id="m-name"
+                                placeholder="Enter your name"
+                                value={mandatoryForm.name}
+                                onChange={(e) => setMandatoryForm({ ...mandatoryForm, name: e.target.value })}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="m-email">Email Address *</Label>
+                            <Input
+                                id="m-email"
+                                type="email"
+                                placeholder="name@example.com"
+                                value={mandatoryForm.email}
+                                onChange={(e) => setMandatoryForm({ ...mandatoryForm, email: e.target.value })}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="m-phone">Mobile Number *</Label>
+                            <Input
+                                id="m-phone"
+                                placeholder="10-digit mobile number"
+                                value={mandatoryForm.phone}
+                                onChange={(e) => {
+                                    setMandatoryForm({ ...mandatoryForm, phone: e.target.value });
+                                    if (mOtpVerified || mOtpSent) {
+                                        setMOtpVerified(false);
+                                        setMOtpSent(false);
+                                        setMOtp("");
+                                    }
+                                }}
+                                disabled={mSendingOtp}
+                            />
+                            {mOtpVerified ? (
+                                <div className="flex items-center gap-2 text-green-600 text-sm mt-1 font-medium">
+                                    <CheckCircle2 className="h-4 w-4" />
+                                    Phone verified
+                                </div>
+                            ) : !mOtpSent ? (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="mt-2 w-full"
+                                    onClick={handleSendMOtp}
+                                    disabled={mSendingOtp || !mandatoryForm.phone || mandatoryForm.phone.length !== 10}
+                                >
+                                    {mSendingOtp ? "Sending..." : "Send Verification Code"}
+                                </Button>
+                            ) : (
+                                <div className="space-y-4 mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                    <div className="text-center space-y-2">
+                                        <Label className="text-xs text-slate-500 uppercase font-bold">Enter 6-digit Code</Label>
+                                        <OtpInput
+                                            value={mOtp}
+                                            onChange={setMOtp}
+                                            disabled={mVerifyingOtp}
+                                        />
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        className="w-full"
+                                        onClick={handleVerifyMOtp}
+                                        disabled={mVerifyingOtp || mOtp.length !== 6}
+                                    >
+                                        {mVerifyingOtp ? "Verifying..." : "Verify Code"}
+                                    </Button>
+                                    <div className="text-center">
+                                        {mOtpTimer > 0 ? (
+                                            <p className="text-xs text-slate-500 flex items-center justify-center gap-1">
+                                                <Timer className="h-3 w-3" />
+                                                Resend in {mOtpTimer}s
+                                            </p>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                className="text-xs text-primary hover:underline"
+                                                onClick={handleSendMOtp}
+                                            >
+                                                Resend Code
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <Button type="submit" className="w-full h-12 text-lg font-bold bg-primary hover:bg-primary/90" disabled={submitting}>
+                            {submitting ? "Submitting..." : "View Properties"}
+                        </Button>
+                    </form>
+                </DialogContent>
+            </Dialog>
 
             {/* Lead Form Dialog */}
             < Dialog open={showLeadForm} onOpenChange={(open) => {

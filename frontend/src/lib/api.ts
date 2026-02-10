@@ -327,12 +327,17 @@ export const publicAPI = {
         name: string;
         phone: string;
         email: string;
-        projectId: string;
-        landingPageId: string;
+        projectId?: string;
+        landingPageId?: string;
         otpVerified?: boolean;
         utmSource?: string;
         utmMedium?: string;
         utmCampaign?: string;
+        city?: string;
+        location?: string;
+        propertyType?: string;
+        unitType?: string;
+        budget?: string;
     }) => api.post("/leads", data),
 
     sendOtp: (phone: string) => api.post("/send-otp", { phone }),
