@@ -179,13 +179,19 @@ export default function CommonLeadsPage() {
                                         >
                                             <td className="p-4">
                                                 <div>
-                                                    <p className="font-medium text-slate-400">
-                                                        {lead.name.split(' ').map(n => n[0] + '***').join(' ')}
-                                                        <span className="text-[10px] ml-2 font-normal text-muted-foreground">(Masked)</span>
+                                                    <p className="font-medium text-slate-900">
+                                                        {lead.name}
                                                     </p>
-                                                    <p className="text-xs text-muted-foreground mt-1 truncate">
-                                                        {lead.email.split('@')[0].slice(0, 2)}***@{lead.email.split('@')[1]}
-                                                    </p>
+                                                    <div className="text-xs text-muted-foreground mt-1 space-y-0.5">
+                                                        <p className="flex items-center gap-1.5">
+                                                            <Mail className="w-3 h-3" />
+                                                            {lead.email}
+                                                        </p>
+                                                        <p className="flex items-center gap-1.5">
+                                                            <Phone className="w-3 h-3" />
+                                                            {lead.phone}
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td className="p-4">

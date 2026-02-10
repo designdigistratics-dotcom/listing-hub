@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { publicAPI } from "@/lib/api";
-import { getImageUrl, formatCurrency, formatBudgetRange } from "@/lib/utils";
+import { getImageUrl, formatBudgetRange } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -130,7 +130,8 @@ export default function PublicLandingPage() {
         email: "",
         propertyType: "",
         unitType: "",
-        budget: "",
+        budgetMin: "",
+        budgetMax: "",
         location: ""
     });
     const [mOtpSent, setMOtpSent] = useState(false);
@@ -201,7 +202,7 @@ export default function PublicLandingPage() {
 
     const handleMandatorySubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!mandatoryForm.name || !mandatoryForm.phone || !mandatoryForm.email || !mandatoryForm.propertyType || !mandatoryForm.unitType || !mandatoryForm.budget) {
+        if (!mandatoryForm.name || !mandatoryForm.phone || !mandatoryForm.email || !mandatoryForm.propertyType || !mandatoryForm.unitType || !mandatoryForm.budgetMin || !mandatoryForm.budgetMax || !mandatoryForm.location) {
             toast.error("Please fill in all fields");
             return;
         }
@@ -215,6 +216,7 @@ export default function PublicLandingPage() {
         try {
             await publicAPI.submitLead({
                 ...mandatoryForm,
+                budget: `${mandatoryForm.budgetMin} - ${mandatoryForm.budgetMax}`,
                 city: landingPage?.city, // Fixed city
                 landingPageId: landingPage?.id || "",
                 // Common leads don't necessarily have a project ID
@@ -885,162 +887,235 @@ export default function PublicLandingPage() {
                 }
                 setShowMandatoryForm(open);
             }}>
-                <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
-                    <DialogHeader>
-                        <DialogTitle className="text-xl">Find Your Dream Home</DialogTitle>
-                        <DialogDescription className="text-slate-500">
-                            Please share your preferences to view verified projects in {landingPage.city}
-                        </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleMandatorySubmit} className="space-y-4 pt-4 max-h-[80vh] overflow-y-auto">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>City</Label>
-                                <Input value={landingPage.city} disabled className="bg-slate-50" />
+                <DialogContent className="sm:max-w-4xl p-0 overflow-hidden" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+                    <div className="grid grid-cols-1 md:grid-cols-5 h-full">
+                        {/* Left Side - Visual */}
+                        <div className="hidden md:flex md:col-span-2 bg-slate-900 relative flex-col justify-between p-6 text-white">
+                            <div className="absolute inset-0 z-0 opacity-40">
+                                {(landingPage.heroImage) ? (
+                                    <img
+                                        src={getImageUrl(landingPage.heroImage)}
+                                        alt={landingPage.city}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-950" />
+                                )}
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="location">Location</Label>
-                                <Input
-                                    id="location"
-                                    placeholder="Pref. Location"
-                                    value={mandatoryForm.location}
-                                    onChange={(e) => setMandatoryForm({ ...mandatoryForm, location: e.target.value })}
-                                />
-                            </div>
-                        </div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/30 z-10" />
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Property Type *</Label>
-                                <Select onValueChange={(val) => setMandatoryForm({ ...mandatoryForm, propertyType: val })}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select Type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {propertyTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Configuration *</Label>
-                                <Select onValueChange={(val) => setMandatoryForm({ ...mandatoryForm, unitType: val })}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select BHK" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {unitTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label>Budget Range *</Label>
-                            <Select onValueChange={(val) => setMandatoryForm({ ...mandatoryForm, budget: val })}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select Budget" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {BUDGET_OPTIONS.map(opt => <SelectItem key={opt.value} value={opt.label}>{opt.label}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="m-name">Full Name *</Label>
-                            <Input
-                                id="m-name"
-                                placeholder="Enter your name"
-                                value={mandatoryForm.name}
-                                onChange={(e) => setMandatoryForm({ ...mandatoryForm, name: e.target.value })}
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="m-email">Email Address *</Label>
-                            <Input
-                                id="m-email"
-                                type="email"
-                                placeholder="name@example.com"
-                                value={mandatoryForm.email}
-                                onChange={(e) => setMandatoryForm({ ...mandatoryForm, email: e.target.value })}
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="m-phone">Mobile Number *</Label>
-                            <Input
-                                id="m-phone"
-                                placeholder="10-digit mobile number"
-                                value={mandatoryForm.phone}
-                                onChange={(e) => {
-                                    setMandatoryForm({ ...mandatoryForm, phone: e.target.value });
-                                    if (mOtpVerified || mOtpSent) {
-                                        setMOtpVerified(false);
-                                        setMOtpSent(false);
-                                        setMOtp("");
-                                    }
-                                }}
-                                disabled={mSendingOtp}
-                            />
-                            {mOtpVerified ? (
-                                <div className="flex items-center gap-2 text-green-600 text-sm mt-1 font-medium">
-                                    <CheckCircle2 className="h-4 w-4" />
-                                    Phone verified
+                            <div className="relative z-20">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Home className="w-6 h-6 text-primary" />
+                                    <span className="font-bold text-lg tracking-tight">ListingHub</span>
                                 </div>
-                            ) : !mOtpSent ? (
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    className="mt-2 w-full"
-                                    onClick={handleSendMOtp}
-                                    disabled={mSendingOtp || !mandatoryForm.phone || mandatoryForm.phone.length !== 10}
-                                >
-                                    {mSendingOtp ? "Sending..." : "Send Verification Code"}
-                                </Button>
-                            ) : (
-                                <div className="space-y-4 mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                                    <div className="text-center space-y-2">
-                                        <Label className="text-xs text-slate-500 uppercase font-bold">Enter 6-digit Code</Label>
-                                        <OtpInput
-                                            value={mOtp}
-                                            onChange={setMOtp}
-                                            disabled={mVerifyingOtp}
-                                        />
+                                <h2 className="text-2xl font-bold leading-tight">
+                                    Find Your Dream Home in {landingPage.city}
+                                </h2>
+                            </div>
+
+                            <div className="relative z-20 space-y-4">
+                                <div className="flex items-start gap-3">
+                                    <Shield className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="font-medium text-sm">Verified Listings</p>
+                                        <p className="text-xs text-slate-300">Every property is RERA registered and legally verified</p>
                                     </div>
-                                    <Button
-                                        type="button"
-                                        className="w-full"
-                                        onClick={handleVerifyMOtp}
-                                        disabled={mVerifyingOtp || mOtp.length !== 6}
-                                    >
-                                        {mVerifyingOtp ? "Verifying..." : "Verify Code"}
-                                    </Button>
-                                    <div className="text-center">
-                                        {mOtpTimer > 0 ? (
-                                            <p className="text-xs text-slate-500 flex items-center justify-center gap-1">
-                                                <Timer className="h-3 w-3" />
-                                                Resend in {mOtpTimer}s
-                                            </p>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <Star className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="font-medium text-sm">Best Market Price</p>
+                                        <p className="text-xs text-slate-300">Direct developer prices with zero brokerage</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Side - Form */}
+                        <div className="md:col-span-3 p-6 md:p-8">
+                            <DialogHeader className="mb-6">
+                                <DialogTitle className="text-xl md:text-2xl">Get Started</DialogTitle>
+                                <DialogDescription className="text-slate-500">
+                                    Enter your preferences to unlock exclusive deals
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            <form onSubmit={handleMandatorySubmit} className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>City</Label>
+                                        <Input value={landingPage.city} disabled className="bg-slate-50" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Location</Label>
+                                        {localities.length > 0 ? (
+                                            <Select value={mandatoryForm.location || undefined} onValueChange={(val) => setMandatoryForm({ ...mandatoryForm, location: val })}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select Locality" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {localities.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                                                </SelectContent>
+                                            </Select>
                                         ) : (
-                                            <button
-                                                type="button"
-                                                className="text-xs text-primary hover:underline"
-                                                onClick={handleSendMOtp}
-                                            >
-                                                Resend Code
-                                            </button>
+                                            <Input
+                                                placeholder="Preferred Location"
+                                                value={mandatoryForm.location}
+                                                onChange={(e) => setMandatoryForm({ ...mandatoryForm, location: e.target.value })}
+                                            />
                                         )}
                                     </div>
                                 </div>
-                            )}
-                        </div>
 
-                        <Button type="submit" className="w-full h-12 text-lg font-bold bg-primary hover:bg-primary/90" disabled={submitting}>
-                            {submitting ? "Submitting..." : "View Properties"}
-                        </Button>
-                    </form>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Property Type *</Label>
+                                        <Select value={mandatoryForm.propertyType || undefined} onValueChange={(val) => setMandatoryForm({ ...mandatoryForm, propertyType: val })}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select Type" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {propertyTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Configuration *</Label>
+                                        <Select value={mandatoryForm.unitType || undefined} onValueChange={(val) => setMandatoryForm({ ...mandatoryForm, unitType: val })}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select BHK" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {unitTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Min Budget *</Label>
+                                        <Select value={mandatoryForm.budgetMin || undefined} onValueChange={(val) => setMandatoryForm({ ...mandatoryForm, budgetMin: val })}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Min Price" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {BUDGET_OPTIONS.map(opt => <SelectItem key={opt.value} value={opt.label}>{opt.label}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Max Budget *</Label>
+                                        <Select value={mandatoryForm.budgetMax || undefined} onValueChange={(val) => setMandatoryForm({ ...mandatoryForm, budgetMax: val })}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Max Price" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {BUDGET_OPTIONS.map(opt => <SelectItem key={opt.value} value={opt.label}>{opt.label}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>Your Details</Label>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <Input
+                                            placeholder="Full Name"
+                                            value={mandatoryForm.name}
+                                            onChange={(e) => setMandatoryForm({ ...mandatoryForm, name: e.target.value })}
+                                        />
+                                        <Input
+                                            type="email"
+                                            placeholder="Email Address"
+                                            value={mandatoryForm.email}
+                                            onChange={(e) => setMandatoryForm({ ...mandatoryForm, email: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <div className="flex gap-2">
+                                        <Input
+                                            placeholder="Mobile Number"
+                                            value={mandatoryForm.phone}
+                                            onChange={(e) => {
+                                                setMandatoryForm({ ...mandatoryForm, phone: e.target.value });
+                                                if (mOtpVerified || mOtpSent) {
+                                                    setMOtpVerified(false);
+                                                    setMOtpSent(false);
+                                                    setMOtp("");
+                                                }
+                                            }}
+                                            disabled={mSendingOtp}
+                                            className="flex-1"
+                                        />
+                                        {(!mOtpSent && !mOtpVerified) && (
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={handleSendMOtp}
+                                                disabled={mSendingOtp || !mandatoryForm.phone || mandatoryForm.phone.length !== 10}
+                                                className="shrink-0"
+                                            >
+                                                {mSendingOtp ? "Sending..." : "Get OTP"}
+                                            </Button>
+                                        )}
+                                    </div>
+
+                                    {mOtpSent && !mOtpVerified && (
+                                        <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 animate-in fade-in slide-in-from-top-2">
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex-1">
+                                                    <Label className="text-xs text-slate-500 mb-1.5 block">ENTER OTP SENT TO {mandatoryForm.phone}</Label>
+                                                    <OtpInput
+                                                        value={mOtp}
+                                                        onChange={setMOtp}
+                                                        disabled={mVerifyingOtp}
+                                                    />
+                                                </div>
+                                                <div className="flex flex-col gap-1 shrink-0 pt-5">
+                                                    <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        onClick={handleVerifyMOtp}
+                                                        disabled={mVerifyingOtp || mOtp.length !== 6}
+                                                    >
+                                                        {mVerifyingOtp ? "..." : "Verify"}
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                            <div className="text-right mt-1">
+                                                {mOtpTimer > 0 ? (
+                                                    <span className="text-xs text-slate-400">Resend in {mOtpTimer}s</span>
+                                                ) : (
+                                                    <button
+                                                        type="button"
+                                                        className="text-xs text-primary hover:underline"
+                                                        onClick={handleSendMOtp}
+                                                    >
+                                                        Resend OTP
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {mOtpVerified && (
+                                        <div className="flex items-center gap-2 text-green-600 text-sm font-medium bg-green-50 p-2 rounded border border-green-100">
+                                            <CheckCircle2 className="h-4 w-4" />
+                                            Number Verified Successfully
+                                        </div>
+                                    )}
+                                </div>
+
+                                <Button type="submit" className="w-full h-12 text-lg font-bold bg-primary hover:bg-primary/90 mt-2" disabled={submitting}>
+                                    {submitting ? "Submitting..." : "View Properties"}
+                                </Button>
+                            </form>
+                        </div>
+                    </div>
                 </DialogContent>
             </Dialog>
 
@@ -1133,7 +1208,7 @@ export default function PublicLandingPage() {
                                                         onClick={handleSendOtp}
                                                         className="text-xs text-primary hover:underline font-medium"
                                                     >
-                                                        Didn't receive code? Resend
+                                                        Didn&apos;t receive code? Resend
                                                     </button>
                                                 )}
                                             </div>
