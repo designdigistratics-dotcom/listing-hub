@@ -81,7 +81,10 @@ const config: Config = {
                 },
                 cyan: {
                     500: "#06B6D4", // Electric Cyan Accent
-                }
+                },
+                brand: {
+                    bg: "#F3FFF4",
+                },
             },
             borderRadius: {
                 lg: "var(--radius)",

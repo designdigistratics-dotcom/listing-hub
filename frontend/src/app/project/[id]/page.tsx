@@ -318,7 +318,7 @@ export default function ProjectPage() {
     const galleryImages = project.images?.length > 0 ? project.images : [];
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-brand-bg">
             {/* Preview Banner */}
             {project.is_preview && project.status !== 'LIVE' && (
                 <div className="bg-amber-600 text-white text-center py-2 px-4 text-sm font-medium sticky top-0 z-50 flex items-center justify-center gap-2 shadow-sm">
