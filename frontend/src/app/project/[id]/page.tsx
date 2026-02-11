@@ -584,8 +584,6 @@ export default function ProjectPage() {
 
                 {/* About Project */}
                 {project.aboutProject && (
-                    {/* About Project */ }
-                {project.aboutProject && (
                     <section className="bg-white rounded-[2rem] p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-100">
                         <h2 className="text-3xl md:text-4xl font-serif text-emerald-950 mb-6 flex items-center gap-3">
                             <span className="bg-amber-50 p-2 rounded-xl text-amber-600"><Building className="h-6 w-6" /></span>
@@ -598,8 +596,6 @@ export default function ProjectPage() {
                 )}
 
                 {/* Highlights */}
-                {project.highlights?.length > 0 && (
-                    {/* Highlights */ }
                 {project.highlights?.length > 0 && (
                     <section className="bg-white rounded-[2rem] p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-100">
                         <h2 className="text-3xl md:text-4xl font-serif text-emerald-950 mb-8 flex items-center gap-3">
