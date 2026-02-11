@@ -318,7 +318,8 @@ export default function ProjectPage() {
     const galleryImages = project.images?.length > 0 ? project.images : [];
 
     return (
-        <div className="min-h-screen bg-brand-bg">
+        <div className="min-h-screen bg-stone-50 font-sans selection:bg-amber-100 selection:text-amber-900 relative">
+            <div className="fixed inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none"></div>
             {/* Preview Banner */}
             {project.is_preview && project.status !== 'LIVE' && (
                 <div className="bg-amber-600 text-white text-center py-2 px-4 text-sm font-medium sticky top-0 z-50 flex items-center justify-center gap-2 shadow-sm">
@@ -337,7 +338,7 @@ export default function ProjectPage() {
                         </span>
                     </Link>
                     <div className="flex items-center gap-4">
-                        <Button onClick={scrollToEnquiry} className="bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-all shadow-md hover:shadow-lg">
+                        <Button onClick={scrollToEnquiry} className="bg-emerald-950 hover:bg-emerald-900 text-amber-50 font-semibold shadow-md border border-white/10 rounded-full px-6">
                             Enquire
                         </Button>
                     </div>
@@ -379,8 +380,8 @@ export default function ProjectPage() {
                         {/* Project Info - Left Side */}
                         <div className="lg:col-span-3 text-white">
                             {/* Badges */}
-                            <div className="flex flex-wrap gap-2 mb-4">
-                                <Badge className="bg-teal-600 hover:bg-teal-700 text-white border-0 px-3 py-1 text-sm font-medium shadow-sm">
+                            <div className="flex flex-wrap gap-2 mb-6">
+                                <Badge className="bg-amber-500/90 text-amber-950 border border-amber-400/30 px-4 py-1.5 text-sm font-semibold shadow-lg backdrop-blur-md">
                                     {Array.isArray(project.propertyType) ? project.propertyType.join(', ') : project.propertyType}
                                 </Badge>
                                 {project.reraId && (
@@ -560,11 +561,11 @@ export default function ProjectPage() {
 
                                         <Button
                                             type="submit"
-                                            className="w-full h-12 text-base font-bold bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-md hover:shadow-lg transition-all"
+                                            className="w-full h-14 text-lg font-bold bg-emerald-950 hover:bg-emerald-900 text-amber-50 shadow-md rounded-xl border border-white/10"
                                             size="lg"
                                             disabled={submitting || !otpVerified}
                                         >
-                                            {submitting ? "Submitting..." : "Submit Enquiry"}
+                                            {submitting ? "Submitting..." : "Get Exclusive Details"}
                                         </Button>
 
                                         <p className="text-xs text-center text-slate-400">
@@ -579,13 +580,15 @@ export default function ProjectPage() {
             </section>
 
             {/* Main Content */}
-            <div className="container mx-auto px-4 py-12 space-y-12">
+            <div className="container mx-auto px-4 py-8 md:py-12 space-y-8 md:space-y-10 relative z-10">
 
                 {/* About Project */}
                 {project.aboutProject && (
-                    <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-                        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2 text-teal-800">
-                            <Building className="h-6 w-6 text-teal-600" />
+                    {/* About Project */ }
+                {project.aboutProject && (
+                    <section className="bg-white rounded-[2rem] p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-100">
+                        <h2 className="text-3xl md:text-4xl font-serif text-emerald-950 mb-6 flex items-center gap-3">
+                            <span className="bg-amber-50 p-2 rounded-xl text-amber-600"><Building className="h-6 w-6" /></span>
                             About {project.name}
                         </h2>
                         <p className="text-slate-600 leading-relaxed whitespace-pre-line">
@@ -596,18 +599,56 @@ export default function ProjectPage() {
 
                 {/* Highlights */}
                 {project.highlights?.length > 0 && (
-                    <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-teal-800">
-                            <Star className="h-6 w-6 text-teal-600" />
+                    {/* Highlights */ }
+                {project.highlights?.length > 0 && (
+                    <section className="bg-white rounded-[2rem] p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-100">
+                        <h2 className="text-3xl md:text-4xl font-serif text-emerald-950 mb-8 flex items-center gap-3">
+                            <span className="bg-amber-50 p-2 rounded-xl text-amber-600"><Star className="h-6 w-6" /></span>
                             Key Highlights
                         </h2>
                         <div className="grid md:grid-cols-2 gap-4">
-                            {project.highlights.map((highlight, idx) => (
-                                <div key={idx} className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
-                                    <div className="w-8 h-8 rounded-full bg-teal-50 flex items-center justify-center flex-shrink-0 border border-teal-100">
-                                        <Check className="h-4 w-4 text-teal-600" />
+                            {(project.highlights.length === 1 && project.highlights[0].includes('\n')
+                                ? project.highlights[0].split('\n').filter(h => h.trim())
+                                : project.highlights
+                            ).map((highlight, idx) => (
+                                <div key={idx} className="flex items-start gap-4 p-5 bg-stone-50 rounded-2xl border border-stone-100">
+                                    <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+                                        <Check className="h-3.5 w-3.5 text-white stroke-[3]" />
                                     </div>
-                                    <span className="text-slate-700">{highlight}</span>
+                                    <span className="text-emerald-900 font-medium leading-relaxed">{highlight}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* Location */}
+                {project.address && (
+                    <section className="bg-white rounded-[2rem] p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-100">
+                        <h2 className="text-3xl md:text-4xl font-serif text-emerald-950 mb-6 flex items-center gap-3">
+                            <span className="bg-amber-50 p-2 rounded-xl text-amber-600"><MapPin className="h-6 w-6" /></span>
+                            Location
+                        </h2>
+                        <p className="text-slate-600 text-lg">{project.address}</p>
+                        <p className="text-slate-500 mt-2">{project.locality}, {project.city}</p>
+                    </section>
+                )}
+
+                {/* Location Highlights */}
+                {project.locationHighlights && project.locationHighlights?.length > 0 && (
+                    <section className="bg-emerald-950 rounded-[2rem] p-8 md:p-10 text-white relative overflow-hidden">
+                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
+                        <h2 className="text-3xl md:text-4xl font-serif text-amber-50 mb-8 flex items-center gap-3 relative z-10">
+                            <span className="bg-white/10 p-2 rounded-xl text-amber-400 backdrop-blur-sm"><MapPin className="h-6 w-6" /></span>
+                            Commute & Convenience
+                        </h2>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 relative z-10">
+                            {project.locationHighlights.map((highlight, idx) => (
+                                <div key={idx} className="flex items-start gap-3 p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
+                                    <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 text-amber-400">
+                                        <Check className="h-4 w-4" />
+                                    </div>
+                                    <span className="text-stone-200">{highlight}</span>
                                 </div>
                             ))}
                         </div>
@@ -616,12 +657,12 @@ export default function ProjectPage() {
 
                 {/* Video Tour */}
                 {project.videoUrl && (
-                    <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-teal-800">
-                            <Play className="h-6 w-6 text-teal-600" />
-                            Video Tour
+                    <section className="bg-white rounded-[2rem] p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-100">
+                        <h2 className="text-3xl md:text-4xl font-serif text-emerald-950 mb-8 flex items-center gap-3">
+                            <span className="bg-amber-50 p-2 rounded-xl text-amber-600"><Play className="h-6 w-6" /></span>
+                            Project Video Tour
                         </h2>
-                        <div className="aspect-video rounded-xl overflow-hidden bg-slate-100">
+                        <div className="aspect-video rounded-2xl overflow-hidden bg-slate-900 shadow-2xl ring-4 ring-slate-100">
                             <iframe
                                 src={project.videoUrl.replace("watch?v=", "embed/")}
                                 title="Project Video Tour"
@@ -635,16 +676,16 @@ export default function ProjectPage() {
 
                 {/* Floor Plans */}
                 {project.floorPlans && project.floorPlans.length > 0 && (
-                    <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-teal-800">
-                            <Ruler className="h-6 w-6 text-teal-600" />
-                            Floor Plans
+                    <section className="bg-white rounded-[2rem] p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-100">
+                        <h2 className="text-3xl md:text-4xl font-serif text-emerald-950 mb-8 flex items-center gap-3">
+                            <span className="bg-amber-50 p-2 rounded-xl text-amber-600"><Ruler className="h-6 w-6" /></span>
+                            Floor Plans & Configuration
                         </h2>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {project.floorPlans.map((fp, idx) => (
                                 <div
                                     key={idx}
-                                    className="group border border-slate-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
+                                    className="group border border-slate-200 rounded-xl overflow-hidden cursor-pointer"
                                     onClick={() => {
                                         const images = project.floorPlans!.map(p => getImageUrl(typeof p === 'string' ? p : p.url));
                                         openLightbox(idx, images);
@@ -654,7 +695,7 @@ export default function ProjectPage() {
                                         <img
                                             src={getImageUrl(typeof fp === 'string' ? fp : fp.url)}
                                             alt={typeof fp === 'string' ? `Floor Plan ${idx + 1}` : (fp.description || `Floor Plan ${idx + 1}`)}
-                                            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                                            className="w-full h-full object-contain"
                                         />
                                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                                             <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-medium bg-black/50 px-3 py-1 rounded-full">
@@ -712,7 +753,7 @@ export default function ProjectPage() {
                                         <img
                                             src={getImageUrl(img)}
                                             alt={`Gallery ${idx + 1}`}
-                                            className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
+                                            className="w-full h-full object-cover"
                                         />
                                     </div>
                                 ))}
@@ -734,23 +775,23 @@ export default function ProjectPage() {
 
                 {/* Amenities */}
                 {project.amenities?.length > 0 && (
-                    <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-teal-800">
-                            <Home className="h-6 w-6 text-teal-600" />
-                            Amenities
+                    <section className="bg-white rounded-[2rem] p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-100">
+                        <h2 className="text-3xl md:text-4xl font-serif text-emerald-950 mb-8 flex items-center gap-3">
+                            <span className="bg-amber-50 p-2 rounded-xl text-amber-600"><Home className="h-6 w-6" /></span>
+                            World-Class Amenities
                         </h2>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                             {project.amenities.map((amenity, idx) => {
                                 const Icon = getAmenityIcon(amenity);
                                 return (
                                     <div
                                         key={idx}
-                                        className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
+                                        className="flex flex-col items-center justify-center gap-3 p-6 bg-stone-50 rounded-2xl border border-stone-100 group"
                                     >
-                                        <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center flex-shrink-0 border border-teal-100">
-                                            <Icon className="h-5 w-5 text-teal-600" />
+                                        <div className="w-12 h-12 rounded-2xl bg-white border border-stone-200 flex items-center justify-center group-hover:bg-amber-50 group-hover:border-amber-500 transition-colors">
+                                            <Icon className="h-6 w-6 text-emerald-900 group-hover:text-amber-600 transition-colors" />
                                         </div>
-                                        <span className="text-slate-700 font-medium">{amenity}</span>
+                                        <span className="text-emerald-950 font-medium text-center">{amenity}</span>
                                     </div>
                                 );
                             })}
@@ -760,80 +801,51 @@ export default function ProjectPage() {
 
 
 
-                {/* Builder Info */}
+                {/* Builder Info - Luxurious Dark Card */}
                 {(project.advertiser || project.builderDescription) && (
-                    <section className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 md:p-8 text-white">
-                        <div className="flex flex-col md:flex-row md:items-center gap-6">
+                    <section className="bg-emerald-950 rounded-[2rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl">
+                        <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(-45deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[length:20px_20px]"></div>
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-[100px]"></div>
+
+                        <div className="flex flex-col md:flex-row md:items-center gap-8 relative z-10">
                             {project.advertiserLogo ? (
-                                <img
-                                    src={getImageUrl(project.advertiserLogo)}
-                                    alt={project.advertiser?.companyName || project.builderName}
-                                    className="w-20 h-20 rounded-xl object-contain bg-white p-2"
-                                />
+                                <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md border border-white/20">
+                                    <img
+                                        src={getImageUrl(project.advertiserLogo)}
+                                        alt={project.advertiser?.companyName || project.builderName}
+                                        className="w-24 h-24 object-contain rounded-xl bg-white p-2"
+                                    />
+                                </div>
                             ) : (
-                                <div className="w-20 h-20 rounded-xl bg-white/10 flex items-center justify-center">
+                                <div className="w-24 h-24 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20">
                                     <Building className="h-10 w-10 text-white/50" />
                                 </div>
                             )}
-                            <div className="flex-1">
-                                <p className="text-white/60 text-sm uppercase tracking-wider mb-1">Advertiser</p>
-                                <h3 className="text-2xl font-bold mb-2">
+                            <div className="flex-1 space-y-3">
+                                <div className="flex items-center gap-3">
+                                    <Badge className="bg-amber-500 text-amber-950 border-0 px-3 py-1 font-bold">PREMIER PARTNER</Badge>
+                                </div>
+                                <h3 className="text-3xl font-serif font-bold text-white tracking-wide">
                                     {project.advertiser?.companyName || project.builderName}
                                 </h3>
                                 {project.builderDescription && (
-                                    <p className="text-white/70 mb-4">{project.builderDescription}</p>
+                                    <p className="text-emerald-100/80 text-lg font-light leading-relaxed max-w-2xl">{project.builderDescription}</p>
                                 )}
-                                <div className="flex items-center gap-2">
-                                    <Badge className="bg-teal-500/20 text-teal-400 border-0">
-                                        <Verified className="h-3 w-3 mr-1" />
-                                        Verified Advertiser
-                                    </Badge>
-                                </div>
                             </div>
                             {project.advertiser?.phone && (
                                 <button
                                     onClick={scrollToEnquiry}
-                                    className="bg-orange-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-orange-600 transition-colors flex items-center gap-2"
+                                    className="bg-amber-500 text-amber-950 px-8 py-4 rounded-xl font-bold hover:bg-amber-400 shadow-md flex items-center gap-3"
                                 >
                                     <Phone className="h-5 w-5" />
-                                    Call Advertiser
+                                    Contact Now
                                 </button>
                             )}
                         </div>
                     </section>
                 )}
 
-                {/* Location */}
-                {project.address && (
-                    <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-                        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2 text-teal-800">
-                            <MapPin className="h-6 w-6 text-teal-600" />
-                            Location
-                        </h2>
-                        <p className="text-slate-600 text-lg">{project.address}</p>
-                        <p className="text-slate-500 mt-2">{project.locality}, {project.city}</p>
-                    </section>
-                )}
 
-                {/* Location Highlights */}
-                {project.locationHighlights && project.locationHighlights?.length > 0 && (
-                    <section className="bg-gradient-to-r from-teal-50 to-orange-50 rounded-2xl p-6 md:p-8 border border-teal-100">
-                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-slate-900">
-                            <MapPin className="h-6 w-6 text-teal-600" />
-                            Location Highlights
-                        </h2>
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {project.locationHighlights.map((highlight, idx) => (
-                                <div key={idx} className="flex items-start gap-3 p-4 bg-white rounded-xl shadow-sm">
-                                    <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
-                                        <Check className="h-4 w-4 text-teal-600" />
-                                    </div>
-                                    <span className="text-slate-700">{highlight}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                )}
             </div>
 
             {/* Disclaimer */}
@@ -855,7 +867,7 @@ export default function ProjectPage() {
                             {formatBudgetRange(project.budgetMin, project.budgetMax)}
                         </p>
                     </div>
-                    <Button onClick={scrollToEnquiry} className="bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-md">
+                    <Button onClick={scrollToEnquiry} className="bg-emerald-950 hover:bg-emerald-900 text-amber-50 font-semibold shadow-lg rounded-xl px-6">
                         Enquire
                     </Button>
                 </div>

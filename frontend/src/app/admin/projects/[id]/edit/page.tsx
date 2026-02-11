@@ -618,6 +618,20 @@ export default function EditProjectPage() {
                             </div>
 
                             <div className="space-y-2">
+                                <Label>Project Highlights (Key Features)</Label>
+                                <p className="text-sm text-muted-foreground">Enter each highlight on a new line</p>
+                                <Textarea
+                                    value={formData.highlights?.join("\n") || ""}
+                                    onChange={(e) => setFormData(prev => ({
+                                        ...prev,
+                                        highlights: e.target.value.split("\n").filter(line => line.trim())
+                                    }))}
+                                    className="min-h-[100px]"
+                                    placeholder="Premium 2, 3 & 4 BHK luxury apartments&#10;Exclusive elite penthouses&#10;RERA-approved gated community"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
                                 <Label>Location Highlights</Label>
                                 <p className="text-sm text-muted-foreground">Enter each location advantage on a new line (e.g., "5 min to Metro Station")</p>
                                 <Textarea

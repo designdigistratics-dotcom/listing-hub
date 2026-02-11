@@ -426,184 +426,182 @@ export default function PublicLandingPage() {
                         <Building2 className="w-8 h-8 text-emerald-600" />
                         <span className="font-bold text-xl text-slate-900">Topickx</span>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <a href="tel:+919876543210" className="flex items-center gap-2 text-emerald-700 font-medium hover:text-emerald-800 transition-colors">
-                            <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                                <Phone className="w-4 h-4" />
-                            </div>
-                            <span className="hidden sm:inline">+91 98765 43210</span>
-                        </a>
-                    </div>
                 </div>
             </header>
 
             {/* Hero Section */}
-            <section className="relative bg-emerald-900 overflow-hidden min-h-[500px] flex items-center">
+            <section className="relative bg-emerald-900 overflow-hidden min-h-[600px] flex flex-col items-center justify-center pt-20 pb-32">
                 {/* Background Image */}
                 <div className="absolute inset-0">
                     <img
                         src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000&auto=format&fit=crop"
                         alt="Green Living Room"
-                        className="w-full h-full object-cover blur-[2px] scale-105"
+                        className="w-full h-full object-cover blur-[1px] scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/95 via-emerald-900/90 to-emerald-900/40"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/90 via-emerald-900/80 to-emerald-900/60"></div>
                 </div>
 
-                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16 w-full">
-                    <div className="max-w-3xl">
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10 flex flex-col items-center text-center">
+                    <div className="max-w-4xl mx-auto">
                         {/* Location Badge */}
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-950/40 backdrop-blur-md border border-emerald-500/30 text-emerald-50 text-sm font-medium mb-8 shadow-lg">
+                        <div className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-emerald-950/40 backdrop-blur-md border border-emerald-500/30 text-emerald-50 text-sm font-medium mb-8 shadow-lg">
                             <MapPin className="w-4 h-4 text-emerald-400" />
                             {landingPage.city}
                             {landingPage.locality && ` • ${landingPage.locality}`}
                         </div>
 
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-xl shadow-black">
+                        <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-8 leading-tight drop-shadow-2xl shadow-black tracking-tight">
                             {landingPage.name}
                         </h1>
 
                         {landingPage.description && (
-                            <p className="text-xl text-emerald-50 max-w-2xl mb-10 leading-relaxed font-normal drop-shadow-md">
+                            <p className="text-xl text-emerald-50 max-w-3xl mx-auto mb-12 leading-relaxed font-normal drop-shadow-md text-balance">
                                 {landingPage.description}
                             </p>
                         )}
 
                         {/* Stats */}
-                        <div className="flex flex-wrap items-center gap-8 text-white">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/10">
-                                    <Building2 className="w-6 h-6 text-emerald-100" />
+                        <div className="flex flex-wrap items-center justify-center gap-8 text-white mb-16">
+                            <div className="flex items-center gap-3 bg-emerald-950/30 px-5 py-3 rounded-2xl backdrop-blur-sm border border-emerald-500/10">
+                                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                                    <Building2 className="w-5 h-5 text-emerald-100" />
                                 </div>
-                                <div>
-                                    <p className="text-2xl font-bold">{landingPage.projects?.length || 0}</p>
-                                    <p className="text-sm text-emerald-100 font-medium opacity-80">Properties</p>
+                                <div className="text-left">
+                                    <p className="text-xl font-bold leading-none">{landingPage.projects?.length || 0}</p>
+                                    <p className="text-xs text-emerald-100/90 font-medium">Properties</p>
                                 </div>
                             </div>
-                            <div className="w-px h-12 bg-white/20"></div>
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/10">
-                                    <Shield className="w-6 h-6 text-emerald-100" />
+                            <div className="flex items-center gap-3 bg-emerald-950/30 px-5 py-3 rounded-2xl backdrop-blur-sm border border-emerald-500/10">
+                                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                                    <Shield className="w-5 h-5 text-emerald-100" />
                                 </div>
-                                <div>
-                                    <p className="text-2xl font-bold">RERA</p>
-                                    <p className="text-sm text-emerald-100 font-medium opacity-80">Verified</p>
+                                <div className="text-left">
+                                    <p className="text-xl font-bold leading-none">RERA</p>
+                                    <p className="text-xs text-emerald-100/90 font-medium">Verified</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3 bg-emerald-950/30 px-5 py-3 rounded-2xl backdrop-blur-sm border border-emerald-500/10">
+                                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-xl font-bold leading-none">Top</p>
+                                    <p className="text-xs text-emerald-100/90 font-medium">Builders</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Filter Bar Inside Hero */}
+                        <div className="bg-white rounded-[2rem] shadow-2xl shadow-emerald-950/20 p-4 sm:p-5 border border-white/20 mx-auto w-full max-w-5xl backdrop-blur-sm bg-white/95">
+                            <div className={`grid grid-cols-1 sm:grid-cols-2 ${showLocationFilter ? 'lg:grid-cols-6' : 'lg:grid-cols-5'} gap-3 items-end text-left`}>
+                                {/* Location Filter */}
+                                {showLocationFilter && (
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider ml-1">Location</Label>
+                                        <Select value={localityFilter} onValueChange={setLocalityFilter}>
+                                            <SelectTrigger className="h-11 bg-slate-50 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl font-medium text-slate-700 text-sm">
+                                                <MapPin className="w-3.5 h-3.5 mr-2 text-emerald-600" />
+                                                <SelectValue placeholder="All Localities" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">All Locations</SelectItem>
+                                                {localities.map((loc) => (
+                                                    <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                )}
+
+                                {/* Property Type */}
+                                <div className="space-y-1.5">
+                                    <Label className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider ml-1">Property Type</Label>
+                                    <Select value={propertyTypeFilter} onValueChange={setPropertyTypeFilter}>
+                                        <SelectTrigger className="h-11 bg-slate-50 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl font-medium text-slate-700 text-sm">
+                                            <Home className="w-3.5 h-3.5 mr-2 text-emerald-600" />
+                                            <SelectValue placeholder="All Types" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Types</SelectItem>
+                                            {propertyTypes.map((type) => (
+                                                <SelectItem key={type} value={type}>{type}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {/* Unit Type / Configuration */}
+                                <div className="space-y-1.5">
+                                    <Label className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider ml-1">Configuration</Label>
+                                    <Select value={unitTypeFilter} onValueChange={setUnitTypeFilter}>
+                                        <SelectTrigger className="h-11 bg-slate-50 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl font-medium text-slate-700 text-sm">
+                                            <BedDouble className="w-3.5 h-3.5 mr-2 text-emerald-600" />
+                                            <SelectValue placeholder="All BHK" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Configurations</SelectItem>
+                                            {unitTypes.map((type) => (
+                                                <SelectItem key={type} value={type}>{type}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {/* Budget Min */}
+                                <div className="space-y-1.5">
+                                    <Label className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider ml-1">Min Budget</Label>
+                                    <Select value={budgetMinFilter} onValueChange={setBudgetMinFilter}>
+                                        <SelectTrigger className="h-11 bg-slate-50 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl font-medium text-slate-700 text-sm">
+                                            <IndianRupee className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+                                            <SelectValue placeholder="Min" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {BUDGET_OPTIONS.map((opt) => (
+                                                <SelectItem key={`min-${opt.value}`} value={opt.value}>{opt.label}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {/* Budget Max */}
+                                <div className="space-y-1.5">
+                                    <Label className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider ml-1">Max Budget</Label>
+                                    <Select value={budgetMaxFilter} onValueChange={setBudgetMaxFilter}>
+                                        <SelectTrigger className="h-11 bg-slate-50 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl font-medium text-slate-700 text-sm">
+                                            <IndianRupee className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+                                            <SelectValue placeholder="Max" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {BUDGET_OPTIONS.map((opt) => (
+                                                <SelectItem key={`max-${opt.value}`} value={opt.value}>{opt.label}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {/* Clear Filters / Results */}
+                                <div className="space-y-1.5">
+                                    <Label className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider ml-1">Action</Label>
+                                    {hasActiveFilters ? (
+                                        <Button
+                                            variant="outline"
+                                            onClick={clearFilters}
+                                            className="w-full h-11 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-emerald-600 font-bold bg-slate-50 text-sm"
+                                        >
+                                            <X className="w-3.5 h-3.5 mr-2" />
+                                            Clear
+                                        </Button>
+                                    ) : (
+                                        <Button className="w-full h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold border-0 text-sm shadow-inner">
+                                            {filteredProjects.length} Properties
+                                        </Button>
+                                    )}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
-
-            {/* Filter Bar */}
-            <div className="relative -mt-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 z-20 pb-12">
-                <div className="bg-white rounded-3xl shadow-xl shadow-emerald-900/5 p-4 sm:p-6 border border-emerald-100/50">
-                    <div className={`grid grid-cols-1 sm:grid-cols-2 ${showLocationFilter ? 'lg:grid-cols-6' : 'lg:grid-cols-5'} gap-4 items-end`}>
-                        {/* Location Filter */}
-                        {showLocationFilter && (
-                            <div className="space-y-2">
-                                <Label className="text-xs font-bold text-emerald-800 ml-1">Location</Label>
-                                <Select value={localityFilter} onValueChange={setLocalityFilter}>
-                                    <SelectTrigger className="h-12 bg-slate-50 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl font-medium text-slate-700">
-                                        <MapPin className="w-4 h-4 mr-2 text-emerald-600" />
-                                        <SelectValue placeholder="All Localities" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Locations</SelectItem>
-                                        {localities.map((loc) => (
-                                            <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        )}
-
-                        {/* Property Type */}
-                        <div className="space-y-2">
-                            <Label className="text-xs font-bold text-emerald-800 ml-1">Property Type</Label>
-                            <Select value={propertyTypeFilter} onValueChange={setPropertyTypeFilter}>
-                                <SelectTrigger className="h-12 bg-slate-50 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl font-medium text-slate-700">
-                                    <Home className="w-4 h-4 mr-2 text-emerald-600" />
-                                    <SelectValue placeholder="All Types" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Types</SelectItem>
-                                    {propertyTypes.map((type) => (
-                                        <SelectItem key={type} value={type}>{type}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        {/* Unit Type / Configuration */}
-                        <div className="space-y-2">
-                            <Label className="text-xs font-bold text-emerald-800 ml-1">Configuration</Label>
-                            <Select value={unitTypeFilter} onValueChange={setUnitTypeFilter}>
-                                <SelectTrigger className="h-12 bg-slate-50 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl font-medium text-slate-700">
-                                    <BedDouble className="w-4 h-4 mr-2 text-emerald-600" />
-                                    <SelectValue placeholder="All BHK" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Configurations</SelectItem>
-                                    {unitTypes.map((type) => (
-                                        <SelectItem key={type} value={type}>{type}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        {/* Budget Min */}
-                        <div className="space-y-2">
-                            <Label className="text-xs font-bold text-emerald-800 ml-1">Min Budget</Label>
-                            <Select value={budgetMinFilter} onValueChange={setBudgetMinFilter}>
-                                <SelectTrigger className="h-12 bg-slate-50 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl font-medium text-slate-700">
-                                    <IndianRupee className="w-4 h-4 mr-1 text-emerald-600" />
-                                    <SelectValue placeholder="Min" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {BUDGET_OPTIONS.map((opt) => (
-                                        <SelectItem key={`min-${opt.value}`} value={opt.value}>{opt.label}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        {/* Budget Max */}
-                        <div className="space-y-2">
-                            <Label className="text-xs font-bold text-emerald-800 ml-1">Max Budget</Label>
-                            <Select value={budgetMaxFilter} onValueChange={setBudgetMaxFilter}>
-                                <SelectTrigger className="h-12 bg-slate-50 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl font-medium text-slate-700">
-                                    <IndianRupee className="w-4 h-4 mr-1 text-emerald-600" />
-                                    <SelectValue placeholder="Max" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {BUDGET_OPTIONS.map((opt) => (
-                                        <SelectItem key={`max-${opt.value}`} value={opt.value}>{opt.label}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        {/* Clear Filters / Results */}
-                        <div className="space-y-2">
-                            <Label className="text-xs font-bold text-emerald-800 ml-1">Action</Label>
-                            {hasActiveFilters ? (
-                                <Button
-                                    variant="outline"
-                                    onClick={clearFilters}
-                                    className="w-full h-12 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-emerald-600 font-semibold bg-slate-50"
-                                >
-                                    <X className="w-4 h-4 mr-2" />
-                                    Clear
-                                </Button>
-                            ) : (
-                                <Button className="w-full h-12 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold border-0">
-                                    {filteredProjects.length} Properties
-                                </Button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             {/* Results Header */}
             <section className="bg-white border-b border-slate-100">
@@ -634,15 +632,15 @@ export default function PublicLandingPage() {
                 {filteredProjects.length > 0 && (
                     <div className="mb-16">
                         <div className="flex items-center gap-3 mb-8">
-                            <Star className="w-6 h-6 text-emerald-600 fill-emerald-600" />
+                            <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
                             <h2 className="text-2xl font-bold text-emerald-950">Top 3 Featured Projects</h2>
                         </div>
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {filteredProjects.map((project, idx) => (
                                 <div
                                     key={project.id}
                                     onClick={() => window.location.href = `/project/${project.id}?lp=${landingPage.id}`}
-                                    className="group bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100/50 overflow-hidden flex flex-col cursor-pointer ring-1 ring-slate-900/5 hover:ring-emerald-500/20"
+                                    className="group bg-[#F2F8FC] rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-yellow-400 overflow-hidden flex flex-col cursor-pointer ring-1 ring-yellow-400 hover:ring-yellow-500 hover:shadow-yellow-100 max-w-sm mx-auto w-full"
                                 >
                                     {/* Image */}
                                     <div className="aspect-[4/3] relative overflow-hidden bg-slate-100">
@@ -668,18 +666,18 @@ export default function PublicLandingPage() {
                                     </div>
 
                                     {/* Content */}
-                                    <div className="p-6 flex flex-col flex-1">
-                                        <div className="mb-4">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h3 className="font-bold text-xl text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-1">
+                                    <div className="p-5 flex flex-col flex-1">
+                                        <div className="mb-3">
+                                            <div className="flex justify-between items-start mb-1.5">
+                                                <h3 className="font-bold text-lg text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-1">
                                                     {project.name}
                                                 </h3>
-                                                <p className="font-bold text-emerald-600 text-lg whitespace-nowrap">
+                                                <p className="font-bold text-emerald-600 text-base whitespace-nowrap">
                                                     {formatBudgetRange(project.budgetMin, project.budgetMax)}
                                                 </p>
                                             </div>
-                                            <p className="text-sm text-slate-500 mb-2">by <span className="font-medium text-slate-700">{project.builderName}</span></p>
-                                            <div className="flex items-center gap-1 text-slate-500 text-sm">
+                                            <p className="text-xs text-slate-500 mb-2">by <span className="font-medium text-slate-700">{project.builderName}</span></p>
+                                            <div className="flex items-center gap-1 text-slate-500 text-xs">
                                                 <MapPin className="w-3 h-3" />
                                                 <span className="truncate">
                                                     {project.locality}, {project.city}
@@ -687,21 +685,21 @@ export default function PublicLandingPage() {
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-4 py-4 border-t border-slate-50 text-sm text-slate-600">
-                                            <div className="flex items-center gap-2">
-                                                <BedDouble className="w-4 h-4 text-emerald-500" />
+                                        <div className="flex items-center gap-3 py-3 border-t border-slate-50 text-xs text-slate-600">
+                                            <div className="flex items-center gap-1.5">
+                                                <BedDouble className="w-3.5 h-3.5 text-emerald-500" />
                                                 <span className="font-medium">{project.unitTypes.join(", ")}</span>
                                             </div>
-                                            <div className="w-px h-4 bg-slate-200"></div>
-                                            <div className="flex items-center gap-2">
-                                                <Building2 className="w-4 h-4 text-emerald-500" />
+                                            <div className="w-px h-3 bg-slate-200"></div>
+                                            <div className="flex items-center gap-1.5">
+                                                <Building2 className="w-3.5 h-3.5 text-emerald-500" />
                                                 <span>{Array.isArray(project.propertyType) ? project.propertyType[0] : project.propertyType}</span>
                                             </div>
                                         </div>
 
-                                        <div className="mt-auto pt-4 flex gap-3">
+                                        <div className="mt-auto pt-3 flex gap-2">
                                             <Button
-                                                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl h-11"
+                                                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg h-9 text-sm"
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     e.stopPropagation();
@@ -712,7 +710,7 @@ export default function PublicLandingPage() {
                                             </Button>
                                             <Button
                                                 variant="outline"
-                                                className="flex-1 rounded-xl h-11 border-slate-200 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200"
+                                                className="flex-1 rounded-lg h-9 border-slate-200 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 text-sm"
                                             >
                                                 Details
                                             </Button>
@@ -728,11 +726,10 @@ export default function PublicLandingPage() {
             {/* Trust Indicators */}
             <section className="bg-white border-t border-slate-100 py-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
                         {[
                             { icon: Shield, title: 'RERA Verified', desc: '100% Legal Listings' },
                             { icon: CheckCircle, title: 'Top Builders', desc: 'Curated Developers' },
-                            { icon: Clock, title: 'Zero Brokerage', desc: 'Direct Developer Price' },
                             { icon: TrendingUp, title: 'Best Deals', desc: 'Exclusive Offers' }
                         ].map((item, idx) => (
                             <div key={idx} className="text-center group">
