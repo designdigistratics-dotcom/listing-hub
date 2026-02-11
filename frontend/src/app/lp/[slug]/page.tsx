@@ -641,16 +641,16 @@ export default function PublicLandingPage() {
                                 <div
                                     key={project.id}
                                     onClick={() => window.location.href = `/project/${project.id}?lp=${landingPage.id}`}
-                                    className={`group rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-500 max-w-sm mx-auto w-full ${idx < 3
-                                        ? "bg-[#F2F8FC] shadow-xl border-2 border-amber-400 ring-4 ring-amber-400/20 hover:shadow-2xl hover:shadow-amber-100 scale-[1.02] hover:scale-[1.04]"
-                                        : "bg-white shadow-sm border border-slate-800 ring-1 ring-slate-200 hover:shadow-lg hover:border-emerald-600/30"
+                                    className={`group rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-300 max-w-sm mx-auto w-full ${idx < 3
+                                        ? "bg-[#F2F8FC] shadow-xl border-2 border-amber-400 ring-4 ring-amber-400/20 hover:shadow-2xl hover:shadow-amber-100 scale-[1.01] hover:scale-[1.02]"
+                                        : "bg-white shadow-sm border border-slate-100 ring-1 ring-slate-100 hover:shadow-lg hover:border-emerald-600/30"
                                         }`}
                                 >
                                     {/* Image */}
                                     <div className="aspect-[4/3] relative overflow-hidden bg-slate-100">
                                         {idx < 3 && (
-                                            <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-amber-400 text-amber-950 text-[11px] font-black rounded-lg shadow-xl border border-amber-500/20 uppercase tracking-[0.05em] backdrop-blur-sm">
-                                                <Star className="w-3.5 h-3.5 fill-current" />
+                                            <div className="absolute top-4 left-4 z-20 flex items-center gap-2 px-3.5 py-1.5 bg-black/80 text-white text-[10px] font-bold rounded-full shadow-2xl border border-white/10 uppercase tracking-[0.12em] backdrop-blur-md">
+                                                <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
                                                 Featured Project
                                             </div>
                                         )}
