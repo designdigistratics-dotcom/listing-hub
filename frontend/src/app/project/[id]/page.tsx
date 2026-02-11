@@ -113,9 +113,8 @@ export default function ProjectPage() {
 
     const [project, setProject] = useState<ProjectData | null>(null);
     const [loading, setLoading] = useState(true);
-    const [currentImage, setCurrentImage] = useState(0);
-    const [lightboxOpen, setLightboxOpen] = useState(false);
-    const [lightboxImage, setLightboxImage] = useState("");
+    const [lightboxIndex, setLightboxIndex] = useState(-1);
+    const [lightboxImages, setLightboxImages] = useState<string[]>([]);
     const [formData, setFormData] = useState({
         name: "",
         phone: "",
@@ -167,6 +166,25 @@ export default function ProjectPage() {
             return () => clearTimeout(timer);
         }
     }, [otpTimer]);
+
+    // Lightbox Keyboard Navigation
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (lightboxIndex === -1) return;
+            if (e.key === "ArrowRight") {
+                setLightboxIndex(prev => (prev < lightboxImages.length - 1 ? prev + 1 : prev));
+            }
+            if (e.key === "ArrowLeft") {
+                setLightboxIndex(prev => (prev > 0 ? prev - 1 : prev));
+            }
+            if (e.key === "Escape") {
+                setLightboxIndex(-1);
+                setLightboxImages([]);
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [lightboxIndex, lightboxImages]);
 
     const handleSendOtp = async () => {
         if (!formData.phone || formData.phone.length !== 10) {
@@ -242,9 +260,23 @@ export default function ProjectPage() {
         return Check;
     };
 
-    const openLightbox = (imageUrl: string) => {
-        setLightboxImage(imageUrl);
-        setLightboxOpen(true);
+    const openLightbox = (index: number, images: string[]) => {
+        setLightboxImages(images);
+        setLightboxIndex(index);
+    };
+
+    const nextImage = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (lightboxIndex < lightboxImages.length - 1) {
+            setLightboxIndex(lightboxIndex + 1);
+        }
+    };
+
+    const prevImage = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (lightboxIndex > 0) {
+            setLightboxIndex(lightboxIndex - 1);
+        }
     };
 
     const scrollToEnquiry = () => {
@@ -613,7 +645,10 @@ export default function ProjectPage() {
                                 <div
                                     key={idx}
                                     className="group border border-slate-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
-                                    onClick={() => openLightbox(getImageUrl(typeof fp === 'string' ? fp : fp.url))}
+                                    onClick={() => {
+                                        const images = project.floorPlans!.map(p => getImageUrl(typeof p === 'string' ? p : p.url));
+                                        openLightbox(idx, images);
+                                    }}
                                 >
                                     <div className="aspect-[4/3] bg-slate-50 relative overflow-hidden">
                                         <img
@@ -672,7 +707,7 @@ export default function ProjectPage() {
                                     <div
                                         key={idx}
                                         className="flex-shrink-0 w-64 md:w-80 aspect-video rounded-xl overflow-hidden cursor-pointer group/item"
-                                        onClick={() => openLightbox(getImageUrl(img))}
+                                        onClick={() => openLightbox(idx, galleryImages.map(img => getImageUrl(img)))}
                                     >
                                         <img
                                             src={getImageUrl(img)}
@@ -827,23 +862,55 @@ export default function ProjectPage() {
             </div>
 
             {/* Lightbox */}
-            {lightboxOpen && (
+            {lightboxIndex !== -1 && (
                 <div
-                    className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-                    onClick={() => setLightboxOpen(false)}
+                    className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+                    onClick={() => {
+                        setLightboxIndex(-1);
+                        setLightboxImages([]);
+                    }}
                 >
                     <button
-                        className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
-                        onClick={() => setLightboxOpen(false)}
+                        className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors z-50"
+                        onClick={() => {
+                            setLightboxIndex(-1);
+                            setLightboxImages([]);
+                        }}
                     >
                         <X className="h-6 w-6" />
                     </button>
-                    <img
-                        src={lightboxImage}
-                        alt="Full size"
-                        className="max-w-full max-h-[90vh] object-contain rounded-lg"
-                        onClick={(e) => e.stopPropagation()}
-                    />
+
+                    {/* Left Arrow */}
+                    {lightboxIndex > 0 && (
+                        <button
+                            className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors z-50"
+                            onClick={prevImage}
+                        >
+                            <ChevronLeft className="h-8 w-8" />
+                        </button>
+                    )}
+
+                    {/* Right Arrow */}
+                    {lightboxIndex < lightboxImages.length - 1 && (
+                        <button
+                            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors z-50"
+                            onClick={nextImage}
+                        >
+                            <ChevronRight className="h-8 w-8" />
+                        </button>
+                    )}
+
+                    <div className="relative max-w-full max-h-[90vh] flex flex-col items-center">
+                        <img
+                            src={lightboxImages[lightboxIndex]}
+                            alt={`Gallery ${lightboxIndex + 1}`}
+                            className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                        <p className="text-white/70 mt-4 text-sm font-medium">
+                            {lightboxIndex + 1} / {lightboxImages.length}
+                        </p>
+                    </div>
                 </div>
             )}
 

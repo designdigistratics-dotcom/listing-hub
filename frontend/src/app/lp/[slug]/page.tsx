@@ -880,14 +880,8 @@ export default function PublicLandingPage() {
             </section >
 
             {/* Mandatory Lead Form Dialog */}
-            <Dialog open={showMandatoryForm} onOpenChange={(open) => {
-                // Prevent closing by clicking outside or pressing escape
-                if (!open && !sessionStorage.getItem(`lp_lead_submitted_${landingPage.id}`)) {
-                    return;
-                }
-                setShowMandatoryForm(open);
-            }}>
-                <DialogContent className="sm:max-w-4xl p-0 overflow-hidden" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+            <Dialog open={showMandatoryForm} onOpenChange={setShowMandatoryForm}>
+                <DialogContent className="sm:max-w-4xl p-0 overflow-hidden">
                     <div className="grid grid-cols-1 md:grid-cols-5 h-full">
                         {/* Left Side - Visual */}
                         <div className="hidden md:flex md:col-span-2 bg-slate-900 relative flex-col justify-between p-6 text-white">
