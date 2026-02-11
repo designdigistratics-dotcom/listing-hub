@@ -8,7 +8,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Building2, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 export default function RegisterPage() {
@@ -103,52 +103,30 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen flex bg-white">
-            {/* Left side - Image */}
-            <div className="hidden lg:block lg:w-1/2 relative bg-accent">
-                <div className="absolute inset-0 bg-gradient-to-br from-accent to-accent/80" />
-                <div className="absolute inset-0 flex items-center justify-center p-12">
-                    <div className="text-center text-white">
-                        <h2 className="font-heading text-4xl font-bold mb-4">
-                            Start Advertising Today
-                        </h2>
-                        <p className="text-lg text-white/80 max-w-md">
-                            Create your advertiser account and get your real estate projects
-                            in front of qualified buyers.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Right side - Form */}
-            <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
-                <div className="w-full max-w-md">
-                    <div className="text-center mb-8">
-                        <Link href="/" className="inline-flex items-center gap-2 mb-8">
-                            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                                <Building2 className="w-6 h-6 text-white" />
-                            </div>
-                            <span className="font-display font-bold text-2xl text-slate-900">
-                                Topickx
-                            </span>
-                        </Link>
-                        <h1 className="font-heading text-3xl font-bold text-slate-900 mb-2">
-                            Create account
+        <div className="min-h-screen flex w-full bg-white">
+            {/* Left side - Form Section */}
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12 xl:p-24">
+                <div className="w-full max-w-[400px] space-y-10">
+                    {/* Header */}
+                    <div className="space-y-2">
+                        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+                            Create an account
                         </h1>
-                        <p className="text-slate-600">
-                            Register as an advertiser to get started
+                        <p className="text-slate-500 text-sm">
+                            Enter your details to register as an advertiser
                         </p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Google Button */}
                         <Button
                             type="button"
                             variant="outline"
-                            className="w-full h-12 rounded-full border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                            className="w-full h-11 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-medium relative flex items-center justify-center gap-3 transition-all"
                             onClick={() => googleLogin()}
                             disabled={loading}
                         >
-                            <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
+                            <svg className="h-5 w-5" viewBox="0 0 24 24">
                                 <path
                                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                                     fill="#4285F4"
@@ -166,120 +144,132 @@ export default function RegisterPage() {
                                     fill="#EA4335"
                                 />
                             </svg>
-                            Sign up with Google
+                            <span>Sign up with Google</span>
                         </Button>
 
-                        <div className="relative my-6">
+                        {/* Divider */}
+                        <div className="relative">
                             <div className="absolute inset-0 flex items-center">
                                 <span className="w-full border-t border-slate-200" />
                             </div>
                             <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-white px-2 text-slate-500">
+                                <span className="bg-white px-3 text-slate-400 font-medium">
                                     Or sign up with email
                                 </span>
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="companyName">Company / Builder Name *</Label>
-                            <Input
-                                id="companyName"
-                                name="companyName"
-                                placeholder="Enter your company name"
-                                value={formData.companyName}
-                                onChange={handleChange}
-                                className="h-12"
-                                required
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email *</Label>
-                            <Input
-                                id="email"
-                                name="email"
-                                type="email"
-                                placeholder="Enter your email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                className="h-12"
-                                required
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="phone">Phone (Optional)</Label>
-                            <Input
-                                id="phone"
-                                name="phone"
-                                placeholder="Enter your phone number"
-                                value={formData.phone}
-                                onChange={handleChange}
-                                className="h-12"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="password">Password *</Label>
-                            <div className="relative">
+                        {/* Inputs */}
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="companyName" className="text-sm font-medium text-slate-700">Company / Builder Name *</Label>
                                 <Input
-                                    id="password"
-                                    name="password"
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="Create a password"
-                                    value={formData.password}
+                                    id="companyName"
+                                    name="companyName"
+                                    placeholder="Enter your company name"
+                                    value={formData.companyName}
                                     onChange={handleChange}
-                                    className="h-12 pr-10"
+                                    className="h-11 bg-slate-50 border-slate-200 focus:bg-white focus:border-slate-400 transition-colors"
                                     required
                                 />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                                >
-                                    {showPassword ? (
-                                        <EyeOff className="w-5 h-5" />
-                                    ) : (
-                                        <Eye className="w-5 h-5" />
-                                    )}
-                                </button>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="email" className="text-sm font-medium text-slate-700">Email *</Label>
+                                <Input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    placeholder="name@example.com"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    className="h-11 bg-slate-50 border-slate-200 focus:bg-white focus:border-slate-400 transition-colors"
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="phone" className="text-sm font-medium text-slate-700">Phone (Optional)</Label>
+                                <Input
+                                    id="phone"
+                                    name="phone"
+                                    placeholder="Enter your phone number"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    className="h-11 bg-slate-50 border-slate-200 focus:bg-white focus:border-slate-400 transition-colors"
+                                />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="password" className="text-sm font-medium text-slate-700">Password *</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="password"
+                                            name="password"
+                                            type={showPassword ? "text" : "password"}
+                                            placeholder="Create a password"
+                                            value={formData.password}
+                                            onChange={handleChange}
+                                            className="h-11 bg-slate-50 border-slate-200 focus:bg-white focus:border-slate-400 pr-10 transition-colors"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                        >
+                                            {showPassword ? (
+                                                <EyeOff className="w-4 h-4" />
+                                            ) : (
+                                                <Eye className="w-4 h-4" />
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700">Confirm *</Label>
+                                    <Input
+                                        id="confirmPassword"
+                                        name="confirmPassword"
+                                        type="password"
+                                        placeholder="Confirm password"
+                                        value={formData.confirmPassword}
+                                        onChange={handleChange}
+                                        className="h-11 bg-slate-50 border-slate-200 focus:bg-white focus:border-slate-400 transition-colors"
+                                        required
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">Confirm Password *</Label>
-                            <Input
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                type="password"
-                                placeholder="Confirm your password"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                className="h-12"
-                                required
-                            />
-                        </div>
-
+                        {/* Submit Button */}
                         <Button
                             type="submit"
-                            className="w-full h-12 rounded-full bg-accent hover:bg-accent/90"
+                            className="w-full h-11 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-md shadow-sm transition-all text-sm"
                             disabled={loading}
                         >
                             {loading ? "Creating account..." : "Create Account"}
-                            <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
-                    </form>
 
-                    <p className="text-center mt-8 text-slate-600">
-                        Already have an account?{" "}
-                        <Link
-                            href="/login"
-                            className="text-primary font-medium hover:underline"
-                        >
-                            Sign in
-                        </Link>
-                    </p>
+                        {/* Footer Link */}
+                        <p className="text-center text-sm text-slate-500">
+                            Already have an account?{" "}
+                            <Link
+                                href="/login"
+                                className="font-semibold text-slate-900 hover:underline"
+                            >
+                                Sign in
+                            </Link>
+                        </p>
+                    </form>
                 </div>
+            </div>
+
+            {/* Right side - Image Section */}
+            <div className="hidden lg:block lg:w-1/2 relative bg-slate-900 overflow-hidden">
+                <img
+                    src="https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=2000&auto=format&fit=crop"
+                    alt="Cinque Terre Sunset"
+                    className="absolute inset-0 w-full h-full object-cover"
+                />
             </div>
         </div>
     );
