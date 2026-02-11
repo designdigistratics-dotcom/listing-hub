@@ -346,19 +346,20 @@ export default function ProjectPage() {
             </header>
 
             {/* Hero Section */}
-            <section className="relative min-h-[70vh] md:min-h-[80vh] flex items-end">
+            <section className="relative min-h-[70vh] md:min-h-[80vh] flex items-end overflow-hidden bg-emerald-900">
                 {/* Background Image */}
                 <div
-                    className="absolute inset-0 bg-cover bg-center"
+                    className="absolute inset-0 bg-cover bg-center blur-[2px] scale-105"
                     style={{
                         backgroundImage: heroImage
                             ? `url(${getImageUrl(heroImage)})`
                             : 'linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%)',
                     }}
-                >
-                    {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
-                </div>
+                />
+
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/95 via-emerald-900/70 to-emerald-900/30" />
+
 
                 {/* Project Logo Overlay */}
                 {project.projectLogo && (
@@ -603,10 +604,18 @@ export default function ProjectPage() {
                             Key Highlights
                         </h2>
                         <div className="grid md:grid-cols-2 gap-4">
-                            {(project.highlights.length === 1 && project.highlights[0].includes('\n')
-                                ? project.highlights[0].split('\n').filter(h => h.trim())
-                                : project.highlights
-                            ).map((highlight, idx) => (
+                            {project.highlights.flatMap(h => {
+                                // 1. Terminology Replacement: Property -> Project
+                                const cleanH = h.replace(/\bProperty\b/g, 'Project').replace(/\bProperties\b/g, 'Projects');
+
+                                // 2. Robust Splitting Logic
+                                if (cleanH.includes('\n')) {
+                                    return cleanH.split('\n').filter(s => s.trim());
+                                }
+                                // Split by sentences if no newlines (matches periods followed by whitespace and capital letter)
+                                const sentences = cleanH.match(/[^.!?]+[.!?]+(?=\s*[A-Z]|$)|[^.!?]+[.!?]*$/g);
+                                return sentences ? sentences.map(s => s.trim()).filter(s => s.length > 5) : [cleanH];
+                            }).map((highlight, idx) => (
                                 <div key={idx} className="flex items-start gap-4 p-5 bg-stone-50 rounded-2xl border border-stone-100">
                                     <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
                                         <Check className="h-3.5 w-3.5 text-white stroke-[3]" />
@@ -623,7 +632,7 @@ export default function ProjectPage() {
                     <section className="bg-white rounded-[2rem] p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-100">
                         <h2 className="text-3xl md:text-4xl font-serif text-emerald-950 mb-6 flex items-center gap-3">
                             <span className="bg-amber-50 p-2 rounded-xl text-amber-600"><MapPin className="h-6 w-6" /></span>
-                            Location
+                            Address
                         </h2>
                         <p className="text-slate-600 text-lg">{project.address}</p>
                         <p className="text-slate-500 mt-2">{project.locality}, {project.city}</p>
@@ -819,7 +828,7 @@ export default function ProjectPage() {
                             )}
                             <div className="flex-1 space-y-3">
                                 <div className="flex items-center gap-3">
-                                    <Badge className="bg-amber-500 text-amber-950 border-0 px-3 py-1 font-bold">PREMIER PARTNER</Badge>
+                                    <Badge className="bg-amber-500 text-amber-950 border-0 px-3 py-1 font-bold hover:bg-amber-500 hover:text-amber-950">PREMIER PARTNER</Badge>
                                 </div>
                                 <h3 className="text-3xl font-serif font-bold text-white tracking-wide">
                                     {project.advertiser?.companyName || project.builderName}
@@ -922,22 +931,6 @@ export default function ProjectPage() {
                 </div>
             )}
 
-            {/* Footer */}
-            <footer className="bg-slate-900 text-white py-8 mt-12 pb-24 md:pb-8">
-                <div className="container mx-auto px-4">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div className="flex items-center space-x-2">
-                            <Building2 className="h-6 w-6 text-teal-400" />
-                            <span className="text-lg font-heading font-bold">
-                                <span className="text-teal-400">Topickx</span>
-                            </span>
-                        </div>
-                        <p className="text-sm text-slate-400">
-                            © {new Date().getFullYear()} Topickx. All rights reserved.
-                        </p>
-                    </div>
-                </div>
-            </footer>
         </div>
     );
 }

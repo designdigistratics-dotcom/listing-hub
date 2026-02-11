@@ -426,6 +426,12 @@ export default function PublicLandingPage() {
                         <Building2 className="w-8 h-8 text-emerald-600" />
                         <span className="font-bold text-xl text-slate-900">Topickx</span>
                     </div>
+                    <Button
+                        onClick={() => setShowMandatoryForm(true)}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-full px-6 shadow-md shadow-emerald-600/10"
+                    >
+                        Enquire Now
+                    </Button>
                 </div>
             </header>
 
@@ -468,7 +474,7 @@ export default function PublicLandingPage() {
                                 </div>
                                 <div className="text-left">
                                     <p className="text-xl font-bold leading-none">{landingPage.projects?.length || 0}</p>
-                                    <p className="text-xs text-emerald-100/90 font-medium">Properties</p>
+                                    <p className="text-xs text-emerald-100/90 font-medium">Projects</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3 bg-emerald-950/30 px-5 py-3 rounded-2xl backdrop-blur-sm border border-emerald-500/10">
@@ -513,9 +519,9 @@ export default function PublicLandingPage() {
                                     </div>
                                 )}
 
-                                {/* Property Type */}
+                                {/* Project Type */}
                                 <div className="space-y-1.5">
-                                    <Label className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider ml-1">Property Type</Label>
+                                    <Label className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider ml-1">Project Type</Label>
                                     <Select value={propertyTypeFilter} onValueChange={setPropertyTypeFilter}>
                                         <SelectTrigger className="h-11 bg-slate-50 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl font-medium text-slate-700 text-sm">
                                             <Home className="w-3.5 h-3.5 mr-2 text-emerald-600" />
@@ -593,7 +599,7 @@ export default function PublicLandingPage() {
                                         </Button>
                                     ) : (
                                         <Button className="w-full h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold border-0 text-sm shadow-inner">
-                                            {filteredProjects.length} Properties
+                                            {filteredProjects.length} Projects
                                         </Button>
                                     )}
                                 </div>
@@ -610,7 +616,7 @@ export default function PublicLandingPage() {
                         <div className="flex items-center gap-3">
                             <div className="w-1 h-6 bg-emerald-600 rounded-full"></div>
                             <h2 className="font-bold text-slate-900">
-                                {filteredProjects.length} {filteredProjects.length === 1 ? 'Property' : 'Properties'} Found
+                                {filteredProjects.length} {filteredProjects.length === 1 ? 'Project' : 'Projects'} Found
                             </h2>
                             {hasActiveFilters && (
                                 <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full">
@@ -618,9 +624,9 @@ export default function PublicLandingPage() {
                                 </span>
                             )}
                         </div>
-                        <p className="text-sm text-slate-500 hidden sm:block flex items-center gap-1">
+                        <p className="text-sm text-slate-500 hidden sm:flex items-center gap-1.5">
                             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                            Showing verified properties
+                            Showing verified projects
                         </p>
                     </div>
                 </div>
@@ -628,22 +634,26 @@ export default function PublicLandingPage() {
 
             {/* Projects Grid */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                {/* Featured Projects Section */}
                 {filteredProjects.length > 0 && (
                     <div className="mb-16">
-                        <div className="flex items-center gap-3 mb-8">
-                            <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
-                            <h2 className="text-2xl font-bold text-emerald-950">Top 3 Featured Projects</h2>
-                        </div>
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {filteredProjects.map((project, idx) => (
                                 <div
                                     key={project.id}
                                     onClick={() => window.location.href = `/project/${project.id}?lp=${landingPage.id}`}
-                                    className="group bg-[#F2F8FC] rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-yellow-400 overflow-hidden flex flex-col cursor-pointer ring-1 ring-yellow-400 hover:ring-yellow-500 hover:shadow-yellow-100 max-w-sm mx-auto w-full"
+                                    className={`group rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-500 max-w-sm mx-auto w-full ${idx < 3
+                                        ? "bg-[#F2F8FC] shadow-xl border-2 border-amber-400 ring-4 ring-amber-400/20 hover:shadow-2xl hover:shadow-amber-100 scale-[1.02] hover:scale-[1.04]"
+                                        : "bg-white shadow-sm border border-slate-800 ring-1 ring-slate-200 hover:shadow-lg hover:border-emerald-600/30"
+                                        }`}
                                 >
                                     {/* Image */}
                                     <div className="aspect-[4/3] relative overflow-hidden bg-slate-100">
+                                        {idx < 3 && (
+                                            <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-amber-400 text-amber-950 text-[11px] font-black rounded-lg shadow-xl border border-amber-500/20 uppercase tracking-[0.05em] backdrop-blur-sm">
+                                                <Star className="w-3.5 h-3.5 fill-current" />
+                                                Featured Project
+                                            </div>
+                                        )}
                                         {(project.cardImage || project.featuredImage) ? (
                                             <img
                                                 src={getImageUrl(project.cardImage || project.featuredImage)}
@@ -775,7 +785,7 @@ export default function PublicLandingPage() {
                                     <Shield className="w-5 h-5 text-emerald-300 shrink-0 mt-0.5" />
                                     <div>
                                         <p className="font-medium text-sm">Verified Listings</p>
-                                        <p className="text-xs text-emerald-200">RERA registered properties only</p>
+                                        <p className="text-xs text-emerald-200">RERA registered projects only</p>
                                     </div>
                                 </div>
                             </div>
@@ -819,7 +829,7 @@ export default function PublicLandingPage() {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label>Property Type *</Label>
+                                        <Label>Project Type *</Label>
                                         <Select value={mandatoryForm.propertyType || undefined} onValueChange={(val) => setMandatoryForm({ ...mandatoryForm, propertyType: val })}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select Type" />
@@ -963,7 +973,7 @@ export default function PublicLandingPage() {
                                 </div>
 
                                 <Button type="submit" className="w-full h-12 text-lg font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-lg shadow-emerald-600/20" disabled={submitting}>
-                                    {submitting ? "Submitting..." : "View Properties"}
+                                    {submitting ? "Submitting..." : "View Projects"}
                                 </Button>
                             </form>
                         </div>
@@ -1106,6 +1116,6 @@ export default function PublicLandingPage() {
                     )}
                 </DialogContent>
             </Dialog>
-        </div>
+        </div >
     );
 }
