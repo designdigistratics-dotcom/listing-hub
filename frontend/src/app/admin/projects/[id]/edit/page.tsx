@@ -22,6 +22,7 @@ import { adminAPI, uploadAPI } from "@/lib/api";
 import { getImageUrl } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { UNIT_TYPES_BY_PROPERTY, PROPERTY_TYPES } from "@/lib/constants";
 
 export default function EditProjectPage() {
     const router = useRouter();
@@ -68,6 +69,8 @@ export default function EditProjectPage() {
         propertyType: [] as string[],
         unitTypes: [] as string[],
         highlights: [] as string[],
+        usp1: "",
+        usp2: "",
     });
 
     useEffect(() => {
@@ -136,6 +139,8 @@ export default function EditProjectPage() {
                     propertyType: mapToIds(p.propertyType, propOpts),
                     unitTypes: mapToIds(p.unitTypes, unitOpts),
                     highlights: p.highlights || [],
+                    usp1: p.usp1 || "",
+                    usp2: p.usp2 || "",
                 });
                 setAmenityOptions(amOpts);
                 setCityOptions(cityOpts);
@@ -657,6 +662,26 @@ export default function EditProjectPage() {
                             </div>
                         </CardContent>
                     </Card>
+
+
+                    <Card className="mt-6">
+                        <CardHeader>
+                            <CardTitle>Unique Selling Points (USPs)</CardTitle>
+                            <CardDescription>Key differentiators for this project.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>USP 1</Label>
+                                    <Input name="usp1" value={formData.usp1} onChange={handleChange} placeholder="e.g. Waterfront View" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>USP 2</Label>
+                                    <Input name="usp2" value={formData.usp2} onChange={handleChange} placeholder="e.g. 5 mins to Airport" />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </TabsContent>
 
                 {/* FLOOR PLANS TAB */}
@@ -788,7 +813,7 @@ export default function EditProjectPage() {
                         </CardContent>
                     </Card>
                 </TabsContent>
-            </Tabs>
+            </Tabs >
         </div >
     );
 }

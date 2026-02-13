@@ -155,3 +155,19 @@
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent;
   }
 }
+
+/* ==================== Spline Watermark Removal ==================== */
+#spline-watermark,
+[id*="spline-watermark"],
+[class*="spline-watermark"],
+a[href*="spline.design"],
+div[style*="position: absolute"] > a[target="_blank"],
+div[style*="bottom: 10px"][style*="right: 16px"],
+div[style*="bottom: 16px"][style*="right: 16px"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}

@@ -264,12 +264,14 @@ export default function RegisterPage() {
             </div>
 
             {/* Right side - Image Section */}
-            <div className="hidden lg:block lg:w-1/2 relative bg-slate-900 overflow-hidden">
-                <img
-                    src="https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=2000&auto=format&fit=crop"
-                    alt="Cinque Terre Sunset"
-                    className="absolute inset-0 w-full h-full object-cover"
-                />
+            <div className="hidden lg:block lg:w-1/2 bg-white p-4">
+                <div className="relative w-full h-full rounded-[2.5rem] overflow-hidden">
+                    <img
+                        src="/auth-bg.png"
+                        alt="Luxury Home at Dusk"
+                        className="absolute inset-0 w-full h-full object-cover"
+                    />
+                </div>
             </div>
         </div>
     );

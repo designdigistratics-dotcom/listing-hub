@@ -146,6 +146,8 @@ model Project {
   cardImage          String?
   projectLogo        String?
   advertiserLogo     String?
+  usp1               String?
+  usp2               String?
   status             ProjectStatus     @default(DRAFT)
   slug               String?           @unique
   seoTitle           String?

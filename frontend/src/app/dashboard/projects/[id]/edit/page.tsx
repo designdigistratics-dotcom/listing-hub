@@ -35,10 +35,11 @@ import {
     FileText,
     Info,
 } from "lucide-react";
+import { UNIT_TYPES_BY_PROPERTY, PROPERTY_TYPES } from "@/lib/constants";
 
 // Constants
-const PROPERTY_TYPES = ["Apartment", "Villa", "Plot"];
-const UNIT_TYPES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5+ BHK", "Studio"];
+// const PROPERTY_TYPES = ["Apartment", "Villa", "Plot"]; // Removed local constants
+// const UNIT_TYPES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5+ BHK", "Studio"];
 const AMENITIES = [
     "Swimming Pool",
     "Gym",
@@ -57,6 +58,8 @@ const AMENITIES = [
     "School",
     "Temple",
 ];
+
+
 const POSSESSION_STATUS = [
     "Ready to Move",
     "Under Construction",
@@ -94,10 +97,15 @@ export default function EditProjectPage({
         floor_plans: [] as any[], // strings or objects
         video_url: "",
         card_image: "",
+        hero_image: "",
+        project_logo: "",
+        advertiser_logo: "",
         about_project: "",
         builder_description: "",
         possession_status: "",
         rera_id: "",
+        usp_1: "",
+        usp_2: "",
     });
 
     useEffect(() => {
@@ -124,11 +132,17 @@ export default function EditProjectPage({
                     floor_plans: data.floorPlans || data.floor_plans || [],
                     video_url: data.videoUrl || data.video_url || "",
                     card_image: data.cardImage || data.card_image || "",
+                    hero_image: data.heroImage || data.hero_image || "",
+                    project_logo: data.projectLogo || data.project_logo || "",
+                    advertiser_logo: data.advertiserLogo || data.advertiser_logo || "",
                     about_project: data.aboutProject || data.about_project || "",
                     builder_description:
                         data.builderDescription || data.builder_description || "",
                     possession_status: data.possessionStatus || data.possession_status || "",
+
                     rera_id: data.reraId || data.rera_id || "",
+                    usp_1: data.usp1 || "",
+                    usp_2: data.usp2 || "",
                 });
             } catch (error) {
                 console.error("Error fetching project:", error);
@@ -276,10 +290,16 @@ export default function EditProjectPage({
                 floor_plans: formData.floor_plans,
                 video_url: formData.video_url,
                 card_image: formData.card_image,
+                hero_image: formData.hero_image,
+                project_logo: formData.project_logo,
+                advertiser_logo: formData.advertiser_logo,
                 about_project: formData.about_project,
                 builder_description: formData.builder_description,
                 possession_status: formData.possession_status,
+
                 rera_id: formData.rera_id,
+                usp_1: formData.usp_1,
+                usp_2: formData.usp_2,
             };
 
             await advertiserAPI.updateProject(id, payload);
@@ -511,7 +531,7 @@ export default function EditProjectPage({
                                             <SelectValue placeholder="Select type" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {PROPERTY_TYPES.map((type) => (
+                                            {Object.values(PROPERTY_TYPES).map((type) => (
                                                 <SelectItem key={type} value={type}>
                                                     {type}
                                                 </SelectItem>
@@ -588,7 +608,7 @@ export default function EditProjectPage({
                         </CardHeader>
                         <CardContent>
                             <div className="flex flex-wrap gap-3">
-                                {UNIT_TYPES.map((unit) => (
+                                {(UNIT_TYPES_BY_PROPERTY[formData.property_type as string] || []).map((unit) => (
                                     <label
                                         key={unit}
                                         className="flex items-center gap-2 cursor-pointer"
@@ -663,6 +683,180 @@ export default function EditProjectPage({
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
+                            {/* Hero Image Section */}
+                            <div className="border-b pb-6">
+                                <Label className="mb-2 block">Hero Image (Banner)</Label>
+                                <div className="flex items-start gap-4">
+                                    {formData.hero_image ? (
+                                        <div className="relative w-full md:w-2/3 aspect-[21/9] rounded-lg overflow-hidden bg-slate-100 group border">
+                                            <img
+                                                src={getImageUrl(formData.hero_image)}
+                                                alt="Hero Image"
+                                                className="w-full h-full object-cover"
+                                            />
+                                            {canEdit && (
+                                                <button
+                                                    onClick={() => setFormData(prev => ({ ...prev, hero_image: "" }))}
+                                                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="w-full md:w-2/3 aspect-[21/9] rounded-lg border-2 border-dashed border-slate-200 flex items-center justify-center bg-slate-50 text-slate-400">
+                                            <ImageIcon className="w-12 h-12" />
+                                        </div>
+                                    )}
+
+                                    {canEdit && (
+                                        <div className="space-y-2">
+                                            <label className="cursor-pointer inline-flex">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={async (e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (!file) return;
+                                                        const toastId = toast.loading("Uploading hero image...");
+                                                        try {
+                                                            const res = await uploadAPI.uploadFile(file);
+                                                            setFormData(prev => ({ ...prev, hero_image: res.data.url }));
+                                                            toast.success("Hero image uploaded", { id: toastId });
+                                                        } catch (err) {
+                                                            toast.error("Upload failed", { id: toastId });
+                                                        }
+                                                    }}
+                                                    className="hidden"
+                                                />
+                                                <div className="h-9 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-md hover:bg-slate-800 transition-colors flex items-center gap-2">
+                                                    <Upload className="w-4 h-4" />
+                                                    Upload Hero Image
+                                                </div>
+                                            </label>
+                                            <p className="text-xs text-muted-foreground max-w-xs">
+                                                High-quality banner image for the top of the project page.
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Logos Section */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-b pb-6">
+                                {/* Project Logo */}
+                                <div>
+                                    <Label className="mb-2 block">Project Logo</Label>
+                                    <div className="flex items-start gap-4">
+                                        {formData.project_logo ? (
+                                            <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-slate-100 group border">
+                                                <img
+                                                    src={getImageUrl(formData.project_logo)}
+                                                    alt="Project Logo"
+                                                    className="w-full h-full object-contain p-2"
+                                                />
+                                                {canEdit && (
+                                                    <button
+                                                        onClick={() => setFormData(prev => ({ ...prev, project_logo: "" }))}
+                                                        className="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <div className="w-32 h-32 rounded-lg border-2 border-dashed border-slate-200 flex items-center justify-center bg-slate-50 text-slate-400">
+                                                <Building2 className="w-8 h-8" />
+                                            </div>
+                                        )}
+
+                                        {canEdit && (
+                                            <div className="space-y-2">
+                                                <label className="cursor-pointer inline-flex">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={async (e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (!file) return;
+                                                            const toastId = toast.loading("Uploading project logo...");
+                                                            try {
+                                                                const res = await uploadAPI.uploadFile(file);
+                                                                setFormData(prev => ({ ...prev, project_logo: res.data.url }));
+                                                                toast.success("Project logo uploaded", { id: toastId });
+                                                            } catch (err) {
+                                                                toast.error("Upload failed", { id: toastId });
+                                                            }
+                                                        }}
+                                                        className="hidden"
+                                                    />
+                                                    <div className="h-9 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-md hover:bg-slate-800 transition-colors flex items-center gap-2">
+                                                        <Upload className="w-4 h-4" />
+                                                        Upload Logo
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Advertiser Logo */}
+                                <div>
+                                    <Label className="mb-2 block">Advertiser/Builder Logo</Label>
+                                    <div className="flex items-start gap-4">
+                                        {formData.advertiser_logo ? (
+                                            <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-slate-100 group border">
+                                                <img
+                                                    src={getImageUrl(formData.advertiser_logo)}
+                                                    alt="Advertiser Logo"
+                                                    className="w-full h-full object-contain p-2"
+                                                />
+                                                {canEdit && (
+                                                    <button
+                                                        onClick={() => setFormData(prev => ({ ...prev, advertiser_logo: "" }))}
+                                                        className="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <div className="w-32 h-32 rounded-lg border-2 border-dashed border-slate-200 flex items-center justify-center bg-slate-50 text-slate-400">
+                                                <Building2 className="w-8 h-8" />
+                                            </div>
+                                        )}
+
+                                        {canEdit && (
+                                            <div className="space-y-2">
+                                                <label className="cursor-pointer inline-flex">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={async (e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (!file) return;
+                                                            const toastId = toast.loading("Uploading advertiser logo...");
+                                                            try {
+                                                                const res = await uploadAPI.uploadFile(file);
+                                                                setFormData(prev => ({ ...prev, advertiser_logo: res.data.url }));
+                                                                toast.success("Advertiser logo uploaded", { id: toastId });
+                                                            } catch (err) {
+                                                                toast.error("Upload failed", { id: toastId });
+                                                            }
+                                                        }}
+                                                        className="hidden"
+                                                    />
+                                                    <div className="h-9 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-md hover:bg-slate-800 transition-colors flex items-center gap-2">
+                                                        <Upload className="w-4 h-4" />
+                                                        Upload Logo
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Card Image Section */}
                             <div className="border-b pb-6">
                                 <Label className="mb-2 block">Property Card Image (Main Thumbnail)</Label>

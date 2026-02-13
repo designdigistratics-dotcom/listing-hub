@@ -36,6 +36,11 @@ export const getAdvertiserProjects = async (advertiserId: string) => {
             _count: {
                 select: { leads: true },
             },
+            advertiser: {
+                select: {
+                    companyName: true,
+                },
+            },
         },
         orderBy: { createdAt: 'desc' },
     });
@@ -169,7 +174,7 @@ export const createProject = async (
     // }
 
     // Generate unique slug
-    let finalSlug = await generateSlug(data.name, data.builderName, data.city);
+    let finalSlug = await generateSlug(data.name, data.builderName, data.city, advertiserId);
     let counter = 1;
     let uniqueSlug = finalSlug;
 
@@ -219,7 +224,7 @@ export const createProject = async (
 };
 
 // Helper to generate slug
-const generateSlug = async (name: string, builderName: string, cityId: string): Promise<string> => {
+const generateSlug = async (name: string, builderName: string, cityId: string, advertiserId?: string): Promise<string> => {
     // Get City Name
     let cityName = cityId;
 
@@ -240,7 +245,24 @@ const generateSlug = async (name: string, builderName: string, cityId: string): 
         }
     }
 
-    const rawSlug = `${name} ${builderName} ${cityName}`;
+    // Get Advertiser Name if available
+    let advertiserName = "";
+    if (advertiserId) {
+        try {
+            const advertiser = await prisma.user.findUnique({
+                where: { id: advertiserId },
+                select: { companyName: true },
+            });
+            if (advertiser && advertiser.companyName) {
+                advertiserName = advertiser.companyName;
+            }
+        } catch (e) {
+            // Ignore
+        }
+    }
+
+    // New Structure: advertiserName-name-city
+    const rawSlug = `${advertiserName} ${name} ${cityName}`;
 
     const normalized = rawSlug
         .toLowerCase()
@@ -282,7 +304,7 @@ export const updateProject = async (
         'reraId', 'seoTitle', 'seoDescription', 'featuredImage', 'isVisible',
         'floorPlans', 'videoUrl', 'builderDescription', 'aboutProject', 'address',
         'price', 'priceDetails', 'heroImage', 'projectLogo', 'advertiserLogo',
-        'disclaimer', 'locationHighlights', 'cardImage',
+        'disclaimer', 'locationHighlights', 'cardImage', 'usp1', 'usp2',
     ];
 
     fields.forEach((field) => {
@@ -324,7 +346,8 @@ export const updateProject = async (
             const n = data.name || project.name;
             const b = data.builderName || project.builderName;
             const c = data.city || project.city;
-            targetSlug = await generateSlug(n, b, c);
+            const advId = advertiserId || project.advertiserId;
+            targetSlug = await generateSlug(n, b, c, advId);
         }
     }
 
@@ -545,7 +568,7 @@ export const createAdminProject = async (
     // Handle slug uniqueness before creating
     let finalSlug = data.slug;
     if (!finalSlug) {
-        finalSlug = await generateSlug(data.name, data.builderName, data.city);
+        finalSlug = await generateSlug(data.name, data.builderName, data.city, data.advertiserId);
     }
 
     if (finalSlug) {

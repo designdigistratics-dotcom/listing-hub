@@ -30,6 +30,7 @@ import {
     Layers,
     ArrowLeft,
 } from "lucide-react";
+import { UNIT_TYPES_BY_PROPERTY, PROPERTY_TYPES } from "@/lib/constants";
 
 export default function AddProjectPage() {
     const router = useRouter();
@@ -689,7 +690,10 @@ export default function AddProjectPage() {
                             </CardHeader>
                             <CardContent>
                                 <div className="flex flex-wrap gap-3">
-                                    {(options.unit_types || []).map((u) => u.name).map((unit) => (
+                                    {(formData.property_type && UNIT_TYPES_BY_PROPERTY[formData.property_type]
+                                        ? UNIT_TYPES_BY_PROPERTY[formData.property_type]
+                                        : options.unit_types.map(u => u.name)
+                                    ).map((unit) => (
                                         <label
                                             key={unit}
                                             className={`flex items-center gap-2 px-4 py-2 rounded-full border cursor-pointer transition-colors ${formData.unit_types.includes(unit)
@@ -705,6 +709,17 @@ export default function AddProjectPage() {
                                             {unit}
                                         </label>
                                     ))}
+                                    {formData.property_type && !UNIT_TYPES_BY_PROPERTY[formData.property_type] && (
+                                        <p className="text-sm text-yellow-600 w-full">
+                                            Unknown property type. Showing all units.
+                                            (Type: {formData.property_type})
+                                        </p>
+                                    )}
+                                    {!formData.property_type && (
+                                        <p className="text-sm text-slate-500 w-full">
+                                            Select a property type to see available unit configurations.
+                                        </p>
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>

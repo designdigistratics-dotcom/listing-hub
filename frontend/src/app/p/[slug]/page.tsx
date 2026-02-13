@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { publicAPI } from "@/lib/api";
-import { formatBudgetRange } from "@/lib/utils";
+import { formatBudgetRange, getProjectUrl } from "@/lib/utils";
 import {
     Building2,
     MapPin,
@@ -129,7 +129,7 @@ export default async function LandingPage({ params }: Props) {
                             {data.projects.map((project) => (
                                 <Link
                                     key={project.id}
-                                    href={`/project/${project.id}`}
+                                    href={getProjectUrl(project)}
                                     className="group"
                                 >
                                     <article className="bg-white rounded-xl shadow-soft overflow-hidden card-hover">

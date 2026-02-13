@@ -28,6 +28,12 @@ export const getLandingPages = async () => {
                             heroImage: true,
                             budgetMin: true,
                             budgetMax: true,
+                            slug: true,
+                            advertiser: {
+                                select: {
+                                    companyName: true,
+                                },
+                            },
                         },
                     },
                 },
@@ -65,6 +71,7 @@ export const getLandingPages = async () => {
                 ...slot.project,
                 city: nameMap.get(slot.project.city) || slot.project.city,
                 locality: nameMap.get(slot.project.locality) || slot.project.locality,
+                advertiser: slot.project.advertiser,
             },
         })),
         lead_count: page._count.leads,
@@ -166,6 +173,11 @@ export const getLandingPageBySlug = async (slug: string) => {
                             price: true,
                             status: true,
                             slug: true,
+                            advertiser: {
+                                select: {
+                                    companyName: true,
+                                },
+                            },
                             cardImage: true, // Ensure cardImage is selected
                         },
                     },

@@ -231,7 +231,10 @@ router.put('/projects/:id', async (req: AuthenticatedRequest, res, next) => {
             seo_title,
             seo_description,
             featured_image,
+
             is_visible,
+            usp_1,
+            usp_2,
         } = req.body;
 
         const updateData: any = {
@@ -262,7 +265,10 @@ router.put('/projects/:id', async (req: AuthenticatedRequest, res, next) => {
             seoTitle: seo_title,
             seoDescription: seo_description,
             featuredImage: featured_image,
+
             isVisible: is_visible,
+            usp1: usp_1,
+            usp2: usp_2,
         };
 
         const project = await projectService.updateProject(

@@ -8,6 +8,7 @@ import { getImageUrl, formatCurrency, formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import {
@@ -56,6 +57,8 @@ interface LandingPageDetail {
     fbPageId?: string;
     fbAccessToken?: string;
     fbForms?: Array<{ id: string; name: string }>;
+    seoTitle?: string;
+    seoDescription?: string;
 }
 
 export default function LandingPageDetailPage() {
@@ -272,6 +275,66 @@ export default function LandingPageDetailPage() {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* SEO Section */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Globe className="w-5 h-5 text-primary" />
+                        Search Engine Optimization
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Slug (URL)</label>
+                            <Input
+                                placeholder="my-landing-page"
+                                defaultValue={landingPage.slug}
+                                onBlur={(e) => {
+                                    if (e.target.value !== landingPage.slug) {
+                                        adminAPI.updateLandingPage(landingPage.id, { slug: e.target.value })
+                                            .then(() => {
+                                                toast.success("Slug updated");
+                                                fetchLandingPage(landingPage.id);
+                                            })
+                                            .catch((err) => toast.error(err.response?.data?.error || "Failed to update slug"));
+                                    }
+                                }}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                                Public URL: {window.location.origin}/lp/{landingPage.slug}
+                            </p>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">SEO Title</label>
+                            <Input
+                                placeholder="Page Title"
+                                defaultValue={landingPage.seoTitle || ""}
+                                onBlur={(e) => {
+                                    if (e.target.value !== (landingPage.seoTitle || "")) {
+                                        adminAPI.updateLandingPage(landingPage.id, { seoTitle: e.target.value })
+                                            .then(() => toast.success("SEO Title updated"));
+                                    }
+                                }}
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">SEO Description</label>
+                        <Textarea
+                            placeholder="Page Description"
+                            defaultValue={landingPage.seoDescription || ""}
+                            onBlur={(e) => {
+                                if (e.target.value !== (landingPage.seoDescription || "")) {
+                                    adminAPI.updateLandingPage(landingPage.id, { seoDescription: e.target.value })
+                                        .then(() => toast.success("SEO Description updated"));
+                                }
+                            }}
+                        />
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Facebook Integration Section */}
             <Card>

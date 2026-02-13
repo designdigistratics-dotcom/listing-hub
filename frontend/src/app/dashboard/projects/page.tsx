@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { formatBudgetRange, getImageUrl } from "@/lib/utils";
+import { formatBudgetRange, getImageUrl, getProjectUrl } from "@/lib/utils";
 import {
     FolderOpen,
     Plus,
@@ -47,6 +47,10 @@ interface Project {
         id: string;
         name: string;
     }[];
+    usp1?: string;
+    usp2?: string;
+    slug?: string;
+    advertiser?: { companyName: string };
 }
 
 export default function ProjectsPage() {
@@ -205,6 +209,22 @@ export default function ProjectsPage() {
                                 <CardDescription className="line-clamp-1">
                                     by {project.builderName}
                                 </CardDescription>
+                                <div className="flex gap-2 mt-2">
+                                    {/* @ts-ignore */}
+                                    {project.usp1 && (
+                                        <Badge variant="outline" className="text-xs border-amber-500 text-amber-600 bg-amber-50">
+                                            {/* @ts-ignore */}
+                                            {project.usp1}
+                                        </Badge>
+                                    )}
+                                    {/* @ts-ignore */}
+                                    {project.usp2 && (
+                                        <Badge variant="outline" className="text-xs border-emerald-500 text-emerald-600 bg-emerald-50">
+                                            {/* @ts-ignore */}
+                                            {project.usp2}
+                                        </Badge>
+                                    )}
+                                </div>
                             </CardHeader>
 
                             <CardContent className="space-y-4">
@@ -253,7 +273,7 @@ export default function ProjectsPage() {
                                             Manage
                                         </Button>
                                     </Link>
-                                    <Link href={`/project/${project.id}`} target="_blank" className="flex-1">
+                                    <Link href={getProjectUrl(project as any)} target="_blank" className="flex-1">
                                         <Button variant="outline" size="sm" className="w-full">
                                             <Eye className="h-4 w-4 mr-1" />
                                             Preview

@@ -4,13 +4,14 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import Footer from "@/components/Footer";
+
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
 });
+
 
 export const metadata: Metadata = {
   title: "Topickx - Find Your Dream Project",
@@ -40,7 +41,6 @@ export default function RootLayout({
             <main className="flex-1">
               {children}
             </main>
-            <Footer />
             <Toaster position="top-center" richColors />
           </AuthProvider>
         </GoogleOAuthProvider>

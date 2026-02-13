@@ -70,10 +70,41 @@ export function formatDateTime(date: string | Date | null | undefined): string {
 
 export function slugify(text: string): string {
     return text
+        .toString()
         .toLowerCase()
+        .trim()
         .replace(/[^\w\s-]/g, "")
         .replace(/[\s_-]+/g, "-")
         .replace(/^-+|-+$/g, "");
+}
+
+export function getProjectUrl(project: {
+    slug?: string;
+    advertiser?: { companyName: string };
+    name: string;
+    city: string;
+}): string {
+    if (!project.slug) return "#";
+
+    const advertiserName = project.advertiser?.companyName || "";
+    if (!advertiserName) return `/project/${project.slug}`;
+
+    const advSlug = slugify(advertiserName);
+    const projSlug = slugify(project.name);
+    const citySlug = slugify(project.city);
+
+    const idealSlug = `${advSlug}-${projSlug}-${citySlug}`;
+
+    if (project.slug === idealSlug) {
+        return `/${advSlug}/${projSlug}/${citySlug}`;
+    }
+
+    if (project.slug.startsWith(idealSlug)) {
+        const suffix = project.slug.slice(idealSlug.length);
+        return `/${advSlug}/${projSlug}/${citySlug}${suffix}`;
+    }
+
+    return `/project/${project.slug}`;
 }
 
 export function truncate(text: string, maxLength: number): string {

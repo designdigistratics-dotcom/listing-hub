@@ -20,7 +20,7 @@ export default function NotFound() {
 
             {/* Text Content */}
             <div className="max-w-xl space-y-4">
-                <h1 className="text-5xl md:text-6xl font-serif font-black text-emerald-950 tracking-tight leading-tight">
+                <h1 className="text-5xl md:text-6xl font-black text-emerald-950 tracking-tight leading-tight">
                     Coming <span className="text-emerald-600 italic">Soon</span>
                 </h1>
                 <p className="text-slate-500 text-lg md:text-xl leading-relaxed">
