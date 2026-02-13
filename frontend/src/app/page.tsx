@@ -301,7 +301,7 @@ export default function HomePage() {
 
               <div className="space-y-3">
                 <h3 className="text-2xl font-bold text-teal-950 leading-tight">
-                  Top Projects in {lp.title.replace('Projects in ', '').replace('Top Projects in ', '')}
+                  Top Projects in {(lp.title || lp.name || 'Location').replace('Projects in ', '').replace('Top Projects in ', '')}
                 </h3>
                 <p className="text-teal-800/60 font-medium">
                   {lp.location || lp.city || 'Strategic Location'}

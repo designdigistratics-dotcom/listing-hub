@@ -6,10 +6,10 @@ import { Metadata } from "next";
 export const dynamic = 'force-dynamic';
 
 interface Props {
-    params: {
+    params: Promise<{
         slug: string[];
-    };
-    searchParams: { [key: string]: string | string[] | undefined };
+    }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 // Helper to reconstruct slug from URL segments
@@ -23,10 +23,11 @@ const reconstructSlug = (segments: string[]): string => {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    const slug = reconstructSlug(params.slug);
+    const { slug } = await params;
+    const reconstructedSlug = reconstructSlug(slug);
 
     try {
-        const response = await publicAPI.getProjectBySlug(slug);
+        const response = await publicAPI.getProjectBySlug(reconstructedSlug);
         const project = response.data;
 
         return {
@@ -42,7 +43,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProjectCatchAllPage({ params }: Props) {
-    const slug = reconstructSlug(params.slug);
+    const { slug } = await params;
+    const reconstructedSlug = reconstructSlug(slug);
     let project = null;
 
     try {
@@ -50,15 +52,15 @@ export default async function ProjectCatchAllPage({ params }: Props) {
         // Using publicAPI which uses axios. 
         // Note: For better Next.js caching, using native fetch is preferred, 
         // but publicAPI encapsulates logic. We'll use it for consistency.
-        const response = await publicAPI.getProjectBySlug(slug);
+        const response = await publicAPI.getProjectBySlug(reconstructedSlug);
         project = response.data;
     } catch (error) {
         // Project not found with constructed slug
         // You might want to try other combinations or just let ProjectDetailView handle the 404 state
-        console.error("Error fetching project for slug:", slug, error);
+        console.error("Error fetching project for slug:", reconstructedSlug, error);
     }
 
     // Pass the project data (or null) to the client component
     // We pass the composite slug as the ID if project is missing, so it can try client-side or show error
-    return <ProjectDetailView projectIdOrSlug={slug} initialProject={project} />;
+    return <ProjectDetailView projectIdOrSlug={reconstructedSlug} initialProject={project} />;
 }
