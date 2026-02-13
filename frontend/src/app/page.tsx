@@ -73,16 +73,16 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-full bg-teal-900/5 backdrop-blur-md flex items-center justify-center border border-teal-900/10 group-hover:bg-teal-900/10 transition-all">
-                <Building2 className="w-5 h-5 text-teal-800" />
+              <div className="w-12 h-12 rounded-full bg-teal-900/5 backdrop-blur-md flex items-center justify-center border border-teal-900/10 group-hover:bg-teal-900/10 transition-all">
+                <Building2 className="w-6 h-6 text-teal-800" />
               </div>
-              <span className="font-bold text-xl tracking-tight text-teal-900">
+              <span className="font-extrabold text-2xl tracking-tight text-teal-900">
                 Topickx
               </span>
             </Link>
 
             {/* Desktop Nav */}
-            <div className="hidden md:flex items-center gap-8 text-base font-medium text-teal-800/80">
+            <div className="hidden md:flex items-center gap-8 text-lg font-semibold text-teal-800/80">
               {[
                 { label: 'Advertise', href: user ? (user.role === "admin" ? "/admin" : "/dashboard") : "/register" },
                 { label: 'Features', href: '#features' },
