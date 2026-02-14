@@ -79,6 +79,7 @@ export default function AddProjectPage() {
         about_project: "",
         builder_description: "",
         possession_status: "",
+        estimated_possession_date: "",
         rera_id: "",
         project_logo: "",
         advertiser_logo: "",
@@ -118,6 +119,13 @@ export default function AddProjectPage() {
 
         fetchData();
     }, [router]);
+
+    // Auto-clear estimated possession date when possession status changes from "Under Construction"
+    useEffect(() => {
+        if (!formData.possession_status?.toLowerCase().includes("under construction") && formData.estimated_possession_date) {
+            setFormData(prev => ({ ...prev, estimated_possession_date: "" }));
+        }
+    }, [formData.possession_status]);
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -668,6 +676,22 @@ export default function AddProjectPage() {
                                         </Select>
                                     </div>
                                 </div>
+
+                                {/* Conditional: Estimated Possession Date (shown only for Under Construction) */}
+                                {formData.possession_status?.toLowerCase().includes("under construction") && (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="estimated_possession_date">Estimated Completion Date</Label>
+                                        <Input
+                                            id="estimated_possession_date"
+                                            name="estimated_possession_date"
+                                            type="month"
+                                            value={formData.estimated_possession_date}
+                                            onChange={handleInputChange}
+                                            className="h-12"
+                                        />
+                                        <p className="text-xs text-muted-foreground">Select the expected month and year of completion</p>
+                                    </div>
+                                )}
 
                                 <div className="space-y-2">
                                     <Label htmlFor="rera_id">RERA ID (Optional)</Label>

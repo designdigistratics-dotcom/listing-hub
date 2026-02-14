@@ -370,6 +370,11 @@ export default function HomePage() {
                         {project.usp1}
                       </Badge>
                     )}
+                    {project.usp2 && (
+                      <Badge className="bg-emerald-600/90 backdrop-blur-md text-white border-none px-3 py-1 text-xs font-bold shadow-sm">
+                        {project.usp2}
+                      </Badge>
+                    )}
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-teal-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 </div>

@@ -137,8 +137,9 @@ model Project {
   highlights         String[]
   amenities          String[]
   images             String[]
-  possessionStatus   String
-  reraId             String?
+  possessionStatus       String
+  estimatedPossessionDate DateTime?         // Expected completion date for under-construction projects
+  reraId                 String?
   address            String?
   price              String?
   priceDetails       String?

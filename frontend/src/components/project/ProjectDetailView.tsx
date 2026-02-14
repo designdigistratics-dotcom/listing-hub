@@ -72,6 +72,7 @@ export interface ProjectData {
     advertiserLogo?: string;
     cardImage?: string;
     possessionStatus: string;
+    estimatedPossessionDate?: string;
     reraId?: string;
     aboutProject?: string;
     builderDescription?: string;
@@ -420,6 +421,25 @@ export default function ProjectDetailView({ projectIdOrSlug, initialProject }: P
                                     <Calendar className="h-3 w-3 mr-1" />
                                     {project.possessionStatus}
                                 </Badge>
+                                {project.possessionStatus?.toLowerCase().includes("under construction") && project.estimatedPossessionDate && (() => {
+                                    try {
+                                        const date = new Date(project.estimatedPossessionDate);
+                                        // Check if date is valid
+                                        if (isNaN(date.getTime())) {
+                                            console.warn('Invalid estimated possession date:', project.estimatedPossessionDate);
+                                            return null;
+                                        }
+                                        return (
+                                            <Badge variant="outline" className="bg-emerald-500/20 text-emerald-100 border-emerald-400/30">
+                                                <Timer className="h-3 w-3 mr-1" />
+                                                Expected: {date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                                            </Badge>
+                                        );
+                                    } catch (error) {
+                                        console.error('Error formatting estimated possession date:', error);
+                                        return null;
+                                    }
+                                })()}
                             </div>
 
                             {/* Project Name */}

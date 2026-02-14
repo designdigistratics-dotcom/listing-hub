@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import { publicAPI } from "@/lib/api";
 import { getImageUrl, formatBudgetRange } from "@/lib/utils";
 import { OtpInput } from "@/components/ui/otp-input";
+import { UNIT_TYPES_BY_PROPERTY } from "@/lib/constants";
 
 const BUDGET_OPTIONS = [
     { label: "Any Budget", value: "any" },
@@ -65,6 +66,8 @@ interface Project {
     projectLogo?: string;
     advertiserLogo?: string;
     images?: string[];
+    usp1?: string;
+    usp2?: string;
 }
 
 export interface LandingPageData {
@@ -333,12 +336,11 @@ export default function PublicLandingPage({ initialData }: { initialData: Landin
         setShowLeadForm(true);
     };
 
-    // Extract unique property types, unit types, and localities from projects
-    const { propertyTypes, unitTypes, localities } = useMemo(() => {
-        if (!landingPage?.projects) return { propertyTypes: [], unitTypes: [], localities: [] };
+    // Extract unique property types and localities from projects
+    const { propertyTypes, localities } = useMemo(() => {
+        if (!landingPage?.projects) return { propertyTypes: [], localities: [] };
 
         const propTypes = new Set<string>();
-        const uTypes = new Set<string>();
         const locs = new Set<string>();
 
         landingPage.projects.forEach(p => {
@@ -349,16 +351,58 @@ export default function PublicLandingPage({ initialData }: { initialData: Landin
                     propTypes.add(p.propertyType);
                 }
             }
-            if (p.unitTypes) p.unitTypes.forEach(u => uTypes.add(u));
             if (p.locality) locs.add(p.locality);
         });
 
         return {
             propertyTypes: Array.from(propTypes).sort(),
-            unitTypes: Array.from(uTypes).sort(),
             localities: Array.from(locs).sort()
         };
     }, [landingPage]);
+
+    // Get available unit types based on selected property type
+    const availableUnitTypes = useMemo(() => {
+        if (propertyTypeFilter === "all") {
+            // Show all unit types from all projects
+            const allUnits = new Set<string>();
+            landingPage?.projects.forEach(p => {
+                if (p.unitTypes) p.unitTypes.forEach(u => allUnits.add(u));
+            });
+            return Array.from(allUnits).sort();
+        }
+
+        // Show only unit types valid for the selected property type
+        return UNIT_TYPES_BY_PROPERTY[propertyTypeFilter] || [];
+    }, [propertyTypeFilter, landingPage]);
+
+    // Reset unit type filter if it becomes invalid
+    useEffect(() => {
+        if (unitTypeFilter !== "all" && !availableUnitTypes.includes(unitTypeFilter)) {
+            setUnitTypeFilter("all");
+        }
+    }, [availableUnitTypes, unitTypeFilter]);
+
+    // Get available unit types for mandatory form based on selected property type
+    const mandatoryFormAvailableUnitTypes = useMemo(() => {
+        if (!mandatoryForm.propertyType) {
+            // Show all unit types if no property type selected
+            const allUnits = new Set<string>();
+            landingPage?.projects.forEach(p => {
+                if (p.unitTypes) p.unitTypes.forEach(u => allUnits.add(u));
+            });
+            return Array.from(allUnits).sort();
+        }
+
+        // Show only unit types valid for the selected property type
+        return UNIT_TYPES_BY_PROPERTY[mandatoryForm.propertyType] || [];
+    }, [mandatoryForm.propertyType, landingPage]);
+
+    // Reset unit type in mandatory form if it becomes invalid
+    useEffect(() => {
+        if (mandatoryForm.unitType && !mandatoryFormAvailableUnitTypes.includes(mandatoryForm.unitType)) {
+            setMandatoryForm({ ...mandatoryForm, unitType: "" });
+        }
+    }, [mandatoryFormAvailableUnitTypes, mandatoryForm]);
 
     // Filtered projects
     const filteredProjects = useMemo(() => {
@@ -542,7 +586,7 @@ export default function PublicLandingPage({ initialData }: { initialData: Landin
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="all">All Configurations</SelectItem>
-                                            {unitTypes.map((type) => (
+                                            {availableUnitTypes.map((type) => (
                                                 <SelectItem key={type} value={type}>{type}</SelectItem>
                                             ))}
                                         </SelectContent>
@@ -633,97 +677,116 @@ export default function PublicLandingPage({ initialData }: { initialData: Landin
                 {filteredProjects.length > 0 && (
                     <div className="mb-16">
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {filteredProjects.map((project, idx) => (
-                                <div
-                                    key={project.id}
-                                    onClick={() => window.location.href = `/project/${project.id}?lp=${landingPage.id}`}
-                                    className={`group rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-300 max-w-sm mx-auto w-full ${idx < 3
-                                        ? "bg-[#F2F8FC] shadow-xl border-2 border-amber-400 ring-4 ring-amber-400/20 hover:shadow-2xl hover:shadow-amber-100 scale-[1.01] hover:scale-[1.02]"
-                                        : "bg-white shadow-sm border border-slate-100 ring-1 ring-slate-100 hover:shadow-lg hover:border-emerald-600/30"
-                                        }`}
-                                >
-                                    {/* Image */}
-                                    <div className="aspect-[4/3] relative overflow-hidden bg-slate-100">
-                                        {idx < 3 && (
-                                            <div className="absolute top-4 left-4 z-20 flex items-center gap-2 px-3.5 py-1.5 bg-black/80 text-white text-[10px] font-bold rounded-full shadow-2xl border border-white/10 uppercase tracking-[0.12em] backdrop-blur-md">
-                                                <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-                                                Featured Project
-                                            </div>
-                                        )}
-                                        {(project.cardImage || project.featuredImage) ? (
-                                            <img
-                                                src={getImageUrl(project.cardImage || project.featuredImage)}
-                                                alt={project.name}
-                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center">
-                                                <Building2 className="w-12 h-12 text-slate-300" />
-                                            </div>
-                                        )}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            {filteredProjects.map((project) => {
+                                // Check if this project was in the original first 3 (featured)
+                                const originalIndex = landingPage.projects.findIndex(p => p.id === project.id);
+                                const isFeatured = originalIndex >= 0 && originalIndex < 3;
 
-                                        {/* Overlay Stats */}
-                                        <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white border-0">
-                                                View Details
-                                            </Badge>
+                                return (
+                                    <div
+                                        key={project.id}
+                                        onClick={() => window.location.href = `/project/${project.id}?lp=${landingPage.id}`}
+                                        className={`group rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-300 max-w-sm mx-auto w-full ${isFeatured
+                                            ? "bg-[#F2F8FC] shadow-xl border-2 border-amber-400 ring-4 ring-amber-400/20 hover:shadow-2xl hover:shadow-amber-100 scale-[1.01] hover:scale-[1.02]"
+                                            : "bg-white shadow-sm border border-slate-100 ring-1 ring-slate-100 hover:shadow-lg hover:border-emerald-600/30"
+                                            }`}
+                                    >
+                                        {/* Image */}
+                                        <div className="aspect-[4/3] relative overflow-hidden bg-slate-100">
+                                            {isFeatured && (
+                                                <div className="absolute top-4 left-4 z-20 flex items-center gap-2 px-3.5 py-1.5 bg-black/80 text-white text-[10px] font-bold rounded-full shadow-2xl border border-white/10 uppercase tracking-[0.12em] backdrop-blur-md">
+                                                    <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                                                    Featured Project
+                                                </div>
+                                            )}
+                                            {/* USP Badges */}
+                                            <div className="absolute top-4 right-4 z-20 flex flex-col gap-2 items-end">
+                                                {project.usp1 && (
+                                                    <Badge className="bg-amber-500/95 hover:bg-amber-600 text-white border-none shadow-lg backdrop-blur-md text-[10px] font-bold px-2.5 py-1">
+                                                        {project.usp1}
+                                                    </Badge>
+                                                )}
+                                                {project.usp2 && (
+                                                    <Badge className="bg-emerald-600/95 hover:bg-emerald-700 text-white border-none shadow-lg backdrop-blur-md text-[10px] font-bold px-2.5 py-1">
+                                                        {project.usp2}
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                            {(project.cardImage || project.featuredImage) ? (
+                                                <img
+                                                    src={getImageUrl(project.cardImage || project.featuredImage)}
+                                                    alt={project.name}
+                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center">
+                                                    <Building2 className="w-12 h-12 text-slate-300" />
+                                                </div>
+                                            )}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                                            {/* Overlay Stats */}
+                                            <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white border-0">
+                                                    View Details
+                                                </Badge>
+                                            </div>
+                                        </div>
+
+                                        {/* Content */}
+                                        <div className="p-5 flex flex-col flex-1">
+                                            <div className="mb-3">
+                                                <div className="flex justify-between items-start mb-1.5">
+                                                    <h3 className="font-bold text-lg text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-1">
+                                                        {project.name}
+                                                    </h3>
+                                                    <p className="font-bold text-emerald-600 text-base whitespace-nowrap">
+                                                        {formatBudgetRange(project.budgetMin, project.budgetMax)}
+                                                    </p>
+                                                </div>
+                                                <p className="text-xs text-slate-500 mb-2">by <span className="font-medium text-slate-700">{project.builderName}</span></p>
+                                                <div className="flex items-center gap-1 text-slate-500 text-xs">
+                                                    <MapPin className="w-3 h-3" />
+                                                    <span className="truncate">
+                                                        {project.locality}, {project.city}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-3 py-3 border-t border-slate-50 text-xs text-slate-600">
+                                                <div className="flex items-center gap-1.5">
+                                                    <BedDouble className="w-3.5 h-3.5 text-emerald-500" />
+                                                    <span className="font-medium">{project.unitTypes.join(", ")}</span>
+                                                </div>
+                                                <div className="w-px h-3 bg-slate-200"></div>
+                                                <div className="flex items-center gap-1.5">
+                                                    <Building2 className="w-3.5 h-3.5 text-emerald-500" />
+                                                    <span>{Array.isArray(project.propertyType) ? project.propertyType[0] : project.propertyType}</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-auto pt-3 flex gap-2">
+                                                <Button
+                                                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg h-9 text-sm"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        openLeadForm(project);
+                                                    }}
+                                                >
+                                                    Enquire Now
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    className="flex-1 rounded-lg h-9 border-slate-200 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 text-sm"
+                                                >
+                                                    Details
+                                                </Button>
+                                            </div>
                                         </div>
                                     </div>
-
-                                    {/* Content */}
-                                    <div className="p-5 flex flex-col flex-1">
-                                        <div className="mb-3">
-                                            <div className="flex justify-between items-start mb-1.5">
-                                                <h3 className="font-bold text-lg text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-1">
-                                                    {project.name}
-                                                </h3>
-                                                <p className="font-bold text-emerald-600 text-base whitespace-nowrap">
-                                                    {formatBudgetRange(project.budgetMin, project.budgetMax)}
-                                                </p>
-                                            </div>
-                                            <p className="text-xs text-slate-500 mb-2">by <span className="font-medium text-slate-700">{project.builderName}</span></p>
-                                            <div className="flex items-center gap-1 text-slate-500 text-xs">
-                                                <MapPin className="w-3 h-3" />
-                                                <span className="truncate">
-                                                    {project.locality}, {project.city}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-3 py-3 border-t border-slate-50 text-xs text-slate-600">
-                                            <div className="flex items-center gap-1.5">
-                                                <BedDouble className="w-3.5 h-3.5 text-emerald-500" />
-                                                <span className="font-medium">{project.unitTypes.join(", ")}</span>
-                                            </div>
-                                            <div className="w-px h-3 bg-slate-200"></div>
-                                            <div className="flex items-center gap-1.5">
-                                                <Building2 className="w-3.5 h-3.5 text-emerald-500" />
-                                                <span>{Array.isArray(project.propertyType) ? project.propertyType[0] : project.propertyType}</span>
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-auto pt-3 flex gap-2">
-                                            <Button
-                                                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg h-9 text-sm"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    openLeadForm(project);
-                                                }}
-                                            >
-                                                Enquire Now
-                                            </Button>
-                                            <Button
-                                                variant="outline"
-                                                className="flex-1 rounded-lg h-9 border-slate-200 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 text-sm"
-                                            >
-                                                Details
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 )}
@@ -841,7 +904,7 @@ export default function PublicLandingPage({ initialData }: { initialData: Landin
                                                 <SelectValue placeholder="Select BHK" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {unitTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                                                {mandatoryFormAvailableUnitTypes.map((t: string) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                                             </SelectContent>
                                         </Select>
                                     </div>

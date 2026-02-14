@@ -103,6 +103,7 @@ export default function EditProjectPage({
         about_project: "",
         builder_description: "",
         possession_status: "",
+        estimated_possession_date: "",
         rera_id: "",
         usp_1: "",
         usp_2: "",
@@ -139,7 +140,18 @@ export default function EditProjectPage({
                     builder_description:
                         data.builderDescription || data.builder_description || "",
                     possession_status: data.possessionStatus || data.possession_status || "",
-
+                    estimated_possession_date: (() => {
+                        const date = data.estimatedPossessionDate;
+                        if (!date) return "";
+                        try {
+                            // Handle both string and Date objects
+                            const dateStr = typeof date === 'string' ? date : new Date(date).toISOString();
+                            return dateStr.substring(0, 7); // Convert to YYYY-MM format
+                        } catch (error) {
+                            console.warn('Invalid estimated possession date:', date);
+                            return "";
+                        }
+                    })(),
                     rera_id: data.reraId || data.rera_id || "",
                     usp_1: data.usp1 || "",
                     usp_2: data.usp2 || "",
@@ -155,6 +167,13 @@ export default function EditProjectPage({
 
         fetchProject();
     }, [id, router]);
+
+    // Auto-clear estimated possession date when possession status changes from "Under Construction"
+    useEffect(() => {
+        if (!formData.possession_status?.toLowerCase().includes("under construction") && formData.estimated_possession_date) {
+            setFormData(prev => ({ ...prev, estimated_possession_date: "" }));
+        }
+    }, [formData.possession_status, formData.estimated_possession_date]);
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
